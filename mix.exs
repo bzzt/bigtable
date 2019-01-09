@@ -14,6 +14,7 @@ defmodule Bigtable.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
+      mod: {Bigtable, []},
       extra_applications: [:logger, :grpc]
     ]
   end

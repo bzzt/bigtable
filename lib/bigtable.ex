@@ -2,10 +2,10 @@ defmodule Bigtable do
   use Application
 
   def start(_type, _args) do
-    import Supervisor.Spec
+    IO.puts("Here")
 
     children = [
-      supervisor(GRPC.Server.Supervisor, [{Bigtable.Endpoint, 50051}])
+      Bigtable.Supervisor
     ]
 
     opts = [strategy: :one_for_one, name: Bigtable]

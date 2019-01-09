@@ -8,6 +8,13 @@ use Mix.Config
 # if you want to provide default values for your application for
 # 3rd-party users, it should be done in your "mix.exs" file.
 
+config :bigtable,
+  project: "datahub-222411",
+  instance: "datahub",
+  table: "ride",
+  host: "localhost",
+  port: 8086
+
 # You can configure your application as:
 #
 #     config :bigtable, key: :value
