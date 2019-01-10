@@ -8,6 +8,12 @@ defmodule Bigtable.Operations do
     |> Bigtable.Stub.mutate_row(request)
   end
 
+  def mutate_rows(%V2.MutateRowsRequest{} = request) do
+    Connection.get_connection()
+    |> Bigtable.Stub.mutate_rows(request)
+  end
+
+  @spec read_rows(any()) :: none()
   def read_rows(%V2.ReadRowsRequest{} = request) do
     Connection.get_connection()
     |> Bigtable.Stub.read_rows(request)
