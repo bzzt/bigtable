@@ -1,15 +1,12 @@
 defmodule Bigtable.Mutation do
   alias Google.Bigtable.V2
-
-  defstruct row_key: nil, mutations: []
+  alias V2.MutateRowsRequest.Entry
 
   @doc """
-  Builds a Mutation Struct for use with MutateRowRequest and MutateRowsRequest
+  Builds a MuteRowsRequest.Entry for use with MutateRowRequest and MutateRowsRequest
   """
   def build(row_key) when is_binary(row_key) do
-    %__MODULE__{
-      row_key: row_key
-    }
+    Entry.new(row_key: row_key)
   end
 
   @doc """
@@ -19,7 +16,7 @@ defmodule Bigtable.Mutation do
   Use -1 for current Bigtable server time. Otherwise, the client should set this value itself, noting that the default value is a timestamp of zero if the field is left unspecified.
   Values must match the granularity of the table (e.g. micros, millis)
   """
-  def set_cell(%__MODULE__{} = mutation, family, column, value, timestamp \\ -1)
+  def set_cell(%Entry{} = mutation, family, column, value, timestamp \\ -1)
       when is_binary(family) and is_binary(column) and is_binary(value) and is_integer(timestamp) do
     set_mutation =
       V2.Mutation.SetCell.new(
@@ -37,7 +34,7 @@ defmodule Bigtable.Mutation do
   Time range is a keyword list that should contain optional start_timestamp_micros and end_timestamp_micros.
   If not provided, start is treated as 0 and end is treated as infinity
   """
-  def delete_from_column(%__MODULE__{} = mutation_struct, family, column, time_range \\ [])
+  def delete_from_column(%Entry{} = mutation_struct, family, column, time_range \\ [])
       when is_binary(family) and is_binary(column) do
     time_range = create_time_range(time_range)
 
@@ -54,7 +51,7 @@ defmodule Bigtable.Mutation do
   @doc """
   Deletes all cells from the specified column family
   """
-  def delete_from_family(%__MODULE__{} = mutation_struct, family) when is_binary(family) do
+  def delete_from_family(%Entry{} = mutation_struct, family) when is_binary(family) do
     mutation = V2.Mutation.DeleteFromFamily.new(family_name: family)
 
     add_mutation(mutation_struct, :delete_from_family, mutation)
@@ -63,14 +60,14 @@ defmodule Bigtable.Mutation do
   @doc """
   Deletes all columns from the given row
   """
-  def delete_from_row(%__MODULE__{} = mutation_struct) do
+  def delete_from_row(%Entry{} = mutation_struct) do
     mutation = V2.Mutation.DeleteFromRow.new()
 
     add_mutation(mutation_struct, :delete_from_row, mutation)
   end
 
   # Adds an additional V2.Mutation to the given mutation struct
-  defp add_mutation(%__MODULE__{} = mutation_struct, type, mutation) do
+  defp add_mutation(%Entry{} = mutation_struct, type, mutation) do
     %{
       mutation_struct
       | mutations: mutation_struct.mutations ++ [V2.Mutation.new(mutation: {type, mutation})]
