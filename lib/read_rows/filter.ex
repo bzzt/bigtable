@@ -18,11 +18,25 @@ defmodule Bigtable.ReadRows.Filter do
 
   defp add_to_chain(filter, request) do
     {:chain, chain} = request.filter.filter
-    prev_filters = chain.filters
+
+    type = get_filter_type(filter)
+
+    prev_filters =
+      chain.filters
+      |> remove_duplicates(type)
+
     %{request | filter: chain(prev_filters ++ [filter])}
   end
 
   defp build_filter({type, value}) when is_atom(type) do
     %RowFilter{filter: {type, value}}
+  end
+
+  defp remove_duplicates(row_filters, row_filter_type) do
+    Enum.filter(row_filters, &(get_filter_type(&1) != row_filter_type))
+  end
+
+  defp get_filter_type(%RowFilter{} = filter) do
+    elem(filter.filter, 0)
   end
 end

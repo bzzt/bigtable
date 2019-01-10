@@ -20,8 +20,6 @@ defmodule Bigtable.ReadRows.Request do
     build(table_name)
   end
 
-  @spec filter(Google.Bigtable.V2.ReadRowsRequest.t(), Google.Bigtable.V2.RowFilter.t()) ::
-          Google.Bigtable.V2.ReadRowsRequest.t()
   def filter(%V2.ReadRowsRequest{} = request, %V2.RowFilter{} = filter) do
     %{request | filter: filter}
   end
