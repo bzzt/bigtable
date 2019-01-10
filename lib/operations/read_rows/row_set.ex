@@ -1,4 +1,4 @@
-defmodule Bigtable.ReadRows.RowSet do
+defmodule Bigtable.RowSet do
   alias Google.Bigtable.V2
 
   def row_keys(%V2.ReadRowsRequest{} = request, keys) when is_list(keys) do
@@ -11,6 +11,8 @@ defmodule Bigtable.ReadRows.RowSet do
     row_keys(request, [keys])
   end
 
+  @spec row_ranges(Google.Bigtable.V2.ReadRowsRequest.t(), any()) ::
+          Google.Bigtable.V2.ReadRowsRequest.t()
   def row_ranges(%V2.ReadRowsRequest{} = request, ranges) when is_list(ranges) do
     prev_row_keys = get_row_keys(request)
 

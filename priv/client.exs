@@ -14,7 +14,7 @@ alias Bigtable.ReadRows
 IO.inspect(reply)
 
 alias Bigtable.ReadRows
-alias ReadRows.{Request, RowSet, Filter}
+alias Bigtable.ReadRows.{Request, RowSet, Filter}
 
 Request.build()
 |> RowSet.row_keys("ride#123")
