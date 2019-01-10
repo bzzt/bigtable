@@ -12,25 +12,25 @@ alias Google.Bigtable.V2
 
 IO.inspect(reply)
 
-# {:ok, reply} =
-#   channel
-#   |> Bigtable.Stub.mutate_row(
-#     V2.MutateRowRequest.new(
-#       table_name: "projects/datahub-222411/instances/datahub/tables/ride",
-#       row_key: <<"ride#123">>,
-#       mutations: [
-#         V2.Mutation.new(
-#           mutation:
-#             {:set_cell,
-#              V2.Mutation.SetCell.new(
-#                family_name: "ride",
-#                column_qualifier: <<"baz">>,
-#                timestamp_micros: -1,
-#                value: <<"123">>
-#              )}
-#         )
-#       ]
-#     )
-#   )
+{:ok, reply} =
+  channel
+  |> Bigtable.Stub.mutate_row(
+    V2.MutateRowRequest.new(
+      table_name: "projects/datahub-222411/instances/datahub/tables/ride",
+      row_key: <<"ride#123">>,
+      mutations: [
+        V2.Mutation.new(
+          mutation:
+            {:set_cell,
+             V2.Mutation.SetCell.new(
+               family_name: "ride",
+               column_qualifier: <<"baz">>,
+               timestamp_micros: -1,
+               value: <<123::little-signed-32>>
+             )}
+        )
+      ]
+    )
+  )
 
 # IO.inspect(reply)
