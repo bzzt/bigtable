@@ -26,8 +26,8 @@ defmodule Bigtable.ReadRows.RowSet do
       %V2.RowSet{} = row_set ->
         row_set.row_ranges
 
-      nil ->
-        nil
+      _ ->
+        []
     end
   end
 
@@ -36,8 +36,8 @@ defmodule Bigtable.ReadRows.RowSet do
       %V2.RowSet{} = row_set ->
         row_set.row_keys
 
-      nil ->
-        nil
+      _ ->
+        []
     end
   end
 end
