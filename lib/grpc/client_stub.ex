@@ -1,21 +1,7 @@
-# defmodule Bigtable.ReadRowsRequest do
-#   use Protobuf
-
-#   defstruct [:table_name, :app_profile_id, :rows, :filter, :rows_limit]
-
-#   field(:table_name, 1, optional: false, type: :string)
-#   field(:app_profile_id, 2, optional: true, type: :string)
-# end
-
-# defmodule Bigtable.ReadRowsResponse do
-#   use Protobuf
-
-#   defstruct [:last_scanned_row_key]
-
-#   field(:last_scanned_row_key, 2, optional: true, type: :bytes)
-# end
-
 defmodule Bigtable.Service do
+  @moduledoc """
+  Creates a gRPC service which points at the Google Bigtable V2 service
+  """
   use GRPC.Service, name: "google.bigtable.v2.Bigtable"
 
   alias Google.Bigtable.V2
@@ -26,5 +12,8 @@ defmodule Bigtable.Service do
 end
 
 defmodule Bigtable.Stub do
+  @moduledoc """
+  Creates a gRPC client stub for use with the Bigtable service
+  """
   use GRPC.Stub, service: Bigtable.Service
 end

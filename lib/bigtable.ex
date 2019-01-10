@@ -2,8 +2,6 @@ defmodule Bigtable do
   use Application
 
   def start(_type, _args) do
-    IO.puts("Here")
-
     children = [
       Bigtable.Supervisor
     ]
