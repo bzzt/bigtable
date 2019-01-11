@@ -1,4 +1,4 @@
-defmodule Bigtable.Mutation do
+defmodule Bigtable.Mutations do
   alias Google.Bigtable.V2
   alias V2.MutateRowsRequest.Entry
 

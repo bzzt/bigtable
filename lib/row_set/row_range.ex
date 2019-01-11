@@ -1,4 +1,4 @@
-defmodule Bigtable.RowRange do
+defmodule Bigtable.RowSet.RowRange do
   alias Google.Bigtable.V2
 
   @doc """

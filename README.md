@@ -38,20 +38,28 @@ ReadRows.build()
 ##### With Row Key:
 
 ```elixir
-alias Bigtable.ReadRows
-alias Bigtable.RowSet
+alias Bigtable.{ReadRows, RowSet}
 
 ReadRows.build()
 |> RowSet.row_keys("Ride#123")
 |> ReadRows.read()
 ```
 
+#### With Row Keys:
+
+```elixir
+alias Bigtable.{ReadRows, RowSet}
+
+ReadRows.build()
+|> RowSet.row_keys(["Ride#123", "Ride#124"])
+|> ReadRows.read()
+```
+
 ##### With Row Range:
 
 ```elixir
-alias Bigtable.ReadRows
-alias Bigtable.RowSet
-alias Bigtable.RowRange
+alias Bigtable.{ReadRows, RowSet}
+alias RowSet.RowRange
 
 range = RowRange.inclusive("Ride#121", "Ride#124")
 
@@ -63,9 +71,8 @@ ReadRows.build()
 ##### With Optional Filters:
 
 ```elixir
-alias Bigtable.ReadRows
-alias Bigtable.ReadRows.Filter
-alias Bigtable.RowSet
+alias Bigtable.{ReadRows, RowSet}
+alias ReadRows.Filter
 
 ReadRows.build()
 |> RowSet.row_keys("Ride#123")
@@ -78,53 +85,45 @@ ReadRows.build()
 ### SetCell
 
 ```elixir
-alias Bigtable.Operations
-alias Bigtable.MutateRow.Request
+alias Bigtable.{Mutations, MutateRow}
 
-mutation = Bigtable.Mutation.build("Ride#123")
-|> Bigtable.Mutation.set_cell("ride", "foo", "bar")
-
-Request.build(mutation)
-|> Operations.mutate_row
+Mutations.build("Ride#123")
+|> Mutations.set_cell("ride", "foo", "bar")
+|> MutateRow.build()
+|> MutateRow.mutate
 ```
 
 ### DeleteFromColumn
 
 ```elixir
-alias Bigtable.Operations
-alias Bigtable.MutateRow.Request
+alias Bigtable.{Mutations, MutateRow}
 
-mutation = Bigtable.Mutation.build("Ride#123")
-|> Bigtable.Mutation.delete_from_column("ride", "foo")
-
-Request.build(mutation)
-|> Operations.mutate_row
+Mutations.build("Ride#123")
+|> Mutations.delete_from_column("ride", "foo")
+|> MutateRow.build(mutation)
+|> MutateRow.mutate
 ```
 
 ### DeleteFromFamily
 
 ```elixir
-alias Bigtable.Operations
-alias Bigtable.MutateRow.Request
+alias Bigtable.{Mutations, MutateRow}
 
-mutation = Bigtable.Mutation.build("Ride#123")
-|> Bigtable.Mutation.delete_from_family("ride")
-
-Request.build(mutation)
-|> Operations.mutate_row
+Mutations.build("Ride#123")
+|> Mutations.delete_from_family("ride")
+|> MutateRow.build()
+|> MutateRow.mutate
 ```
 
 ### DeleteFromRow
 
 ```elixir
-alias Bigtable.Operations
-alias Bigtable.MutateRow.Request
+alias Bigtable.{Mutations, MutateRow}
 
-mutation = Bigtable.Mutation.build("Ride#123")
-|> Bigtable.Mutation.delete_from_row()
-
-Request.build(mutation)
-|> Operations.mutate_row
+Mutations.build("Ride#123")
+|> Mutations.delete_from_row()
+|> MutateRow.build(mutation)
+|> MutateRow.mutate
 ```
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)

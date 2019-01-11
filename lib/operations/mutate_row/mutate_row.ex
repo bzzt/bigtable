@@ -1,6 +1,7 @@
-defmodule Bigtable.MutateRow.Request do
+defmodule Bigtable.MutateRow do
   alias Google.Bigtable.V2
   alias V2.MutateRowsRequest.Entry
+  alias Bigtable.Connection
 
   @doc """
   Builds a MutateRow request with a provided table name
@@ -18,5 +19,10 @@ defmodule Bigtable.MutateRow.Request do
   """
   def build(%Entry{} = row_mutations) do
     build(Bigtable.Request.table_name(), row_mutations)
+  end
+
+  def mutate(%V2.MutateRowRequest{} = request) do
+    Connection.get_connection()
+    |> Bigtable.Stub.mutate_row(request)
   end
 end
