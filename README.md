@@ -29,47 +29,48 @@ end
 ##### All Rows:
 
 ```elixir
-alias Bigtable.Operations
-alias Bigtable.ReadRows.Request
+alias Bigtable.ReadRows
 
-Request.build()
-|> Operations.read_rows()
+ReadRows.build()
+|> ReadRows.read()
 ```
 
 ##### With Row Key:
 
 ```elixir
-alias Bigtable.Operations
-alias Bigtable.ReadRows.Request
+alias Bigtable.ReadRows
 alias Bigtable.RowSet
 
-Request.build()
+ReadRows.build()
 |> RowSet.row_keys("Ride#123")
-|> Operations.read_rows()
+|> ReadRows.read()
 ```
 
 ##### With Row Range:
 
 ```elixir
-alias Bigtable.Operations
-alias Bigtable.ReadRows.Request
+alias Bigtable.ReadRows
+alias Bigtable.RowSet
 alias Bigtable.RowRange
 
-Request.build()
-|> RowRange.inclusive("Ride#121", "Ride#124")
-|> Operations.read_rows()
+range = RowRange.inclusive("Ride#121", "Ride#124")
+
+ReadRows.build()
+|> RowSet.row_ranges(range)
+|> ReadRows.read()
 ```
 
 ##### With Optional Filters:
 
 ```elixir
-alias Bigtable.Operations
-alias Bigtable.ReadRows.Request
-alias Bigtable.RowRange
+alias Bigtable.ReadRows
+alias Bigtable.ReadRows.Filter
+alias Bigtable.RowSet
 
-Request.build()
-|> RowRange.inclusive("Ride#121", "Ride#124")
-|> Operations.read_rows()
+ReadRows.build()
+|> RowSet.row_keys("Ride#123")
+|> Filter.cells_per_column(5)
+|> ReadRows.read()
 ```
 
 ## Mutations

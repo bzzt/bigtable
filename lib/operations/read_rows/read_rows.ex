@@ -1,6 +1,7 @@
-defmodule Bigtable.ReadRows.Request do
+defmodule Bigtable.ReadRows do
   alias Google.Bigtable.V2
   alias Bigtable.ReadRows.Filter
+  alias Bigtable.Connection
 
   @doc """
   Builds a ReadRows request with a provided table name
@@ -16,6 +17,16 @@ defmodule Bigtable.ReadRows.Request do
   """
   def build() do
     build(Bigtable.Request.table_name())
+  end
+
+  def read(%V2.ReadRowsRequest{} = request) do
+    Connection.get_connection()
+    |> Bigtable.Stub.read_rows(request)
+  end
+
+  def read() do
+    build()
+    |> read
   end
 
   @doc """
