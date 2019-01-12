@@ -20,8 +20,13 @@ defmodule Bigtable.ReadRows do
   end
 
   def read(%V2.ReadRowsRequest{} = request) do
-    Connection.get_connection()
+    {:ok, rows} = Connection.get_connection()
     |> Bigtable.Stub.read_rows(request)
+
+    rows
+    |> Enum.filter(fn {status, row} ->
+      status == :ok and !Enum.empty?(row.chunks)
+    end)
   end
 
   def read(table_name) when is_binary(table_name) do

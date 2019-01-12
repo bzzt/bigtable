@@ -6,7 +6,7 @@ defmodule Bigtable.Service do
 
   alias Google.Bigtable.V2
 
-  rpc(:ReadRows, V2.ReadRowsRequest, V2.ReadRowsResponse)
+  rpc(:ReadRows, V2.ReadRowsRequest, stream(V2.ReadRowsResponse))
   rpc(:MutateRow, V2.MutateRowRequest, V2.MutateRowResponse)
   rpc(:MutateRows, V2.MutateRowsRequest, V2.MutateRowsResponse)
 end

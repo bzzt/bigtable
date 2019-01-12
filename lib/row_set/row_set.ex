@@ -66,7 +66,7 @@ defmodule Bigtable.RowSet do
   end
 
   def row_range(start_key, end_key, inclusive) when is_boolean(inclusive) do
-    ReadRows.build |> row_range(start_key, end_key)
+    ReadRows.build |> row_range(start_key, end_key, inclusive)
   end
 
   def row_range(%V2.ReadRowsRequest{} = request, start_key, end_key) do
