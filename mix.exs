@@ -21,6 +21,11 @@ defmodule Bigtable.MixProject do
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
-    [{:protobuf, "~> 0.5.3"}, {:google_protos, "~> 0.1"}, {:grpc, github: "tony612/grpc-elixir"}]
+    [
+      {:ex_doc, "~> 0.19", only: :dev, runtime: false},
+      {:protobuf, "~> 0.5.3"},
+      {:google_protos, "~> 0.1"},
+      {:grpc, github: "tony612/grpc-elixir"}
+    ]
   end
 end

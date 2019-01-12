@@ -12,12 +12,13 @@ defmodule Bigtable.Connection do
   @doc """
   Retrieves the gRPC connection Channel struct
   """
-  @spec get_connection() :: any()
+  @spec get_connection() :: GRPC.Channel.t()
   def get_connection do
     GenServer.call(__MODULE__, :get_connection)
   end
 
   # Server Callbacks
+  @spec init(:ok) :: {:ok, GRPC.Channel.t()}
   def init(:ok) do
     # Fetches the host and port to use for Bigtable gRPC connection
     host = Application.get_env(:bigtable, :host)
