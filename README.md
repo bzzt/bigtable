@@ -157,8 +157,6 @@ Mutations.build("Ride#123")
 |> MutateRow.mutate
 ```
 
-Mutations.build(<<"Ride#123"::utf8>>) |> Mutations.set_cell(<<"ride"::utf8>>, <<"foo"::utf8>>, <<"bar"::utf8>>) |> MutateRow.build() |> MutateRow.mutate
-
 ### DeleteFromFamily
 
 ```elixir
