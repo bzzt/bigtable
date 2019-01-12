@@ -1,4 +1,8 @@
 defmodule Bigtable.Mutations do
+  @moduledoc """
+  Provides functions to build Bigtable Mutations that are used when forming
+  row mutation requests
+  """
   alias Google.Bigtable.V2
   alias V2.MutateRowsRequest.Entry
 

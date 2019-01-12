@@ -1,4 +1,7 @@
 defmodule Bigtable.Connection do
+  @moduledoc """
+    Holds the configured gRPC connection to Bigtable
+  """
   use GenServer
 
   ## Client API
@@ -7,7 +10,7 @@ defmodule Bigtable.Connection do
   end
 
   @doc """
-  Retrieves the gRPC Connection Channel
+  Retrieves the gRPC connection Channel struct
   """
   @spec get_connection() :: any()
   def get_connection do

@@ -1,6 +1,7 @@
 defmodule MutationsTest do
   alias Google.Bigtable.V2.MutateRowsRequest.Entry
-  alias Bigtable.{MutateRow, Mutations}
+  alias Bigtable.Mutations
+
   use ExUnit.Case
 
   doctest Bigtable
@@ -56,8 +57,6 @@ defmodule MutationsTest do
 
   describe "Mutations.delete_from_column" do
     test "should return a DeleteFromColumn struct", context do
-      entry = context.entry
-      row_key = context.row_key
       family_name = context.family_name
       column_qualifier = context.column_qualifier
 
@@ -87,8 +86,6 @@ defmodule MutationsTest do
 
   describe "Mutations.delete_from_family" do
     test "should return a DeleteFromFamily struct", context do
-      entry = context.entry
-      row_key = context.row_key
       family_name = context.family_name
 
       expected = %Google.Bigtable.V2.MutateRowsRequest.Entry{
@@ -110,9 +107,6 @@ defmodule MutationsTest do
 
   describe "Mutations.delete_from_row" do
     test "should return a DeleteFromRow struct", context do
-      entry = context.entry
-      row_key = context.row_key
-
       expected = %Google.Bigtable.V2.MutateRowsRequest.Entry{
         mutations: [
           %Google.Bigtable.V2.Mutation{
