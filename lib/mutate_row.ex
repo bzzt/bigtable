@@ -18,7 +18,7 @@ defmodule Bigtable.MutateRow do
   Builds a MutateRow request with default table name if none provided
   """
   def build(%Entry{} = row_mutations) do
-    build(Bigtable.Request.table_name(), row_mutations)
+    build(Bigtable.Utils.configured_table_name(), row_mutations)
   end
 
   def mutate(%V2.MutateRowRequest{} = request) do

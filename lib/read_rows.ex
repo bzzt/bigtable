@@ -1,6 +1,6 @@
 defmodule Bigtable.ReadRows do
   alias Google.Bigtable.V2
-  alias Bigtable.ReadRows.Filter
+  alias Bigtable.RowFilter
   alias Bigtable.Connection
 
   @doc """
@@ -16,12 +16,13 @@ defmodule Bigtable.ReadRows do
   Builds a ReadRows request with default table name if none provided
   """
   def build() do
-    build(Bigtable.Request.table_name())
+    build(Bigtable.Utils.configured_table_name())
   end
 
   def read(%V2.ReadRowsRequest{} = request) do
-    {:ok, rows} = Connection.get_connection()
-    |> Bigtable.Stub.read_rows(request)
+    {:ok, rows} =
+      Connection.get_connection()
+      |> Bigtable.Stub.read_rows(request)
 
     rows
     |> Enum.filter(fn {status, row} ->
@@ -50,8 +51,8 @@ defmodule Bigtable.ReadRows do
 
   # Applies default filter of only the most recent cell per column
   defp default_filters(%V2.ReadRowsRequest{} = request) do
-    column_filter = Filter.cells_per_column(1)
-    default_chain = Filter.chain([column_filter])
+    column_filter = RowFilter.cells_per_column(1)
+    default_chain = RowFilter.chain([column_filter])
     request |> filter_rows(default_chain)
   end
 end

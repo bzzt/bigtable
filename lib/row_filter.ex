@@ -1,4 +1,4 @@
-defmodule Bigtable.ReadRows.Filter do
+defmodule Bigtable.RowFilter do
   alias Google.Bigtable.V2.{RowFilter, ReadRowsRequest}
 
   @doc """
