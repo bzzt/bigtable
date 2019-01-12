@@ -1,32 +1,59 @@
-# Bigtable
+# Table of Contents
 
-## Starting the BT Emulator
+- [Using the BT Emulator](#using-the-bt-emulator)
+  - [Installing the emulator](#installing-the-emulator)
+  - [Starting the emulator](#starting-the-emulator)
+- [Bigtable Operations](#bigtable-operations)
+  - [Read Rows](#read-rows)
+    - [All Rows](#all-rows)
+      - [Default Table](#default-table)
+      - [Custom Table](#custom-table)
+    - [Single Row Key](#single-row-key)
+      - [Default Table](#default-table-1)
+      - [Custom Table](#custom-table-1)
+    - [Multiple Row Keys](#multiple-row-keys)
+      - [Default Table](#default-table-2)
+      - [Custom Table](#custom-table-2)
+    - [Single Row Range](#single-row-range)
+      - [Default Table (inclusive range)](#default-table-inclusive-range)
+      - [Default Table (exclusive range)](#default-table-exclusive-range)
+    - [Multiple Row Ranges](#multiple-row-ranges)
+      - [Default Table (inclusive ranges)](#default-table-inclusive-ranges)
+      - [Default Table (exclusive ranges)](#default-table-exclusive-ranges)
+      - [Custom Table](#custom-table-3)
+    - [Filtering Results](#filtering-results)
+  - [Mutations](#mutations)
+    - [Single Row](#single-row)
+      - [SetCell](#setcell)
+      - [DeleteFromColumn](#deletefromcolumn)
+      - [DeleteFromFamily](#deletefromfamily)
+      - [DeleteFromRow](#deletefromrow)
+
+# Using the BT Emulator
+
+Google's [bigtable emulator](https://cloud.google.com/bigtable/docs/emulator) can be used for easy local development and testing
+
+## Installing the emulator
+
+```bash
+gcloud components update
+gcloud components install beta cbt
+```
+
+## Starting the emulator
 
 ```bash
 gcloud beta emulators bigtable start & $(gcloud beta emulators bigtable env-init)
 cbt createtable ride && cbt createfamily ride ride
 ```
 
-## Installation
+# Bigtable Operations
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `bigtable` to your list of dependencies in `mix.exs`:
+## Read Rows
 
-```elixir
-def deps do
-  [
-    {:bigtable, "~> 0.1.0"}
-  ]
-end
-```
+### All Rows
 
-# Operations
-
-## Reads
-
-#### Read Rows
-
-##### All Rows:
+#### Default Table
 
 ```elixir
 alias Bigtable.ReadRows
@@ -34,13 +61,17 @@ alias Bigtable.ReadRows
 ReadRows.read()
 ```
 
+#### Custom Table
+
 ```elixir
 alias Bigtable.ReadRows
 
 ReadRows.read("projects/[project_id]/instances/[instance_id]/tables/[table_name]")
 ```
 
-##### With Row Key:
+### Single Row Key
+
+#### Default Table
 
 ```elixir
 alias Bigtable.{ReadRows, RowSet}
@@ -48,6 +79,8 @@ alias Bigtable.{ReadRows, RowSet}
 RowSet.row_keys("Ride#123")
 |> ReadRows.read()
 ```
+
+#### Custom Table
 
 ```elixir
 alias Bigtable.{ReadRows, RowSet}
@@ -57,7 +90,9 @@ ReadRows.build("projects/[project_id]/instances/[instance_id]/tables/[table_name
 |> ReadRows.read()
 ```
 
-#### With Row Keys:
+### Multiple Row Keys
+
+#### Default Table
 
 ```elixir
 alias Bigtable.{ReadRows, RowSet}
@@ -65,6 +100,8 @@ alias Bigtable.{ReadRows, RowSet}
 RowSet.row_keys(["Ride#123", "Ride#124"])
 |> ReadRows.read()
 ```
+
+#### Custom Table
 
 ```elixir
 alias Bigtable.{ReadRows, RowSet}
@@ -74,7 +111,9 @@ ReadRows.build("projects/[project_id]/instances/[instance_id]/tables/[table_name
 |> ReadRows.read()
 ```
 
-##### With Row Range:
+### Single Row Range
+
+#### Default Table (inclusive range)
 
 ```elixir
 alias Bigtable.{ReadRows, RowSet}
@@ -83,12 +122,18 @@ RowSet.row_range("Ride#121", "Ride#124")
 |> ReadRows.read()
 ```
 
+#### Default Table (exclusive range)
+
 ```elixir
 alias Bigtable.{ReadRows, RowSet}
 
 RowSet.row_range("Ride#121", "Ride#124", false)
 |> ReadRows.read()
 ```
+
+### Multiple Row Ranges
+
+#### Default Table (inclusive ranges)
 
 ```elixir
 alias Bigtable.{ReadRows, RowSet}
@@ -102,6 +147,8 @@ RowSet.row_ranges(ranges)
 |> ReadRows.read()
 ```
 
+#### Default Table (exclusive ranges)
+
 ```elixir
 alias Bigtable.{ReadRows, RowSet}
 
@@ -114,6 +161,8 @@ RowSet.row_ranges(ranges, false)
 |> ReadRows.read()
 ```
 
+#### Custom Table
+
 ```elixir
 alias Bigtable.{ReadRows, RowSet}
 
@@ -122,7 +171,7 @@ ReadRows.build("projects/[project_id]/instances/[instance_id]/tables/[table_name
 |> ReadRows.read()
 ```
 
-##### With Optional Filters:
+### Filtering Results
 
 ```elixir
 alias Bigtable.{ReadRows, RowSet}
@@ -135,50 +184,44 @@ RowSet.row_keys("Ride#123")
 
 ## Mutations
 
-### SetCell
+### Single Row
+
+#### SetCell
 
 ```elixir
 alias Bigtable.{Mutations, MutateRow}
 
 Mutations.build("Ride#123")
 |> Mutations.set_cell("ride", "foo", "bar")
-|> MutateRow.build()
 |> MutateRow.mutate
 ```
 
-### DeleteFromColumn
+#### DeleteFromColumn
 
 ```elixir
 alias Bigtable.{Mutations, MutateRow}
 
 Mutations.build("Ride#123")
 |> Mutations.delete_from_column("ride", "foo")
-|> MutateRow.build(mutation)
 |> MutateRow.mutate
 ```
 
-### DeleteFromFamily
+#### DeleteFromFamily
 
 ```elixir
 alias Bigtable.{Mutations, MutateRow}
 
 Mutations.build("Ride#123")
 |> Mutations.delete_from_family("ride")
-|> MutateRow.build()
 |> MutateRow.mutate
 ```
 
-### DeleteFromRow
+#### DeleteFromRow
 
 ```elixir
 alias Bigtable.{Mutations, MutateRow}
 
 Mutations.build("Ride#123")
 |> Mutations.delete_from_row()
-|> MutateRow.build(mutation)
 |> MutateRow.mutate
 ```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/bigtable](https://hexdocs.pm/bigtable).

@@ -23,4 +23,9 @@ defmodule Bigtable.MutateRows do
     Connection.get_connection()
     |> Bigtable.Stub.mutate_rows(request)
   end
+
+  def mutate(entries) when is_list(entries) do
+    build(entries)
+    |> mutate
+  end
 end

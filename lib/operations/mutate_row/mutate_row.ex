@@ -25,4 +25,9 @@ defmodule Bigtable.MutateRow do
     Connection.get_connection()
     |> Bigtable.Stub.mutate_row(request)
   end
+
+  def mutate(%Entry{} = row_mutations) do
+    build(row_mutations)
+    |> mutate()
+  end
 end
