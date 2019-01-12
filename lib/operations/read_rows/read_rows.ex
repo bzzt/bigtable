@@ -24,6 +24,11 @@ defmodule Bigtable.ReadRows do
     |> Bigtable.Stub.read_rows(request)
   end
 
+  def read(table_name) when is_binary(table_name) do
+    build(table_name)
+    |> read()
+  end
+
   def read() do
     build()
     |> read

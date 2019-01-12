@@ -31,8 +31,13 @@ end
 ```elixir
 alias Bigtable.ReadRows
 
-ReadRows.build()
-|> ReadRows.read()
+ReadRows.read()
+```
+
+```elixir
+alias Bigtable.ReadRows
+
+ReadRows.read("projects/[project_id]/instances/[instance_id]/tables/[table_name]")
 ```
 
 ##### With Row Key:
@@ -40,7 +45,14 @@ ReadRows.build()
 ```elixir
 alias Bigtable.{ReadRows, RowSet}
 
-ReadRows.build()
+RowSet.row_keys("Ride#123")
+|> ReadRows.read()
+```
+
+```elixir
+alias Bigtable.{ReadRows, RowSet}
+
+ReadRows.build("projects/[project_id]/instances/[instance_id]/tables/[table_name]")
 |> RowSet.row_keys("Ride#123")
 |> ReadRows.read()
 ```
@@ -50,7 +62,14 @@ ReadRows.build()
 ```elixir
 alias Bigtable.{ReadRows, RowSet}
 
-ReadRows.build()
+RowSet.row_keys(["Ride#123", "Ride#124"])
+|> ReadRows.read()
+```
+
+```elixir
+alias Bigtable.{ReadRows, RowSet}
+
+ReadRows.build("projects/[project_id]/instances/[instance_id]/tables/[table_name]")
 |> RowSet.row_keys(["Ride#123", "Ride#124"])
 |> ReadRows.read()
 ```
@@ -59,12 +78,47 @@ ReadRows.build()
 
 ```elixir
 alias Bigtable.{ReadRows, RowSet}
-alias RowSet.RowRange
 
-range = RowRange.inclusive("Ride#121", "Ride#124")
+RowSet.row_range("Ride#121", "Ride#124")
+|> ReadRows.read()
+```
 
-ReadRows.build()
-|> RowSet.row_ranges(range)
+```elixir
+alias Bigtable.{ReadRows, RowSet}
+
+RowSet.row_range("Ride#121", "Ride#124", false)
+|> ReadRows.read()
+```
+
+```elixir
+alias Bigtable.{ReadRows, RowSet}
+
+ranges = [
+  {"Ride#121", "Ride#124"},
+  {"Ride#128", "Ride#131"}
+]
+
+RowSet.row_ranges(ranges)
+|> ReadRows.read()
+```
+
+```elixir
+alias Bigtable.{ReadRows, RowSet}
+
+ranges = [
+  {"Ride#121", "Ride#124"},
+  {"Ride#128", "Ride#131"}
+]
+
+RowSet.row_ranges(ranges, false)
+|> ReadRows.read()
+```
+
+```elixir
+alias Bigtable.{ReadRows, RowSet}
+
+ReadRows.build("projects/[project_id]/instances/[instance_id]/tables/[table_name]")
+|> RowSet.row_range("Ride#121", "Ride#124")
 |> ReadRows.read()
 ```
 
@@ -74,8 +128,7 @@ ReadRows.build()
 alias Bigtable.{ReadRows, RowSet}
 alias ReadRows.Filter
 
-ReadRows.build()
-|> RowSet.row_keys("Ride#123")
+RowSet.row_keys("Ride#123")
 |> Filter.cells_per_column(5)
 |> ReadRows.read()
 ```
