@@ -11,12 +11,28 @@ defmodule Bigtable.RowFilter do
   end
 
   @doc """
+  Adds a RowFilter chain to a ReadRowsRequest given a Bigtable.V2.RowFilter
+  """
+  @spec chain(V2.ReadRowsRequest.t(), V2.RowFilter.t()) :: V2.ReadRowsRequest.t()
+  def chain(%V2.ReadRowsRequest{} = request, %V2.RowFilter{} = filter) do
+    chain(request, [filter])
+  end
+
+  @doc """
   Creates a V2.RowFilter chain given a list of V2.RowFilter
   """
   @spec chain(list(V2.RowFilter.t())) :: V2.RowFilter.t()
   def chain(filters) when is_list(filters) do
     {:chain, V2.RowFilter.Chain.new(filters: filters)}
     |> build_filter()
+  end
+
+  @doc """
+  Creates a V2.RowFilter chain given a V2.RowFilter
+  """
+  @spec chain(V2.RowFilter.t()) :: V2.RowFilter.t()
+  def chain(%V2.RowFilter{} = filter) do
+    chain([filter])
   end
 
   @doc """
