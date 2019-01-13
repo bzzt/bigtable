@@ -9,6 +9,7 @@ defmodule Bigtable.Mutations do
   @doc """
   Builds a MuteRowsRequest.Entry for use with MutateRowRequest and MutateRowsRequest
   """
+  @spec build(binary()) :: Entry.t()
   def build(row_key) when is_binary(row_key) do
     Entry.new(row_key: row_key)
   end

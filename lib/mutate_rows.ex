@@ -3,9 +3,10 @@ defmodule Bigtable.MutateRows do
   alias Bigtable.Connection
 
   @doc """
-  Builds a MutateRows request with a provided table name
+  Builds a MutateRows request with a provided table name and a list of MutateRows.Entry
   """
-  def build(table_name, entries) when is_binary(table_name) do
+  @spec build(list(V2.MutateRowsRequest.Entry.t()), binary()) :: V2.MutateRowsRequest.t()
+  def build(entries, table_name) when is_binary(table_name) and is_list(entries) do
     V2.MutateRowsRequest.new(
       table_name: table_name,
       entries: entries
@@ -13,10 +14,11 @@ defmodule Bigtable.MutateRows do
   end
 
   @doc """
-  Builds a MutateRows request with default table name if none provided
+  Builds a MutateRows request with default table name and a list of MutateRows.Entry
   """
-  def build(entries) do
-    build(Bigtable.Utils.configured_table_name(), entries)
+  @spec build(list(V2.MutateRowsRequest.Entry.t())) :: V2.MutateRowsRequest.t()
+  def build(entries) when is_list(entries) do
+    build(entries, Bigtable.Utils.configured_table_name())
   end
 
   def mutate(%V2.MutateRowsRequest{} = request) do
