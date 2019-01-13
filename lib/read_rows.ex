@@ -6,7 +6,7 @@ defmodule Bigtable.ReadRows do
   @doc """
   Builds a ReadRows request with a provided table name
   """
-  @spec build(binary()) :: Google.Bigtable.V2.ReadRowsRequest.t()
+  @spec build(binary()) :: V2.ReadRowsRequest.t()
   def build(table_name) when is_binary(table_name) do
     V2.ReadRowsRequest.new(table_name: table_name)
     |> default_filters()
@@ -15,6 +15,7 @@ defmodule Bigtable.ReadRows do
   @doc """
   Builds a ReadRows request with default table name if none provided
   """
+  @spec build() :: V2.ReadRowsRequest.t()
   def build() do
     build(Bigtable.Utils.configured_table_name())
   end
@@ -40,19 +41,11 @@ defmodule Bigtable.ReadRows do
     |> read
   end
 
-  @doc """
-  Applies a RowFilter to a given ReadRowsRequest
-  """
-  @spec filter_rows(Google.Bigtable.V2.ReadRowsRequest.t(), Google.Bigtable.V2.RowFilter.t()) ::
-          Google.Bigtable.V2.ReadRowsRequest.t()
-  def filter_rows(%V2.ReadRowsRequest{} = request, %V2.RowFilter{} = filter) do
-    %{request | filter: filter}
-  end
-
   # Applies default filter of only the most recent cell per column
+  @spec default_filters(V2.ReadRowsRequest.t()) :: V2.ReadRowsRequest.t()
   defp default_filters(%V2.ReadRowsRequest{} = request) do
     column_filter = RowFilter.cells_per_column(1)
     default_chain = RowFilter.chain([column_filter])
-    request |> filter_rows(default_chain)
+    %{request | filter: default_chain}
   end
 end

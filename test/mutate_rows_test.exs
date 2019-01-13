@@ -4,8 +4,6 @@ defmodule MutateRowsTest do
 
   use ExUnit.Case
 
-  doctest Bigtable
-
   setup do
     [
       entries: [Mutations.build("Test#123"), Mutations.build("Test#124")]
