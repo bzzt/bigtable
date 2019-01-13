@@ -21,6 +21,7 @@ defmodule Bigtable.Mutations do
   Use -1 for current Bigtable server time. Otherwise, the client should set this value itself, noting that the default value is a timestamp of zero if the field is left unspecified.
   Values must match the granularity of the table (e.g. micros, millis)
   """
+  @spec set_cell(Entry.t(), binary(), binary(), binary(), integer()) :: Entry.t()
   def set_cell(%Entry{} = mutation, family, column, value, timestamp \\ -1)
       when is_binary(family) and is_binary(column) and is_binary(value) and is_integer(timestamp) do
     set_mutation =
@@ -39,6 +40,7 @@ defmodule Bigtable.Mutations do
   Time range is a keyword list that should contain optional start_timestamp_micros and end_timestamp_micros.
   If not provided, start is treated as 0 and end is treated as infinity
   """
+  @spec delete_from_column(Entry.t(), binary(), binary(), Keyword.t()) :: Entry.t()
   def delete_from_column(%Entry{} = mutation_struct, family, column, time_range \\ [])
       when is_binary(family) and is_binary(column) do
     time_range = create_time_range(time_range)
@@ -56,6 +58,7 @@ defmodule Bigtable.Mutations do
   @doc """
   Deletes all cells from the specified column family
   """
+  @spec delete_from_family(Entry.t(), binary()) :: Entry.t()
   def delete_from_family(%Entry{} = mutation_struct, family) when is_binary(family) do
     mutation = V2.Mutation.DeleteFromFamily.new(family_name: family)
 
@@ -65,6 +68,7 @@ defmodule Bigtable.Mutations do
   @doc """
   Deletes all columns from the given row
   """
+  @spec delete_from_row(Entry.t()) :: Entry.t()
   def delete_from_row(%Entry{} = mutation_struct) do
     mutation = V2.Mutation.DeleteFromRow.new()
 
@@ -72,6 +76,7 @@ defmodule Bigtable.Mutations do
   end
 
   # Adds an additional V2.Mutation to the given mutation struct
+  @spec add_mutation(Entry.t(), atom(), V2.Mutation.t()) :: Entry.t()
   defp add_mutation(%Entry{} = mutation_struct, type, mutation) do
     %{
       mutation_struct
@@ -80,6 +85,7 @@ defmodule Bigtable.Mutations do
   end
 
   # Creates a time range that can be used for column deletes
+  @spec create_time_range(Keyword.t()) :: V2.TimestampRange.t()
   defp create_time_range(time_range) do
     start_timestamp_micros = Keyword.get(time_range, :start)
     end_timestamp_micros = Keyword.get(time_range, :end)
