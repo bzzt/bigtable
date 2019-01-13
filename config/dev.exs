@@ -6,5 +6,4 @@ config :bigtable,
   project: "datahub-222411",
   instance: "datahub",
   table: "ride",
-  host: "localhost",
-  port: 8086
+  url: "localhost:8086"

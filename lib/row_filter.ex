@@ -2,6 +2,24 @@ defmodule Bigtable.RowFilter do
   alias Google.Bigtable.V2
 
   @doc """
+  Applies the default V2.RowFilter to a V2.ReadRowsRequest
+  """
+  @spec default_chain(V2.ReadRowsRequest.t()) :: V2.ReadRowsRequest.t()
+  def default_chain(%V2.ReadRowsRequest{} = request) do
+    filters = default_filters()
+    chain(request, filters)
+  end
+
+  @doc """
+  Returns the default V2.RowFilter used by this module
+  """
+  @spec default_chain() :: V2.RowFilter.t()
+  def default_chain() do
+    default_filters()
+    |> chain()
+  end
+
+  @doc """
   Adds a RowFilter chain to a ReadRowsRequest given a list of Bigtable.V2.RowFilter
   """
   @spec chain(V2.ReadRowsRequest.t(), list(V2.RowFilter.t())) :: V2.ReadRowsRequest.t()
@@ -51,6 +69,12 @@ defmodule Bigtable.RowFilter do
   def cells_per_column(limit) when is_integer(limit) do
     {:cells_per_column_limit_filter, limit}
     |> build_filter()
+  end
+
+  @spec default_filters() :: list(V2.RowFilter.t())
+  defp default_filters() do
+    column_filter = cells_per_column(1)
+    [column_filter]
   end
 
   # Adds a filter to a V2.RowFilter.Chain on a V2.ReadRowsRequest

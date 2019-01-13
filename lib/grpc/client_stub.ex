@@ -1,7 +1,5 @@
 defmodule Bigtable.Service do
-  @moduledoc """
-  Creates a gRPC service which points at the Google Bigtable V2 service
-  """
+  @moduledoc false
   use GRPC.Service, name: "google.bigtable.v2.Bigtable"
 
   alias Google.Bigtable.V2
@@ -12,8 +10,6 @@ defmodule Bigtable.Service do
 end
 
 defmodule Bigtable.Stub do
-  @moduledoc """
-  Creates a gRPC client stub for use with the Bigtable service
-  """
+  @moduledoc false
   use GRPC.Stub, service: Bigtable.Service
 end

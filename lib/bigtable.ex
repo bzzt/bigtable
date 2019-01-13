@@ -1,6 +1,10 @@
 defmodule Bigtable do
+  @moduledoc """
+  Elixir client library for Google Bigtable
+  """
   use Application
 
+  @doc false
   def start(_type, _args) do
     children = [
       Bigtable.Supervisor

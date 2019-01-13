@@ -1,29 +1,40 @@
 defmodule Bigtable.RowSet do
+  @moduledoc """
+  Provides functions to build `Google.Bigtable.V2.RowSet`s and apply them to a `Google.Bigtable.V2.ReadRowsRequest`
+  """
   alias Google.Bigtable.V2
   alias Bigtable.ReadRows
 
   @doc """
-  Adds a list of row keys to a ReadRowsRequest
+  Adds a list of row keys to a `Google.Bigtable.V2.ReadRowsRequest`
   """
-  @spec row_keys(Google.Bigtable.V2.ReadRowsRequest.t(), any()) ::
-          Google.Bigtable.V2.ReadRowsRequest.t()
+  @spec row_keys(V2.ReadRowsRequest.t(), [binary()]) :: V2.ReadRowsRequest.t()
   def row_keys(%V2.ReadRowsRequest{} = request, keys) when is_list(keys) do
     prev_row_ranges = get_row_ranges(request)
 
     %{request | rows: V2.RowSet.new(row_keys: keys, row_ranges: prev_row_ranges)}
   end
 
+  @doc """
+  Adds a row key to a `Google.Bigtable.V2.ReadRowsRequest`
+  """
+  @spec row_keys(V2.ReadRowsRequest.t(), binary()) :: V2.ReadRowsRequest.t()
   def row_keys(%V2.ReadRowsRequest{} = request, key) when is_binary(key) do
     row_keys(request, [key])
   end
 
   @doc """
-  Adds a row key to a ReadRowsRequest
+  Adds multiple row keys to the default `Google.Bigtable.V2.ReadRowsRequest`
   """
+  @spec row_keys([binary()]) :: V2.ReadRowsRequest.t()
   def row_keys(keys) when is_list(keys) do
     ReadRows.build() |> row_keys(keys)
   end
 
+  @doc """
+  Adds a single row key to the default `Google.Bigtable.V2.ReadRowsRequest`
+  """
+  @spec row_keys(binary()) :: V2.ReadRowsRequest.t()
   def row_keys(key) when is_binary(key) do
     ReadRows.build() |> row_keys(key)
   end
@@ -66,7 +77,7 @@ defmodule Bigtable.RowSet do
   end
 
   def row_range(start_key, end_key, inclusive) when is_boolean(inclusive) do
-    ReadRows.build |> row_range(start_key, end_key, inclusive)
+    ReadRows.build() |> row_range(start_key, end_key, inclusive)
   end
 
   def row_range(%V2.ReadRowsRequest{} = request, start_key, end_key) do

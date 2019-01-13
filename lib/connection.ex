@@ -20,13 +20,11 @@ defmodule Bigtable.Connection do
   # Server Callbacks
   @spec init(:ok) :: {:ok, GRPC.Channel.t()}
   def init(:ok) do
-    # Fetches the host and port to use for Bigtable gRPC connection
-    host = Application.get_env(:bigtable, :host)
-    port = Application.get_env(:bigtable, :port)
+    # Fetches the url to use for Bigtable gRPC connection
+    url = Application.get_env(:bigtable, :url)
 
     # Connects the stub to the Bigtable gRPC server
-    {:ok, channel} =
-      GRPC.Stub.connect(host <> ":" <> to_string(port), interceptors: [GRPC.Logger.Client])
+    {:ok, channel} = GRPC.Stub.connect(url, interceptors: [GRPC.Logger.Client])
 
     {:ok, channel}
   end

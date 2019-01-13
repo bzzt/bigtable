@@ -1,7 +1,7 @@
 defmodule Bigtable.Mutations do
   @moduledoc """
   Provides functions to build Bigtable Mutations that are used when forming
-  row mutation requests
+  row mutation requests.
   """
   alias Google.Bigtable.V2
   alias V2.MutateRowsRequest.Entry
@@ -37,6 +37,7 @@ defmodule Bigtable.Mutations do
 
   @doc """
   Creates a DeleteFromColumn V2.Mutation given a Mutation, family name, column qualifier, and time range.
+
   Time range is a keyword list that should contain optional start_timestamp_micros and end_timestamp_micros.
   If not provided, start is treated as 0 and end is treated as infinity
   """

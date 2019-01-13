@@ -1,13 +1,16 @@
 defmodule Bigtable.MixProject do
   use Mix.Project
 
+  @version "0.1.0"
+
   def project do
     [
       app: :bigtable,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      docs: docs()
     ]
   end
 
@@ -16,6 +19,43 @@ defmodule Bigtable.MixProject do
     [
       mod: {Bigtable, []},
       extra_applications: [:logger, :grpc]
+    ]
+  end
+
+  defp docs do
+    [
+      source_ref: "v#{@version}",
+      extra_section: "GUIDES",
+      main: "overview",
+      formatters: ["html", "epub"],
+      groups_for_modules: groups_for_modules(),
+      extras: extras(),
+      groups_for_extras: groups_for_extras()
+    ]
+  end
+
+  defp extras do
+    [
+      "guides/introduction/overview.md",
+      "guides/introduction/installation.md",
+      "guides/operations/read_rows.md"
+    ]
+  end
+
+  defp groups_for_extras do
+    [
+      Introduction: ~r/guides\/introduction\/.?/,
+      Operations: ~r/guides\/operations\/.?/
+    ]
+  end
+
+  defp groups_for_modules do
+    [
+      Operations: [
+        Bigtable.ReadRows,
+        Bigtable.MutateRow,
+        Bigtable.MutateRows
+      ]
     ]
   end
 

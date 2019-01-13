@@ -9,7 +9,7 @@ defmodule Bigtable.ReadRows do
   @spec build(binary()) :: V2.ReadRowsRequest.t()
   def build(table_name) when is_binary(table_name) do
     V2.ReadRowsRequest.new(table_name: table_name)
-    |> default_filters()
+    |> RowFilter.default_chain()
   end
 
   @doc """
@@ -39,12 +39,5 @@ defmodule Bigtable.ReadRows do
   def read() do
     build()
     |> read
-  end
-
-  # Applies default filter of only the most recent cell per column
-  @spec default_filters(V2.ReadRowsRequest.t()) :: V2.ReadRowsRequest.t()
-  defp default_filters(%V2.ReadRowsRequest{} = request) do
-    column_filter = RowFilter.cells_per_column(1)
-    RowFilter.chain(request, [column_filter])
   end
 end
