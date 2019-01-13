@@ -45,7 +45,6 @@ defmodule Bigtable.ReadRows do
   @spec default_filters(V2.ReadRowsRequest.t()) :: V2.ReadRowsRequest.t()
   defp default_filters(%V2.ReadRowsRequest{} = request) do
     column_filter = RowFilter.cells_per_column(1)
-    default_chain = RowFilter.chain([column_filter])
-    %{request | filter: default_chain}
+    RowFilter.chain(request, [column_filter])
   end
 end

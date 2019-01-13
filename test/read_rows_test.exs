@@ -1,6 +1,5 @@
 defmodule ReadRowsTest do
-  alias Google.Bigtable.V2.ReadRowsRequest
-  alias Bigtable.{ReadRows, RowFilter}
+  alias Bigtable.ReadRows
 
   use ExUnit.Case
 
