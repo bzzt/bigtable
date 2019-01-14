@@ -3,6 +3,8 @@ defmodule RowFilterTest do
 
   use ExUnit.Case
 
+  doctest RowFilter
+
   setup do
     [
       request: %Google.Bigtable.V2.ReadRowsRequest{
