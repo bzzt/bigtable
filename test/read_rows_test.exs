@@ -3,6 +3,8 @@ defmodule ReadRowsTest do
 
   use ExUnit.Case
 
+  doctest ReadRows
+
   describe "ReadRows.build() " do
     test "should build a ReadRowsRequest with configured table" do
       assert ReadRows.build() == expected_request()
