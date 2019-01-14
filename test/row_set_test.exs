@@ -3,6 +3,8 @@ defmodule RowSetTest do
 
   use ExUnit.Case
 
+  doctest(RowSet)
+
   setup do
     [
       request: %Google.Bigtable.V2.ReadRowsRequest{

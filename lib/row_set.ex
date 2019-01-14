@@ -11,16 +11,12 @@ defmodule Bigtable.RowSet do
   Returns `Google.Bigtable.V2.ReadRowsRequest`
 
   ## Examples
-      iex> Bigtable.ReadRows.build("table") |> Bigtable.RowSet.row_keys("Row#123")
-      %Google.Bigtable.V2.ReadRowsRequest{
-        ...
-        rows: %Google.Bigtable.V2.RowSet{row_keys: ["Row#123"], row_ranges: []}
-      }
-      iex> Bigtable.ReadRows.build("table") |> Bigtable.RowSet.row_keys(["Row#123", "Row#124"])
-      %Google.Bigtable.V2.ReadRowsRequest{
-        ...
-        rows: %Google.Bigtable.V2.RowSet{row_keys: ["Row#123", "Row#124"],, row_ranges: []}
-      }
+      iex> request = Bigtable.ReadRows.build("table") |> Bigtable.RowSet.row_keys("Row#123")
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.rows
+      %Google.Bigtable.V2.RowSet{row_keys: ["Row#123"], row_ranges: []}
+      iex> request = Bigtable.ReadRows.build("table") |> Bigtable.RowSet.row_keys(["Row#123", "Row#124"])
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.rows
+      %Google.Bigtable.V2.RowSet{row_keys: ["Row#123", "Row#124"], row_ranges: []}
   """
   @spec row_keys(V2.ReadRowsRequest.t(), [binary()]) :: V2.ReadRowsRequest.t()
   def row_keys(%V2.ReadRowsRequest{} = request, keys) when is_list(keys) do
@@ -40,16 +36,12 @@ defmodule Bigtable.RowSet do
   Returns `Google.Bigtable.V2.ReadRowsRequest`
 
   ## Examples
-      iex> Bigtable.RowSet.row_keys("Row#123")
-      %Google.Bigtable.V2.ReadRowsRequest{
-        ...
-        rows: %Google.Bigtable.V2.RowSet{row_keys: ["Row#123"], row_ranges: []}
-      }
-      iex> Bigtable.RowSet.row_keys(["Row#123", "Row#124"])
-      %Google.Bigtable.V2.ReadRowsRequest{
-        ...
-        rows: %Google.Bigtable.V2.RowSet{row_keys: ["Row#123", "Row#124"],, row_ranges: []}
-      }
+      iex> request = Bigtable.RowSet.row_keys("Row#123")
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.rows
+      %Google.Bigtable.V2.RowSet{row_keys: ["Row#123"], row_ranges: []}
+      iex> request = Bigtable.RowSet.row_keys(["Row#123", "Row#124"])
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.rows
+      %Google.Bigtable.V2.RowSet{row_keys: ["Row#123", "Row#124"], row_ranges: []}
   """
   @spec row_keys([binary()]) :: V2.ReadRowsRequest.t()
   def row_keys(keys) when is_list(keys) do
@@ -69,36 +61,32 @@ defmodule Bigtable.RowSet do
   Returns `Google.Bigtable.V2.ReadRowsRequest`
 
   ## Examples
-      iex> Bigtable.ReadRows.build("table") |> Bigtable.RowSet.row_ranges({"start", "end"})
-      %Google.Bigtable.V2.ReadRowsRequest{
-        ...
-        rows: %Google.Bigtable.V2.RowSet{
-          row_keys: [],
-          row_ranges: [
-            %Google.Bigtable.V2.RowRange{
-              end_key: {:end_key_closed, "end"},
-              start_key: {:start_key_closed, "start"}
-            }
-          ]
-        }
+      iex> request = Bigtable.ReadRows.build("table") |> Bigtable.RowSet.row_ranges({"start", "end"})
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.rows
+      %Google.Bigtable.V2.RowSet{
+        row_keys: [],
+        row_ranges: [
+          %Google.Bigtable.V2.RowRange{
+            end_key: {:end_key_closed, "end"},
+            start_key: {:start_key_closed, "start"}
+          }
+        ]
       }
       iex> ranges = [{"start1", "end1"}, {"start2", "end2", false}]
-      iex> Bigtable.ReadRows.build("table") |> Bigtable.RowSet.row_ranges(ranges)
-      %Google.Bigtable.V2.ReadRowsRequest{
-        ...
-        rows: %Google.Bigtable.V2.RowSet{
-          row_keys: [],
-          row_ranges: [
-             %Google.Bigtable.V2.RowRange{
-              end_key: {:end_key_closed, "end1"},
-              start_key: {:start_key_closed, "start1"}
-            },
+      iex> request = Bigtable.ReadRows.build("table") |> Bigtable.RowSet.row_ranges(ranges)
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.rows
+      %Google.Bigtable.V2.RowSet{
+        row_keys: [],
+        row_ranges: [
             %Google.Bigtable.V2.RowRange{
-              end_key: {:end_key_open, "end2"},
-              start_key: {:start_key_open, "start2"}
-            }
-          ]
-        }
+            end_key: {:end_key_closed, "end1"},
+            start_key: {:start_key_closed, "start1"}
+          },
+          %Google.Bigtable.V2.RowRange{
+            end_key: {:end_key_open, "end2"},
+            start_key: {:start_key_open, "start2"}
+          }
+        ]
       }
   """
 
@@ -123,36 +111,32 @@ defmodule Bigtable.RowSet do
   Returns `Google.Bigtable.V2.ReadRowsRequest`
 
   ## Examples
-      iex> Bigtable.RowSet.row_ranges({"start", "end"})
-      %Google.Bigtable.V2.ReadRowsRequest{
-        ...
-        rows: %Google.Bigtable.V2.RowSet{
-          row_keys: [],
-          row_ranges: [
-            %Google.Bigtable.V2.RowRange{
-              end_key: {:end_key_closed, "end"},
-              start_key: {:start_key_closed, "start"}
-            }
-          ]
-        }
+      iex> request = Bigtable.RowSet.row_ranges({"start", "end"})
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.rows
+      %Google.Bigtable.V2.RowSet{
+        row_keys: [],
+        row_ranges: [
+          %Google.Bigtable.V2.RowRange{
+            end_key: {:end_key_closed, "end"},
+            start_key: {:start_key_closed, "start"}
+          }
+        ]
       }
       iex> ranges = [{"start1", "end1"}, {"start2", "end2", false}]
-      iex> Bigtable.RowSet.row_ranges(ranges)
-      %Google.Bigtable.V2.ReadRowsRequest{
-        ...
-        rows: %Google.Bigtable.V2.RowSet{
-          row_keys: [],
-          row_ranges: [
-             %Google.Bigtable.V2.RowRange{
-              end_key: {:end_key_closed, "end1"},
-              start_key: {:start_key_closed, "start1"}
-            },
+      iex> request = Bigtable.RowSet.row_ranges(ranges)
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.rows
+      %Google.Bigtable.V2.RowSet{
+        row_keys: [],
+        row_ranges: [
             %Google.Bigtable.V2.RowRange{
-              end_key: {:end_key_open, "end2"},
-              start_key: {:start_key_open, "start2"}
-            }
-          ]
-        }
+            end_key: {:end_key_closed, "end1"},
+            start_key: {:start_key_closed, "start1"}
+          },
+          %Google.Bigtable.V2.RowRange{
+            end_key: {:end_key_open, "end2"},
+            start_key: {:start_key_open, "start2"}
+          }
+        ]
       }
   """
 
