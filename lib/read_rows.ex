@@ -19,7 +19,8 @@ defmodule Bigtable.ReadRows do
 
   @doc """
   Builds a `Google.Bigtable.V2.ReadRowsRequest` with the configured table name.
-   ## Examples
+
+  ## Examples
       iex> request = Bigtable.ReadRows.build()
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: :ok
       :ok
