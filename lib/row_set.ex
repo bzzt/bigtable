@@ -64,7 +64,7 @@ defmodule Bigtable.RowSet do
   @doc """
   Adds a single or list of row ranges to a `Google.Bigtable.V2.ReadRowsRequest` with an optional boolean flag to specify the inclusivity of the range start and end.
 
-  Row ranges should be provided in the format {start, end}.
+  Row ranges should be provided in the format {start, end} or {start, end, inclusive}.
 
   Returns `Google.Bigtable.V2.ReadRowsRequest`
 
@@ -82,20 +82,20 @@ defmodule Bigtable.RowSet do
           ]
         }
       }
-      iex> ranges = [{"start1", "end1"}, {"start2", "end2"}]
+      iex> ranges = [{"start1", "end1"}, {"start2", "end2", false}]
       iex> Bigtable.ReadRows.build("table") |> Bigtable.RowSet.row_ranges(ranges)
       %Google.Bigtable.V2.ReadRowsRequest{
         ...
         rows: %Google.Bigtable.V2.RowSet{
           row_keys: [],
           row_ranges: [
-            %Google.Bigtable.V2.RowRange{
+             %Google.Bigtable.V2.RowRange{
               end_key: {:end_key_closed, "end1"},
               start_key: {:start_key_closed, "start1"}
             },
             %Google.Bigtable.V2.RowRange{
-              end_key: {:end_key_closed, "end2"},
-              start_key: {:start_key_closed, "start2"}
+              end_key: {:end_key_open, "end2"},
+              start_key: {:start_key_open, "start2"}
             }
           ]
         }
@@ -104,26 +104,21 @@ defmodule Bigtable.RowSet do
 
   @spec row_ranges(
           V2.ReadRowsRequest.t(),
-          [{binary(), binary()}] | {binary(), binary()},
-          boolean()
+          [{binary(), binary(), binary()}]
+          | [{binary(), binary()}]
+          | [{binary(), binary(), binary()}]
+          | {binary(), binary(), binary()}
         ) :: V2.ReadRowsRequest.t()
-  def row_ranges(%V2.ReadRowsRequest{} = request, ranges, inclusive)
-      when is_boolean(inclusive) do
-    List.flatten([ranges])
-    |> Enum.map(&translate_range(&1, inclusive))
-    |> apply_ranges(request)
-  end
-
-  @spec row_ranges(V2.ReadRowsRequest.t(), [{binary(), binary()}] | {binary(), binary()}) ::
-          V2.ReadRowsRequest.t()
   def row_ranges(%V2.ReadRowsRequest{} = request, ranges) do
-    row_ranges(request, ranges, true)
+    List.flatten([ranges])
+    |> Enum.map(&translate_range/1)
+    |> apply_ranges(request)
   end
 
   @doc """
   Adds a single or list of row ranges to the default `Google.Bigtable.V2.ReadRowsRequest` with an optional boolean flag to specify the inclusivity of the range start and end.
 
-  Row ranges should be provided in the format {start, end}.
+  Row ranges should be provided in the format {start, end} or {start, end, inclusive}.
 
   Returns `Google.Bigtable.V2.ReadRowsRequest`
 
@@ -141,20 +136,20 @@ defmodule Bigtable.RowSet do
           ]
         }
       }
-      iex> ranges = [{"start1", "end1"}, {"start2", "end2"}]
+      iex> ranges = [{"start1", "end1"}, {"start2", "end2", false}]
       iex> Bigtable.RowSet.row_ranges(ranges)
       %Google.Bigtable.V2.ReadRowsRequest{
         ...
         rows: %Google.Bigtable.V2.RowSet{
           row_keys: [],
           row_ranges: [
-            %Google.Bigtable.V2.RowRange{
+             %Google.Bigtable.V2.RowRange{
               end_key: {:end_key_closed, "end1"},
               start_key: {:start_key_closed, "start1"}
             },
             %Google.Bigtable.V2.RowRange{
-              end_key: {:end_key_closed, "end2"},
-              start_key: {:start_key_closed, "start2"}
+              end_key: {:end_key_open, "end2"},
+              start_key: {:start_key_open, "start2"}
             }
           ]
         }
@@ -162,21 +157,14 @@ defmodule Bigtable.RowSet do
   """
 
   @spec row_ranges(
-          [{binary(), binary()}] | {binary(), binary()},
-          boolean()
+          [{binary(), binary(), binary()}]
+          | [{binary(), binary()}]
+          | [{binary(), binary(), binary()}]
+          | {binary(), binary(), binary()}
         ) :: V2.ReadRowsRequest.t()
-  def row_ranges(ranges, inclusive)
-      when is_boolean(inclusive) do
-    request = ReadRows.build()
-
-    List.flatten([ranges])
-    |> Enum.map(&translate_range(&1, inclusive))
-    |> apply_ranges(request)
-  end
-
-  @spec row_ranges([{binary(), binary()}] | {binary(), binary()}) :: V2.ReadRowsRequest.t()
   def row_ranges(ranges) do
-    row_ranges(ranges, true)
+    ReadRows.build()
+    |> row_ranges(ranges)
   end
 
   # Fetches the previous row ranges from a ReadRowsRequest object
@@ -201,12 +189,16 @@ defmodule Bigtable.RowSet do
     end
   end
 
-  # Returns an inclusive or exclusive range depending on the boolean flag
-  defp translate_range({start_key, end_key}, inclusive) do
+  defp translate_range({start_key, end_key, inclusive}) do
     case inclusive do
       true -> inclusive_range(start_key, end_key)
       false -> exclusive_range(start_key, end_key)
     end
+  end
+
+  # Returns an inclusive or exclusive range depending on the boolean flag
+  defp translate_range({start_key, end_key}) do
+    inclusive_range(start_key, end_key)
   end
 
   defp exclusive_range(start_key, end_key) do
