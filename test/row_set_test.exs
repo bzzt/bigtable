@@ -3,7 +3,7 @@ defmodule RowSetTest do
 
   use ExUnit.Case
 
-  doctest(RowSet)
+  doctest RowSet
 
   setup do
     [
