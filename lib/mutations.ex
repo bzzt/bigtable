@@ -1,13 +1,18 @@
 defmodule Bigtable.Mutations do
   @moduledoc """
-  Provides functions to build Bigtable Mutations that are used when forming
+  Provides functions to build Bigtable mutations that are used when forming
   row mutation requests.
   """
   alias Google.Bigtable.V2
   alias V2.MutateRowsRequest.Entry
 
   @doc """
-  Builds a MuteRowsRequest.Entry for use with MutateRowRequest and MutateRowsRequest
+  Builds a `Google.Bigtable.V2.MutateRowsRequest.Entry` for use with `Google.Bigtable.V2.MutateRowRequest` and `Google.Bigtable.V2.MutateRowsRequest`.
+
+  ## Examples
+
+      iex> Bigtable.Mutations.build("Row#123")
+      %Google.Bigtable.V2.MutateRowsRequest.Entry{mutations: [], row_key: "Row#123"}
   """
   @spec build(binary()) :: Entry.t()
   def build(row_key) when is_binary(row_key) do
@@ -15,11 +20,29 @@ defmodule Bigtable.Mutations do
   end
 
   @doc """
-  Creates a SetCell V2.Mutation given a Mutation, family name, column qualifier, and timestamp micros.
+  Creates a `Google.Bigtable.V2.Mutation.SetCell` given a `Google.Bigtable.V2.Mutation`, family name, column qualifier, and timestamp micros.
 
-  The timestamp of the cell into which new data should be written.
+  The provided timestamp corresponds to the timestamp of the cell into which new data should be written.
   Use -1 for current Bigtable server time. Otherwise, the client should set this value itself, noting that the default value is a timestamp of zero if the field is left unspecified.
   Values must match the granularity of the table (e.g. micros, millis)
+
+  ## Examples
+
+      iex> Mutations.build("Row#123") |> Mutations.set_cell("family", "column", "value")
+      %Google.Bigtable.V2.MutateRowsRequest.Entry{
+        mutations: [
+          %Google.Bigtable.V2.Mutation{
+            mutation: {:set_cell,
+            %Google.Bigtable.V2.Mutation.SetCell{
+              column_qualifier: "column",
+              family_name: "family",
+              timestamp_micros: -1,
+              value: "value"
+            }}
+          }
+        ],
+        row_key: "Row#123"
+      }
   """
   @spec set_cell(Entry.t(), binary(), binary(), binary(), integer()) :: Entry.t()
   def set_cell(%Entry{} = mutation, family, column, value, timestamp \\ -1)
@@ -36,10 +59,30 @@ defmodule Bigtable.Mutations do
   end
 
   @doc """
-  Creates a DeleteFromColumn V2.Mutation given a Mutation, family name, column qualifier, and time range.
+  Creates a `Google.Bigtable.V2.Mutation.DeleteFromColumn` given a `Google.Bigtable.V2.Mutation`, family name, column qualifier, and time range.
 
   Time range is a keyword list that should contain optional start_timestamp_micros and end_timestamp_micros.
   If not provided, start is treated as 0 and end is treated as infinity
+
+  ## Examples
+
+      iex> Mutations.build("Row#123") |> Mutations.delete_from_column("family", "column")
+      %Google.Bigtable.V2.MutateRowsRequest.Entry{
+        mutations: [
+          %Google.Bigtable.V2.Mutation{
+            mutation: {:delete_from_column,
+            %Google.Bigtable.V2.Mutation.DeleteFromColumn{
+              column_qualifier: "column",
+              family_name: "family",
+              time_range: %Google.Bigtable.V2.TimestampRange{
+                end_timestamp_micros: 0,
+                start_timestamp_micros: 0
+              }
+            }}
+          }
+        ],
+        row_key: "Row#123"
+      }
   """
   @spec delete_from_column(Entry.t(), binary(), binary(), Keyword.t()) :: Entry.t()
   def delete_from_column(%Entry{} = mutation_struct, family, column, time_range \\ [])
@@ -57,7 +100,20 @@ defmodule Bigtable.Mutations do
   end
 
   @doc """
-  Deletes all cells from the specified column family
+  Creates a `Google.Bigtable.V2.Mutation.DeleteFromFamily` given a `Google.Bigtable.V2.Mutation` and family name.
+
+  ## Examples
+
+      iex> Mutations.build("Row#123") |> Mutations.delete_from_family("family")
+      %Google.Bigtable.V2.MutateRowsRequest.Entry{
+        mutations: [
+          %Google.Bigtable.V2.Mutation{
+            mutation: {:delete_from_family,
+            %Google.Bigtable.V2.Mutation.DeleteFromFamily{family_name: "family"}}
+          }
+        ],
+        row_key: "Row#123"
+      }
   """
   @spec delete_from_family(Entry.t(), binary()) :: Entry.t()
   def delete_from_family(%Entry{} = mutation_struct, family) when is_binary(family) do
@@ -67,7 +123,19 @@ defmodule Bigtable.Mutations do
   end
 
   @doc """
-  Deletes all columns from the given row
+  Creates a `Google.Bigtable.V2.Mutation.DeleteFromRow` given a `Google.Bigtable.V2.Mutation`.
+
+  ## Examples
+
+      iex> Mutations.build("Row#123") |> Mutations.delete_from_row()
+      %Google.Bigtable.V2.MutateRowsRequest.Entry{
+        mutations: [
+          %Google.Bigtable.V2.Mutation{
+            mutation: {:delete_from_row, %Google.Bigtable.V2.Mutation.DeleteFromRow{}}
+          }
+        ],
+        row_key: "Row#123"
+      }
   """
   @spec delete_from_row(Entry.t()) :: Entry.t()
   def delete_from_row(%Entry{} = mutation_struct) do

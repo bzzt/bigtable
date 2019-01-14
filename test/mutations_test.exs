@@ -4,6 +4,8 @@ defmodule MutationsTest do
 
   use ExUnit.Case
 
+  doctest Mutations
+
   setup do
     [
       entry: Mutations.build("Test#123"),
