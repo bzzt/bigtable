@@ -1,6 +1,10 @@
 defmodule Bigtable.RowFilter do
   alias Google.Bigtable.V2
 
+  @moduledoc """
+  Provides functions for creating `Google.Bigtable.V2.RowFilter` and applying them to `Google.Bigtable.V2.RowFilter.Chain`
+  """
+
   @doc """
   Applies the default `Google.Bigtable.V2.RowFilter` to a `Google.Bigtable.V2.ReadRowsRequest`.
 
@@ -167,7 +171,9 @@ defmodule Bigtable.RowFilter do
   """
   @spec cells_per_column(V2.ReadRowsRequest.t(), integer()) :: V2.ReadRowsRequest.t()
   def cells_per_column(%V2.ReadRowsRequest{} = request, limit) when is_integer(limit) do
-    cells_per_column(limit)
+    filter = cells_per_column(limit)
+
+    filter
     |> add_to_chain(request)
   end
 

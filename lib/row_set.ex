@@ -111,7 +111,9 @@ defmodule Bigtable.RowSet do
           | {binary(), binary(), binary()}
         ) :: V2.ReadRowsRequest.t()
   def row_ranges(%V2.ReadRowsRequest{} = request, ranges) do
-    List.flatten([ranges])
+    ranges = List.flatten([ranges])
+
+    ranges
     |> Enum.map(&translate_range/1)
     |> apply_ranges(request)
   end

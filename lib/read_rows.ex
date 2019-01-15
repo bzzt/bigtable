@@ -1,4 +1,8 @@
 defmodule Bigtable.ReadRows do
+  @moduledoc """
+  Provides functions to build `Google.Bigtable.V2.ReadRowsRequest` and submit them to Bigtable.
+  """
+
   alias Google.Bigtable.V2
   alias Bigtable.RowFilter
   alias Bigtable.Connection
@@ -54,7 +58,9 @@ defmodule Bigtable.ReadRows do
   """
   @spec read(binary()) :: {:ok, V2.ReadRowsResponse.t()}
   def read(table_name) when is_binary(table_name) do
-    build(table_name)
+    request = build(table_name)
+
+    request
     |> read()
   end
 
@@ -65,7 +71,9 @@ defmodule Bigtable.ReadRows do
   """
   @spec read() :: {:ok, V2.ReadRowsResponse.t()}
   def read() do
-    build()
+    request = build()
+
+    request
     |> read
   end
 end
