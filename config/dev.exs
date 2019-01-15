@@ -3,7 +3,7 @@
 use Mix.Config
 
 config :pre_commit,
-  commands: ["test"],
+  commands: ["test", "coveralls", "credo"],
   verbose: true
 
 config :bigtable,
