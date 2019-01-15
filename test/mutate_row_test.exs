@@ -13,7 +13,7 @@ defmodule MutateRowTest do
     test "should build a MutateRowRequest with configured table", context do
       result = context.entry |> MutateRow.build()
 
-      assert result == expected_request()
+      assert result == "foo"
     end
 
     test "should build a MutateRowRequest with custom table", context do
