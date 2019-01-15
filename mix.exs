@@ -64,7 +64,6 @@ defmodule Bigtable.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:pre_commit, "~> 0.3.4", only: :dev},
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.10", only: :test},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
