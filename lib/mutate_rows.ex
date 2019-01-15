@@ -28,7 +28,7 @@ defmodule Bigtable.MutateRows do
   def mutate(%V2.MutateRowsRequest{} = request) do
     connection = Connection.get_connection()
 
-    connections
+    connection
     |> Bigtable.Stub.mutate_rows(request)
   end
 
