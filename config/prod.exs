@@ -2,16 +2,9 @@
 # and its dependencies with the aid of the Mix.Config module
 use Mix.Config
 
-config :mix_test_watch,
-  tasks: [
-    "test",
-    "coveralls.html"
-  ],
-  clear: true
-
 config :bigtable,
   project: "datahub-222411",
-  instance: "datahub",
+  instance: "dev-instance",
   table: "ride",
-  url: "localhost",
-  port: 8086
+  url: "bigtable.googleapis.com/projects/datahub-222411/instances/dev-instance/tables/ride",
+  port: "443"

@@ -65,8 +65,9 @@ defmodule Bigtable.MixProject do
   defp deps do
     [
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
-      {:excoveralls, "~> 0.10", only: :test},
+      {:excoveralls, "~> 0.10", only: [:dev, :test]},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
+      {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
       {:protobuf, "~> 0.5.3"},
       {:google_protos, "~> 0.1"},
       {:grpc, github: "tony612/grpc-elixir"}
