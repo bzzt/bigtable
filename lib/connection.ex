@@ -5,12 +5,13 @@ defmodule Bigtable.Connection do
   use GenServer
 
   ## Client API
+  @doc false
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
   @doc """
-  Retrieves the gRPC connection Channel struct
+  Returns the configured `GRPC.Channel`
   """
   @spec get_connection() :: GRPC.Channel.t()
   def get_connection do
@@ -18,6 +19,7 @@ defmodule Bigtable.Connection do
   end
 
   # Server Callbacks
+  @doc false
   @spec init(:ok) :: {:ok, GRPC.Channel.t()}
   def init(:ok) do
     # Fetches the url to use for Bigtable gRPC connection

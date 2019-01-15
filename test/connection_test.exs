@@ -2,6 +2,8 @@ defmodule ConnectionTest do
   alias Bigtable.Connection
   use ExUnit.Case
 
+  doctest Connection
+
   describe "Connection.get_connection() " do
     test "should return a Channel struct" do
       expected = %GRPC.Channel{

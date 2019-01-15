@@ -10,7 +10,9 @@ defmodule Bigtable.MixProject do
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      docs: docs()
+      docs: docs(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [coveralls: :test]
     ]
   end
 
@@ -62,6 +64,9 @@ defmodule Bigtable.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:pre_commit, "~> 0.3.4", only: :dev},
+      {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
+      {:excoveralls, "~> 0.10", only: :test},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       {:protobuf, "~> 0.5.3"},
       {:google_protos, "~> 0.1"},
