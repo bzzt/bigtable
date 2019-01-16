@@ -17,7 +17,7 @@ defmodule Bigtable.ReadRows do
   """
   @spec build(binary()) :: V2.ReadRowsRequest.t()
   def build(table_name) when is_binary(table_name) do
-    V2.ReadRowsRequest.new(table_name: table_name)
+    V2.ReadRowsRequest.new(table_name: table_name, app_profile_id: "default")
     |> RowFilter.default_chain()
   end
 
@@ -41,9 +41,32 @@ defmodule Bigtable.ReadRows do
   """
   @spec read(V2.ReadRowsRequest.t()) :: {:ok, V2.ReadRowsResponse.t()}
   def read(%V2.ReadRowsRequest{} = request) do
+    {:ok, token} =
+      [
+        "https://www.googleapis.com/auth/bigtable.data",
+        "https://www.googleapis.com/auth/bigtable.data.readonly",
+        "https://www.googleapis.com/auth/cloud-bigtable.data",
+        "https://www.googleapis.com/auth/cloud-bigtable.data.readonly",
+        "https://www.googleapis.com/auth/cloud-platform",
+        "https://www.googleapis.com/auth/cloud-platform.read-only",
+        "https://www.googleapis.com/auth/bigtable.admin",
+        "https://www.googleapis.com/auth/bigtable.admin.cluster",
+        "https://www.googleapis.com/auth/bigtable.admin.instance",
+        "https://www.googleapis.com/auth/bigtable.admin.table",
+        "https://www.googleapis.com/auth/cloud-bigtable.admin",
+        "https://www.googleapis.com/auth/cloud-bigtable.admin.cluster",
+        "https://www.googleapis.com/auth/cloud-bigtable.admin.table"
+      ]
+      |> Enum.join(" ")
+      |> Goth.Token.for_scope()
+
+    metadata = %{authorization: "Bearer #{token.token}"}
+
     {:ok, rows} =
       Connection.get_connection()
-      |> Bigtable.Stub.read_rows(request)
+      |> Bigtable.Stub.read_rows(request, metadata: metadata, content_type: "application/grpc")
+
+    Enum.map(rows, &IO.inspect(&1))
 
     rows
     |> Enum.filter(fn {status, row} ->

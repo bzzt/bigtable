@@ -195,7 +195,7 @@ defmodule Bigtable.RowFilter do
   @spec default_filters() :: list(V2.RowFilter.t())
   defp default_filters() do
     column_filter = cells_per_column(1)
-    [column_filter]
+    [column_filter, column_filter]
   end
 
   # Adds a filter to a V2.RowFilter.Chain on a V2.ReadRowsRequest

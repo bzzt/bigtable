@@ -2,6 +2,9 @@
 # and its dependencies with the aid of the Mix.Config module
 use Mix.Config
 
+config :goth,
+  json: Path.absname("./service.json") |> File.read!()
+
 config :mix_test_watch,
   tasks: [
     "test",
@@ -11,7 +14,7 @@ config :mix_test_watch,
 
 config :bigtable,
   project: "datahub-222411",
-  instance: "datahub",
+  instance: "dev-instance",
   table: "ride",
   url: "localhost",
   port: 8086
