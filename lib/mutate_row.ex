@@ -31,10 +31,12 @@ defmodule Bigtable.MutateRow do
   Submits a provided MutateRowRequest to Bigtable
   """
   def mutate(%V2.MutateRowRequest{} = request) do
+    metadata = Connection.get_metadata()
+
     connection = Connection.get_connection()
 
     connection
-    |> Bigtable.Stub.mutate_row(request)
+    |> Bigtable.Stub.mutate_row(request, metadata)
   end
 
   @doc """
