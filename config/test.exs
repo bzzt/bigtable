@@ -1,7 +1,8 @@
 use Mix.Config
 
 config :bigtable,
-  project: "test-project",
-  instance: "test-instance",
-  table: "test-table",
-  url: "localhost:8086"
+  project: "datahub-222411",
+  instance: "dev-instance",
+  table: "ride",
+  endpoint: "localhost:8086",
+  ssl: false
