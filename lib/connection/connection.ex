@@ -35,15 +35,17 @@ defmodule Bigtable.Connection do
     #     custom -> custom
     #   end
 
-    # # Connects the stub to the Bigtable gRPC server
-    # {:ok, channel} =
-    #   GRPC.Stub.connect(base_url,
-    #     interceptors: [GRPC.Logger.Client],
-    #     creds: "https://www.googleapis.com/oauth2/v1/certs"
-    #   )
+    # Connects the stub to the Bigtable gRPC server
+    {:ok, channel} =
+      GRPC.Stub.connect(@defaultBaseUrl, 443,
+        interceptors: [GRPC.Logger.Client],
+        cred: %GRPC.Credential{
+          ssl: []
+        }
+      )
 
-    # {:ok, channel}
-    {:ok, build_endpoints()}
+    {:ok, channel}
+    # {:ok, build_endpoints()}
   end
 
   def handle_call(:get_connection, _from, state) do
