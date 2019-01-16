@@ -24,3 +24,5 @@ erl_crash.dump
 bigtable-*.tar
 
 /priv/googleapis
+
+service.json

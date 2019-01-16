@@ -4,10 +4,7 @@ defmodule Bigtable.Connection do
   """
   use GenServer
 
-  defstruct data: nil, instance_admin: nil, table_admin: nil
-
-  @defaultBaseUrl "bigtable.googleapis.com"
-  @defaultAdminBaseUrl "bigtableadmin.googleapis.com"
+  @default_host "bigtable.googleapis.com:443"
 
   ## Client API
   @doc false
@@ -29,23 +26,36 @@ defmodule Bigtable.Connection do
   @spec init(:ok) :: {:ok, GRPC.Channel.t()}
   def init(:ok) do
     # Fetches the url to use for Bigtable gRPC connection
-    # base_url =
-    #   case custom_endpoint() do
-    #     nil -> @defaultBaseUrl
-    #     custom -> custom
-    #   end
+    endpoint =
+      case get_custom_endpoint() do
+        nil -> @default_host
+        custom -> custom
+      end
+
+    opts = [interceptors: [GRPC.Logger.Client]]
+
+    opts =
+      case Application.get_env(:bigtable, :ssl, true) do
+        true ->
+          opts ++
+            [
+              cred: %GRPC.Credential{
+                ssl: []
+              }
+            ]
+
+        false ->
+          opts
+      end
 
     # Connects the stub to the Bigtable gRPC server
     {:ok, channel} =
-      GRPC.Stub.connect(@defaultBaseUrl, 443,
-        interceptors: [GRPC.Logger.Client],
-        cred: %GRPC.Credential{
-          ssl: []
-        }
+      GRPC.Stub.connect(
+        endpoint,
+        opts
       )
 
     {:ok, channel}
-    # {:ok, build_endpoints()}
   end
 
   def handle_call(:get_connection, _from, state) do
@@ -56,37 +66,16 @@ defmodule Bigtable.Connection do
     {:noreply, state}
   end
 
-  defp build_endpoints() do
-    %__MODULE__{
-      data: build_endpoint(@defaultBaseUrl, 443),
-      instance_admin: build_endpoint(@defaultAdminBaseUrl, 443),
-      table_admin: build_endpoint(@defaultAdminBaseUrl, 443)
-    }
-  end
-
-  defp build_endpoint(default_url, default_port, options \\ %Bigtable.Connection.Config.Options{}) do
-    custom_endpoint = get_custom_endpoint()
-
-    %Bigtable.Connection.Config{
-      client_config: %{},
-      service_path: Map.get(custom_endpoint, :host, default_url),
-      port: Map.get(custom_endpoint, :port, default_port),
-      ssl_creds: Map.get(custom_endpoint, :creds, nil),
-      options: options
-    }
-  end
-
   defp get_custom_endpoint() do
     env = System.get_env("BIGTABLE_EMULATOR_HOST")
     custom = Application.get_env(:bigtable, :endpoint, env)
 
     case custom do
       nil ->
-        %{}
+        nil
 
       endpoint ->
-        split = String.split(endpoint, ":")
-        %{host: split[0], port: split[1], ssl_creds: "placeholder"}
+        endpoint
     end
   end
 end

@@ -16,5 +16,5 @@ config :bigtable,
   project: "datahub-222411",
   instance: "dev-instance",
   table: "ride",
-  url: "localhost",
-  port: 8086
+  endpoint: "localhost:8086",
+  ssl: false

@@ -66,8 +66,6 @@ defmodule Bigtable.ReadRows do
       Connection.get_connection()
       |> Bigtable.Stub.read_rows(request, metadata: metadata, content_type: "application/grpc")
 
-    Enum.map(rows, &IO.inspect(&1))
-
     rows
     |> Enum.filter(fn {status, row} ->
       status == :ok and !Enum.empty?(row.chunks)
