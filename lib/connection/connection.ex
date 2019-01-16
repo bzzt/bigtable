@@ -4,6 +4,8 @@ defmodule Bigtable.Connection do
   """
   use GenServer
 
+  alias Bigtable.Connection.Auth
+
   @default_host "bigtable.googleapis.com:443"
 
   ## Client API
@@ -19,6 +21,13 @@ defmodule Bigtable.Connection do
   @spec get_connection() :: GRPC.Channel.t()
   def get_connection do
     GenServer.call(__MODULE__, :get_connection)
+  end
+
+  @spec get_metadata() :: Keyword.t()
+  def get_metadata do
+    token = Auth.get_token()
+    metadata = %{authorization: "Bearer #{token.token}"}
+    [metadata: metadata, content_type: "application/grpc"]
   end
 
   # Server Callbacks

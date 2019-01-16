@@ -28,8 +28,10 @@ defmodule Bigtable.MutateRows do
   def mutate(%V2.MutateRowsRequest{} = request) do
     connection = Connection.get_connection()
 
+    metadata = Connection.get_metadata()
+
     connection
-    |> Bigtable.Stub.mutate_rows(request)
+    |> Bigtable.Stub.mutate_rows(request, metadata)
   end
 
   def mutate(entries) when is_list(entries) do
