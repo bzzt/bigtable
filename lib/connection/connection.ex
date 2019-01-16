@@ -7,6 +7,7 @@ defmodule Bigtable.Connection do
   alias Bigtable.Connection.Auth
 
   @default_host "bigtable.googleapis.com:443"
+  @default_opts [interceptors: [GRPC.Logger.Client]]
 
   ## Client API
   @doc false
@@ -41,23 +42,10 @@ defmodule Bigtable.Connection do
         custom -> custom
       end
 
-    opts = [interceptors: [GRPC.Logger.Client]]
-
-    opts =
-      case Application.get_env(:bigtable, :ssl, true) do
-        true ->
-          opts ++
-            [
-              cred: %GRPC.Credential{
-                ssl: []
-              }
-            ]
-
-        false ->
-          opts
-      end
+    opts = build_opts()
 
     # Connects the stub to the Bigtable gRPC server
+
     {:ok, channel} =
       GRPC.Stub.connect(
         endpoint,
@@ -73,6 +61,21 @@ defmodule Bigtable.Connection do
 
   def handle_info(_msg, state) do
     {:noreply, state}
+  end
+
+  defp build_opts do
+    case Application.get_env(:bigtable, :ssl, true) do
+      true ->
+        @default_opts ++
+          [
+            cred: %GRPC.Credential{
+              ssl: []
+            }
+          ]
+
+      false ->
+        @default_opts
+    end
   end
 
   defp get_custom_endpoint() do
