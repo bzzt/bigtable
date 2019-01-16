@@ -46,12 +46,12 @@ defmodule Bigtable.Mutations do
   """
   @spec set_cell(Entry.t(), binary(), binary(), binary(), integer()) :: Entry.t()
   def set_cell(%Entry{} = mutation, family, column, value, timestamp \\ -1)
-      when is_binary(family) and is_binary(column) and is_binary(value) and is_integer(timestamp) do
+      when is_binary(family) and is_binary(column) and is_integer(timestamp) do
     set_mutation =
       V2.Mutation.SetCell.new(
         family_name: family,
         column_qualifier: column,
-        value: value,
+        value: Bigtable.ByteString.to_byte_string(value),
         timestamp_micros: timestamp
       )
 
