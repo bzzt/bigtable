@@ -17,7 +17,7 @@ defmodule Bigtable.ReadRows do
   """
   @spec build(binary()) :: V2.ReadRowsRequest.t()
   def build(table_name) when is_binary(table_name) do
-    V2.ReadRowsRequest.new(table_name: table_name, app_profile_id: "default")
+    V2.ReadRowsRequest.new(table_name: table_name, app_profile_id: "")
     |> RowFilter.default_chain()
   end
 

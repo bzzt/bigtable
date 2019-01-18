@@ -1,6 +1,18 @@
 defmodule Bigtable.Schema do
   alias Bigtable.ByteString
 
+  defp list_from_block(block, to_match) do
+    Enum.reduce(block, [], fn value, accum ->
+      case value do
+        {to_match, _, [k, v]} ->
+          [{k, v} | accum]
+
+        _ ->
+          accum
+      end
+    end)
+  end
+
   defmacro __using__(_opt) do
     quote do
       import unquote(__MODULE__)
@@ -10,31 +22,24 @@ defmodule Bigtable.Schema do
   defmacro type(do: block) do
     {_, _, families} = block
 
-    family_list =
-      Keyword.new(
-        Enum.reduce(families, [], fn family, accum ->
-          case family do
-            {:family, _, [key, value]} ->
-              [{key, value} | accum]
+    family_list = list_from_block(families, :family)
 
-            _ ->
-              accum
-          end
-        end)
-      )
+    families_with_columns = Enum.map(family_list, fn family ->
+      {family_name, [do: {:__block__, [], columns}]} = family
+      column_list = list_from_block(columns, :column)
 
-    IO.inspect(families)
-    IO.inspect(family_list)
-
-    Enum.map(family_list, fn family ->
-      nil
+      {family_name, Map.new(column_list)}
     end)
 
     quote do
-      defstruct unquote(family_list)
+      defstruct unquote(Macro.escape(families_with_columns))
 
       def parse(chunks) do
-        Bigtable.Typed.parse_typed(%__MODULE__{}, chunks)
+        Bigtable.Typed.parse_typed(__MODULE__.type, chunks)
+      end
+
+      def type() do
+        %__MODULE__{}
       end
 
       def test_chunks do
@@ -113,27 +118,18 @@ defmodule Bigtable.Schema do
   end
 end
 
-# defmodule ChildSchema do
-#   use Bigtable.Schema
-
-#   type do
-#     field(:a, :integer)
-#     field(:b, :integer)
-#   end
-# end
-
 defmodule TestSchema do
   use Bigtable.Schema
 
   type do
-    family :ride do
-      column(:first, :integer)
-      column(:second, :boolean)
+    family(:first_family) do
+      column(:first_first, :integer)
+      column(:first_second, :boolean)
     end
 
     family :second_family do
-      column(:first, :integer)
-      column(:second, :boolean)
+      column(:second_first, :integer)
+      column(:second_second, :boolean)
     end
   end
 end
