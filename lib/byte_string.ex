@@ -17,11 +17,18 @@ defmodule Bigtable.ByteString do
           0 -> false
           1 -> true
         end
+
+      :list ->
+        Poison.decode!(byte_string)
     end
   end
 
   def to_byte_string(value) do
+    # Poison.encode!(value)
     case value do
+      v when is_nil(v) ->
+        ""
+
       v when is_binary(v) ->
         v
 
@@ -36,6 +43,9 @@ defmodule Bigtable.ByteString do
 
       v when is_float(v) ->
         <<v::signed-little-float-64>>
+
+      v when is_list(v) ->
+        Poison.encode!(v)
     end
   end
 end
