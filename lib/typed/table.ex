@@ -5,11 +5,21 @@ defmodule Bigtable.Schema do
     Enum.reduce(block, [], fn value, accum ->
       with {block_type, _, [k, v]} <- value do
         case block_type == to_match do
-          true -> [{k, v} | accum]
+          true -> [{k, get_value_type(v)} | accum]
           false -> accum
         end
       end
     end)
+  end
+
+  defp get_value_type(value) when is_atom(value), do: value
+
+  defp get_value_type({:__aliases__, _, [module]}) do
+    Module.concat(Elixir, module).type()
+  end
+
+  defp get_value_type(value) do
+    value
   end
 
   defmacro __using__(_opt) do
@@ -96,6 +106,26 @@ defmodule Bigtable.Schema do
             timestamp_micros: 1_547_637_474_930_000,
             value: ByteString.to_byte_string(false),
             value_size: 0
+          },
+          %Google.Bigtable.V2.ReadRowsResponse.CellChunk{
+            family_name: %Google.Protobuf.StringValue{value: "first_family"},
+            labels: [],
+            qualifier: %Google.Protobuf.BytesValue{value: "nested.nested_first"},
+            row_key: "Row#123",
+            row_status: {:commit_row, true},
+            timestamp_micros: 1_547_637_474_930_000,
+            value: ByteString.to_byte_string(1),
+            value_size: 0
+          },
+          %Google.Bigtable.V2.ReadRowsResponse.CellChunk{
+            family_name: %Google.Protobuf.StringValue{value: "first_family"},
+            labels: [],
+            qualifier: %Google.Protobuf.BytesValue{value: "nested.nested_second"},
+            row_key: "Row#123",
+            row_status: {:commit_row, true},
+            timestamp_micros: 1_547_637_474_930_000,
+            value: ByteString.to_byte_string(false),
+            value_size: 0
           }
         ]
 
@@ -130,8 +160,7 @@ defmodule Bigtable.Schema do
     end
   end
 
-  defmacro column(key, value) do
-  end
+  defmacro column(key, value), do: {key, value}
 end
 
 defmodule TestChild do
@@ -150,7 +179,7 @@ defmodule TestSchema do
     family(:first_family) do
       column(:first_first, :integer)
       column(:first_second, :boolean)
-      column(:nested, TestChild.type())
+      column(:nested, TestChild)
     end
 
     family :second_family do
