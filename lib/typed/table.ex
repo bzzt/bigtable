@@ -3,12 +3,11 @@ defmodule Bigtable.Schema do
 
   defp list_from_block(block, to_match) do
     Enum.reduce(block, [], fn value, accum ->
-      case value do
-        {to_match, _, [k, v]} ->
-          [{k, v} | accum]
-
-        _ ->
-          accum
+      with {block_type, _, [k, v]} <- value do
+        case block_type == to_match do
+          true -> [{k, v} | accum]
+          false -> accum
+        end
       end
     end)
   end
@@ -20,34 +19,48 @@ defmodule Bigtable.Schema do
   end
 
   defmacro type(do: block) do
+    {_, _, columns} = block
+    column_list = list_from_block(columns, :column)
+
+    quote do
+      defstruct unquote(column_list)
+
+      def type() do
+        %__MODULE__{}
+      end
+    end
+  end
+
+  defmacro row(do: block) do
     {_, _, families} = block
 
     family_list = list_from_block(families, :family)
 
-    families_with_columns = Enum.map(family_list, fn family ->
-      {family_name, [do: {:__block__, [], columns}]} = family
-      column_list = list_from_block(columns, :column)
+    families_with_columns =
+      Enum.map(family_list, fn family ->
+        {family_name, [do: {:__block__, [], columns}]} = family
+        column_list = list_from_block(columns, :column)
 
-      {family_name, Map.new(column_list)}
-    end)
+        {family_name, Map.new(column_list)}
+      end)
 
     quote do
       defstruct unquote(Macro.escape(families_with_columns))
 
-      def parse(chunks) do
-        Bigtable.Typed.parse_typed(__MODULE__.type, chunks)
+      def parse(row) do
+        Bigtable.Typed.parse_typed(__MODULE__.type(), row)
       end
 
       def type() do
         %__MODULE__{}
       end
 
-      def test_chunks do
+      def test_row do
         chunks = [
           %Google.Bigtable.V2.ReadRowsResponse.CellChunk{
-            family_name: %Google.Protobuf.StringValue{value: "ride"},
+            family_name: %Google.Protobuf.StringValue{value: "first_family"},
             labels: [],
-            qualifier: %Google.Protobuf.BytesValue{value: "first"},
+            qualifier: %Google.Protobuf.BytesValue{value: "first_first"},
             row_key: "Row#123",
             row_status: {:commit_row, true},
             timestamp_micros: 1_547_637_474_930_000,
@@ -55,9 +68,9 @@ defmodule Bigtable.Schema do
             value_size: 0
           },
           %Google.Bigtable.V2.ReadRowsResponse.CellChunk{
-            family_name: %Google.Protobuf.StringValue{value: "ride"},
+            family_name: %Google.Protobuf.StringValue{value: "first_family"},
             labels: [],
-            qualifier: %Google.Protobuf.BytesValue{value: "second"},
+            qualifier: %Google.Protobuf.BytesValue{value: "first_second"},
             row_key: "Row#123",
             row_status: {:commit_row, true},
             timestamp_micros: 1_547_637_474_930_000,
@@ -65,26 +78,31 @@ defmodule Bigtable.Schema do
             value_size: 0
           },
           %Google.Bigtable.V2.ReadRowsResponse.CellChunk{
-            family_name: %Google.Protobuf.StringValue{value: "ride"},
+            family_name: %Google.Protobuf.StringValue{value: "second_family"},
             labels: [],
-            qualifier: %Google.Protobuf.BytesValue{value: "child.a"},
-            row_key: "Row#123",
-            row_status: {:commit_row, true},
-            timestamp_micros: 1_547_637_474_930_000,
-            value: ByteString.to_byte_string(1),
-            value_size: 0
-          },
-          %Google.Bigtable.V2.ReadRowsResponse.CellChunk{
-            family_name: %Google.Protobuf.StringValue{value: "ride"},
-            labels: [],
-            qualifier: %Google.Protobuf.BytesValue{value: "child.b"},
+            qualifier: %Google.Protobuf.BytesValue{value: "second_first"},
             row_key: "Row#123",
             row_status: {:commit_row, true},
             timestamp_micros: 1_547_637_474_930_000,
             value: ByteString.to_byte_string(2),
             value_size: 0
+          },
+          %Google.Bigtable.V2.ReadRowsResponse.CellChunk{
+            family_name: %Google.Protobuf.StringValue{value: "second_family"},
+            labels: [],
+            qualifier: %Google.Protobuf.BytesValue{value: "second_second"},
+            row_key: "Row#123",
+            row_status: {:commit_row, true},
+            timestamp_micros: 1_547_637_474_930_000,
+            value: ByteString.to_byte_string(false),
+            value_size: 0
           }
         ]
+
+        %Google.Bigtable.V2.ReadRowsResponse{
+          chunks: chunks,
+          last_scanned_row_key: ""
+        }
       end
     end
   end
@@ -113,18 +131,26 @@ defmodule Bigtable.Schema do
   end
 
   defmacro column(key, value) do
-    IO.inspect(key)
-    IO.inspect(value)
+  end
+end
+
+defmodule TestChild do
+  use Bigtable.Schema
+
+  type do
+    column(:nested_first, :integer)
+    column(:nested_second, :boolean)
   end
 end
 
 defmodule TestSchema do
   use Bigtable.Schema
 
-  type do
+  row do
     family(:first_family) do
       column(:first_first, :integer)
       column(:first_second, :boolean)
+      column(:nested, TestChild.type())
     end
 
     family :second_family do
