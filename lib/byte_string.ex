@@ -1,5 +1,8 @@
 defmodule Bigtable.ByteString do
   def parse_value(type, byte_string) do
+    IO.inspect(type)
+    IO.inspect(byte_string)
+
     case type do
       :integer ->
         <<v::integer-signed-32>> = byte_string
@@ -23,6 +26,12 @@ defmodule Bigtable.ByteString do
     end
   end
 
+  @spec to_byte_string(false | nil | true | binary() | maybe_improper_list() | number()) ::
+          binary()
+          | maybe_improper_list(
+              binary() | maybe_improper_list(any(), binary() | []) | byte(),
+              binary() | []
+            )
   def to_byte_string(value) do
     # Poison.encode!(value)
     case value do

@@ -15,6 +15,6 @@ config :mix_test_watch,
 config :bigtable,
   project: "datahub-222411",
   instance: "dev-instance",
-  table: "ride",
+  table: "taxi",
   endpoint: "localhost:8086",
   ssl: false

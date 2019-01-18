@@ -8,4 +8,4 @@ config :goth,
 config :bigtable,
   project: "datahub-222411",
   instance: "dev-instance",
-  table: "ride"
+  table: "taxi"
