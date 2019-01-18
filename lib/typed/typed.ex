@@ -10,6 +10,8 @@ defmodule Bigtable.Typed do
   end
 
   defp apply_mutations(map, entry, family_name, parent_key \\ nil) do
+    IO.inspect(family_name)
+
     Enum.reduce(map, entry, fn {k, v}, accum ->
       case is_map(v) do
         true ->
@@ -35,14 +37,28 @@ defmodule Bigtable.Typed do
   end
 
   def parse_typed(type_spec, row) do
-    Enum.reduce(row.chunks, %{}, fn chunk, accum ->
-      family_key = String.to_atom(chunk.family_name.value)
-      family_spec = Map.fetch!(type_spec, family_key)
+    IO.inspect(type_spec)
 
-      field_name = chunk.qualifier.value
-      value = chunk.value
-      parse_from_spec(family_spec, field_name, value, accum)
-    end)
+    initial = %{last_family: nil, parsed: %{}}
+
+    %{parsed: parsed} =
+      Enum.reduce(row.chunks, initial, fn chunk, %{last_family: last_family, parsed: parsed} ->
+        family_key =
+          case is_map(chunk.family_name) do
+            false -> last_family
+            true -> String.to_atom(chunk.family_name.value)
+          end
+
+        family_spec = Map.fetch!(type_spec, family_key)
+
+        column_name = chunk.qualifier.value
+        column_value = chunk.value
+
+        next_parsed = parse_from_spec(family_spec, column_name, column_value, parsed)
+        %{parsed: next_parsed, last_family: family_key}
+      end)
+
+    parsed
   end
 
   def parse_from_spec(type_spec, field_name, value, accum) do

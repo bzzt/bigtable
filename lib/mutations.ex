@@ -49,7 +49,7 @@ defmodule Bigtable.Mutations do
       when is_binary(family) and is_binary(column) and is_integer(timestamp) do
     set_mutation =
       V2.Mutation.SetCell.new(
-        family_name: family,
+        family_name: Bigtable.ByteString.to_byte_string(family),
         column_qualifier: column,
         value: Bigtable.ByteString.to_byte_string(value),
         timestamp_micros: timestamp
