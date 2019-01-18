@@ -8,13 +8,13 @@ defmodule Bigtable.Schema do
   end
 
   defmacro type(do: block) do
-    {_, _, fields} = block
+    {_, _, families} = block
 
-    field_list =
+    family_list =
       Keyword.new(
-        Enum.reduce(fields, [], fn field, accum ->
-          case field do
-            {:field, _, [key, value]} ->
+        Enum.reduce(families, [], fn family, accum ->
+          case family do
+            {:family, _, [key, value]} ->
               [{key, value} | accum]
 
             _ ->
@@ -23,8 +23,15 @@ defmodule Bigtable.Schema do
         end)
       )
 
+    IO.inspect(families)
+    IO.inspect(family_list)
+
+    Enum.map(family_list, fn family ->
+      nil
+    end)
+
     quote do
-      defstruct unquote(field_list)
+      defstruct unquote(family_list)
 
       def parse(chunks) do
         Bigtable.Typed.parse_typed(%__MODULE__{}, chunks)
@@ -77,27 +84,56 @@ defmodule Bigtable.Schema do
     end
   end
 
-  defmacro field(key, value) do
+  defmacro family(name, do: block) do
+    {_, _, columns} = block
+
+    column_list =
+      Keyword.new(
+        Enum.reduce(columns, [], fn field, accum ->
+          case field do
+            {:column, _, [key, value]} ->
+              [{key, value} | accum]
+
+            _ ->
+              accum
+          end
+        end)
+      )
+
+    quote do
+      defmodule unquote(name) do
+        defstruct unquote(column_list)
+      end
+    end
+  end
+
+  defmacro column(key, value) do
     IO.inspect(key)
     IO.inspect(value)
   end
 end
 
-defmodule ChildSchema do
-  use Bigtable.Schema
+# defmodule ChildSchema do
+#   use Bigtable.Schema
 
-  type do
-    field(:a, :integer)
-    field(:b, :integer)
-  end
-end
+#   type do
+#     field(:a, :integer)
+#     field(:b, :integer)
+#   end
+# end
 
 defmodule TestSchema do
   use Bigtable.Schema
 
   type do
-    field(:first, :integer)
-    field(:second, :boolean)
-    field(:child, %ChildSchema{})
+    family :ride do
+      column(:first, :integer)
+      column(:second, :boolean)
+    end
+
+    family :second_family do
+      column(:first, :integer)
+      column(:second, :boolean)
+    end
   end
 end

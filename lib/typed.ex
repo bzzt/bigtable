@@ -3,73 +3,40 @@ defmodule Bigtable.Typed do
 
   def test_parse() do
     type_spec = %{
-      id: :binary,
-      age: :integer,
-      nested: %{
-        first: :binary,
-        second: :binary
-      },
-      double: %{
-        nested: %{
-          first: :boolean,
-          second: :integer
-        }
-      },
-      triple: %{
-        double: %{
-          nested: %{
-            first: :boolean,
-            second: :integer
+      family_one: %{
+        one_a: :integer,
+        one_b: :boolean,
+        one_nested: %{
+          one_nested_a: :integer,
+          one_nested_b: :boolean
+        },
+        one_double_nested: %{
+          one_double_nested_a: %{
+            a: :integer
           }
         }
+      },
+      family_two: %{
+        two_a: :integer,
+        two_b: :boolean
       }
     }
 
     chunks = [
       %Google.Bigtable.V2.ReadRowsResponse.CellChunk{
-        family_name: %Google.Protobuf.StringValue{value: "ride"},
+        family_name: %Google.Protobuf.StringValue{value: "family_one"},
         labels: [],
-        qualifier: %Google.Protobuf.BytesValue{value: "id"},
+        qualifier: %Google.Protobuf.BytesValue{value: "one_a"},
         row_key: "Row#123",
         row_status: {:commit_row, true},
         timestamp_micros: 1_547_637_474_930_000,
-        value: ByteString.to_byte_string("id#1"),
+        value: ByteString.to_byte_string(1),
         value_size: 0
       },
       %Google.Bigtable.V2.ReadRowsResponse.CellChunk{
-        family_name: %Google.Protobuf.StringValue{value: "ride"},
+        family_name: %Google.Protobuf.StringValue{value: "family_one"},
         labels: [],
-        qualifier: %Google.Protobuf.BytesValue{value: "age"},
-        row_key: "Row#123",
-        row_status: {:commit_row, true},
-        timestamp_micros: 1_547_637_474_930_000,
-        value: ByteString.to_byte_string(32),
-        value_size: 0
-      },
-      %Google.Bigtable.V2.ReadRowsResponse.CellChunk{
-        family_name: %Google.Protobuf.StringValue{value: "ride"},
-        labels: [],
-        qualifier: %Google.Protobuf.BytesValue{value: "nested.first"},
-        row_key: "Row#123",
-        row_status: {:commit_row, true},
-        timestamp_micros: 1_547_637_474_930_000,
-        value: ByteString.to_byte_string("first"),
-        value_size: 0
-      },
-      %Google.Bigtable.V2.ReadRowsResponse.CellChunk{
-        family_name: %Google.Protobuf.StringValue{value: "ride"},
-        labels: [],
-        qualifier: %Google.Protobuf.BytesValue{value: "nested.second"},
-        row_key: "Row#123",
-        row_status: {:commit_row, true},
-        timestamp_micros: 1_547_637_474_930_000,
-        value: "second",
-        value_size: 0
-      },
-      %Google.Bigtable.V2.ReadRowsResponse.CellChunk{
-        family_name: %Google.Protobuf.StringValue{value: "ride"},
-        labels: [],
-        qualifier: %Google.Protobuf.BytesValue{value: "double.nested.first"},
+        qualifier: %Google.Protobuf.BytesValue{value: "one_b"},
         row_key: "Row#123",
         row_status: {:commit_row, true},
         timestamp_micros: 1_547_637_474_930_000,
@@ -77,19 +44,19 @@ defmodule Bigtable.Typed do
         value_size: 0
       },
       %Google.Bigtable.V2.ReadRowsResponse.CellChunk{
-        family_name: %Google.Protobuf.StringValue{value: "ride"},
+        family_name: %Google.Protobuf.StringValue{value: "family_one"},
         labels: [],
-        qualifier: %Google.Protobuf.BytesValue{value: "double.nested.second"},
+        qualifier: %Google.Protobuf.BytesValue{value: "one_nested.one_nested_a"},
         row_key: "Row#123",
         row_status: {:commit_row, true},
         timestamp_micros: 1_547_637_474_930_000,
-        value: ByteString.to_byte_string(2),
+        value: ByteString.to_byte_string(1),
         value_size: 0
       },
       %Google.Bigtable.V2.ReadRowsResponse.CellChunk{
-        family_name: %Google.Protobuf.StringValue{value: "ride"},
+        family_name: %Google.Protobuf.StringValue{value: "family_one"},
         labels: [],
-        qualifier: %Google.Protobuf.BytesValue{value: "triple.double.nested.first"},
+        qualifier: %Google.Protobuf.BytesValue{value: "one_nested.one_nested_b"},
         row_key: "Row#123",
         row_status: {:commit_row, true},
         timestamp_micros: 1_547_637_474_930_000,
@@ -97,13 +64,33 @@ defmodule Bigtable.Typed do
         value_size: 0
       },
       %Google.Bigtable.V2.ReadRowsResponse.CellChunk{
-        family_name: %Google.Protobuf.StringValue{value: "ride"},
+        family_name: %Google.Protobuf.StringValue{value: "family_one"},
         labels: [],
-        qualifier: %Google.Protobuf.BytesValue{value: "triple.double.nested.second"},
+        qualifier: %Google.Protobuf.BytesValue{value: "one_double_nested.one_double_nested_a.a"},
         row_key: "Row#123",
         row_status: {:commit_row, true},
         timestamp_micros: 1_547_637_474_930_000,
-        value: ByteString.to_byte_string(2),
+        value: ByteString.to_byte_string(1),
+        value_size: 0
+      },
+      %Google.Bigtable.V2.ReadRowsResponse.CellChunk{
+        family_name: %Google.Protobuf.StringValue{value: "family_two"},
+        labels: [],
+        qualifier: %Google.Protobuf.BytesValue{value: "two_a"},
+        row_key: "Row#123",
+        row_status: {:commit_row, true},
+        timestamp_micros: 1_547_637_474_930_000,
+        value: ByteString.to_byte_string(1),
+        value_size: 0
+      },
+      %Google.Bigtable.V2.ReadRowsResponse.CellChunk{
+        family_name: %Google.Protobuf.StringValue{value: "family_two"},
+        labels: [],
+        qualifier: %Google.Protobuf.BytesValue{value: "two_b"},
+        row_key: "Row#123",
+        row_status: {:commit_row, true},
+        timestamp_micros: 1_547_637_474_930_000,
+        value: ByteString.to_byte_string(true),
         value_size: 0
       }
     ]
@@ -113,16 +100,18 @@ defmodule Bigtable.Typed do
 
   def test_mut do
     map = %{
-      id: "id#123",
-      age: 32,
-      nested: %{
-        first: "first",
-        second: "second"
-      },
-      double: %{
+      family_a: %{
+        id: "id#123",
+        age: 32,
         nested: %{
-          first: true,
-          second: 2
+          first: "first",
+          second: "second"
+        },
+        double: %{
+          nested: %{
+            first: true,
+            second: 2
+          }
         }
       }
     }
@@ -130,8 +119,16 @@ defmodule Bigtable.Typed do
     create_mutations("id#123", map)
   end
 
-  def create_mutations(row_key, map, parent_key \\ nil) do
-    Enum.reduce(map, [], fn {k, v}, accum ->
+  def create_mutations(row_key, map) do
+    entry = Bigtable.Mutations.build(row_key)
+
+    Enum.reduce(map, entry, fn {k, v}, accum ->
+      apply_mutations(v, accum, to_string(k))
+    end)
+  end
+
+  defp apply_mutations(map, entry, family_name, parent_key \\ nil) do
+    Enum.reduce(map, entry, fn {k, v}, accum ->
       case is_map(v) do
         true ->
           column_qualifier =
@@ -140,8 +137,7 @@ defmodule Bigtable.Typed do
               key -> "#{key}.#{to_string(k)}"
             end
 
-          child_mutations = create_mutations(row_key, v, column_qualifier)
-          accum ++ child_mutations
+          apply_mutations(v, accum, family_name, column_qualifier)
 
         false ->
           column_qualifier =
@@ -150,20 +146,20 @@ defmodule Bigtable.Typed do
               key -> "#{key}.#{to_string(k)}"
             end
 
-          mutation =
-            Bigtable.Mutations.build(row_key)
-            |> Bigtable.Mutations.set_cell("ride", column_qualifier, v)
-
-          [mutation | accum]
+          accum
+          |> Bigtable.Mutations.set_cell(family_name, column_qualifier, v)
       end
     end)
   end
 
   def parse_typed(type_spec, chunks) do
     Enum.reduce(chunks, %{}, fn chunk, accum ->
+      family_key = String.to_atom(chunk.family_name.value)
+      family_spec = Map.fetch!(type_spec, family_key)
+
       field_name = chunk.qualifier.value
       value = chunk.value
-      parse_from_spec(type_spec, field_name, value, accum)
+      parse_from_spec(family_spec, field_name, value, accum)
     end)
   end
 
