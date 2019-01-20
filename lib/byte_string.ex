@@ -1,8 +1,5 @@
 defmodule Bigtable.ByteString do
   def parse_value(type, byte_string) do
-    IO.inspect(type)
-    IO.inspect(byte_string)
-
     case type do
       :integer ->
         <<v::integer-signed-32>> = byte_string
