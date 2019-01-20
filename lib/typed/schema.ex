@@ -57,23 +57,3 @@ defmodule Bigtable.Schema do
     Module.concat([Elixir | modules]).type()
   end
 end
-
-defmodule TestType do
-  use Bigtable.Schema
-
-  type do
-    column(:a, :integer)
-  end
-end
-
-defmodule TestSchema do
-  use Bigtable.Schema
-
-  row do
-    family :my_family do
-      column(:foo, :integer)
-      column(:bar, :float)
-      column(:type, TestType)
-    end
-  end
-end
