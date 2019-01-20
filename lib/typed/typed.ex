@@ -10,8 +10,6 @@ defmodule Bigtable.Typed do
   end
 
   defp apply_mutations(map, entry, family_name, parent_key \\ nil) do
-    IO.inspect(family_name)
-
     Enum.reduce(map, entry, fn {k, v}, accum ->
       case is_map(v) do
         true ->
@@ -37,8 +35,6 @@ defmodule Bigtable.Typed do
   end
 
   def parse_typed(type_spec, row) do
-    IO.inspect(type_spec)
-
     initial = %{last_family: nil, parsed: %{}}
 
     %{parsed: parsed} =
