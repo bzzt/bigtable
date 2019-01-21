@@ -37,8 +37,6 @@ defmodule Bigtable.Typed do
   def parse_typed(type_spec, chunks) do
     initial = %{last_family: nil, parsed: %{}}
 
-    IO.inspect(chunks)
-
     %{parsed: parsed} =
       Enum.reduce(chunks, initial, fn chunk, %{last_family: last_family, parsed: parsed} ->
         family_key =
@@ -46,11 +44,6 @@ defmodule Bigtable.Typed do
             false -> last_family
             true -> String.to_atom(chunk.family_name.value)
           end
-
-        IO.inspect(chunk)
-        IO.inspect(chunk.family_name)
-        IO.inspect(type_spec)
-        IO.inspect(family_key)
 
         family_spec = Map.fetch!(type_spec, family_key)
 
@@ -87,26 +80,31 @@ defmodule Bigtable.Typed do
   end
 
   def group_by_row_key(rows) do
-    initial = %{rows: [], row_key: ""}
+    initial = %{rows: %{}, row_key: ""}
 
     rows
     |> Enum.reduce(initial, &add_to_group/2)
     |> Map.fetch!(:rows)
-    |> Enum.map(&Enum.reverse/1)
+    |> Map.new(fn {key, value} -> {key, Enum.reverse(value)} end)
   end
 
   defp add_to_group(%{row_key: row_key} = chunk, accum) do
     %{rows: prev_rows, row_key: prev_row_key} = accum
 
-    {head, _} = List.pop_at(prev_rows, 0, [])
+    # {head, _} = List.pop_at(prev_rows, 0, [])
 
     case new_row?(row_key, prev_row_key) do
       true ->
-        next_rows = List.insert_at(prev_rows, 0, [chunk])
+        # next_rows = List.insert_at(prev_rows, 0, [chunk])
+        next_rows = Map.put(prev_rows, String.to_atom(row_key), [chunk])
+
         %{rows: next_rows, row_key: row_key}
 
       false ->
-        next_rows = List.replace_at(prev_rows, 0, [chunk | head])
+        # next_rows = List.replace_at(prev_rows, 0, [chunk | head])
+        next_rows =
+          Map.update!(prev_rows, String.to_atom(prev_row_key), fn prev -> [chunk | prev] end)
+
         %{accum | rows: next_rows}
     end
   end
