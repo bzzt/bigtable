@@ -34,16 +34,23 @@ defmodule Bigtable.Typed do
     end)
   end
 
-  def parse_typed(type_spec, row) do
+  def parse_typed(type_spec, chunks) do
     initial = %{last_family: nil, parsed: %{}}
 
+    IO.inspect(chunks)
+
     %{parsed: parsed} =
-      Enum.reduce(row.chunks, initial, fn chunk, %{last_family: last_family, parsed: parsed} ->
+      Enum.reduce(chunks, initial, fn chunk, %{last_family: last_family, parsed: parsed} ->
         family_key =
           case is_map(chunk.family_name) do
             false -> last_family
             true -> String.to_atom(chunk.family_name.value)
           end
+
+        IO.inspect(chunk)
+        IO.inspect(chunk.family_name)
+        IO.inspect(type_spec)
+        IO.inspect(family_key)
 
         family_spec = Map.fetch!(type_spec, family_key)
 
