@@ -37,7 +37,7 @@ defmodule Bigtable.Schema do
           |> Enum.map(fn {:ok, rows} -> rows.chunks end)
           |> List.flatten()
           |> Bigtable.Typed.group_by_row_key()
-          |> Enum.map(&parse/1)
+          |> Map.new(fn {key, value} -> {key, parse(value)} end)
       end
 
       def parse(row) do
