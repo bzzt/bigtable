@@ -33,10 +33,7 @@ defmodule Bigtable.Schema do
         Bigtable.ReadRows.build()
         |> Bigtable.RowFilter.row_key_regex(regex)
         |> Bigtable.ReadRows.read()
-        |> Enum.map(fn {:ok, rows} -> rows.chunks end)
-        |> List.flatten()
-        |> Bigtable.Typed.group_by_row_key()
-        |> Enum.map(&parse/1)
+        |> parse_result()
       end
 
       def get(ids) when is_list(ids) do
@@ -46,10 +43,7 @@ defmodule Bigtable.Schema do
           |> Enum.map(fn id -> "#{@prefix}##{id}" end)
           |> Bigtable.RowSet.row_keys()
           |> Bigtable.ReadRows.read()
-          |> Enum.map(fn {:ok, rows} -> rows.chunks end)
-          |> List.flatten()
-          |> Bigtable.Typed.group_by_row_key()
-          |> Enum.map(&parse/1)
+          |> parse_result()
       end
 
       def get(id) when is_binary(id) do
@@ -57,8 +51,8 @@ defmodule Bigtable.Schema do
         |> List.first()
       end
 
-      def parse(row) do
-        Bigtable.Typed.parse_typed(__MODULE__.type(), row)
+      def parse_result(result) do
+        Bigtable.Typed.parse_result(result, __MODULE__.type())
       end
 
       def type() do

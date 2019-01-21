@@ -34,6 +34,14 @@ defmodule Bigtable.Typed do
     end)
   end
 
+  def parse_result(result, type_spec) do
+    result
+    |> Enum.map(fn {:ok, rows} -> rows.chunks end)
+    |> List.flatten()
+    |> Bigtable.Typed.group_by_row_key()
+    |> Enum.map(&parse_typed(type_spec, &1))
+  end
+
   def parse_typed(type_spec, chunks) do
     initial = %{last_family: nil, parsed: %{}}
 
