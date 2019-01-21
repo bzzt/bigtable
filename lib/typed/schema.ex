@@ -51,6 +51,17 @@ defmodule Bigtable.Schema do
         |> List.first()
       end
 
+      def update(maps) when is_list(maps) do
+        Bigtable.Typed.Update.mutations_from_maps(maps, @prefix, @update_patterns)
+        |> List.flatten()
+        |> Bigtable.MutateRows.build()
+        |> Bigtable.MutateRows.mutate()
+      end
+
+      def update(map) when is_map(map) do
+        update([map])
+      end
+
       def parse_result(result) do
         Bigtable.Typed.parse_result(result, __MODULE__.type())
       end
@@ -97,6 +108,8 @@ end
 
 defmodule BT.Schema.VehicleTest do
   use Bigtable.Schema
+
+  @update_patterns ["vehicle.id"]
 
   row :vehicle do
     family :vehicle do

@@ -65,6 +65,7 @@ defmodule Bigtable.MixProject do
   defp deps do
     [
       {:poison, "~> 3.1"},
+      {:lens, "~> 0.8.0"},
       {:goth, "~> 0.8.0"},
       {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.10", only: [:dev, :test]},
