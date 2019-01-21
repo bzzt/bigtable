@@ -36,23 +36,7 @@ defmodule Bigtable.Schema do
           |> Bigtable.ReadRows.read()
           |> Enum.map(fn {:ok, rows} -> rows.chunks end)
           |> List.flatten()
-          |> Enum.reduce(%{rows: [], row_key: ""}, fn chunk, accum ->
-            %{rows: prev_rows, row_key: prev_row_key} = accum
-
-            {head, _} = List.pop_at(prev_rows, 0, [])
-
-            case chunk.row_key not in ["", prev_row_key] do
-              true ->
-                next_rows = List.insert_at(prev_rows, 0, [chunk])
-                %{rows: next_rows, row_key: chunk.row_key}
-
-              false ->
-                next_rows = List.replace_at(prev_rows, 0, [chunk | head])
-                %{accum | rows: next_rows}
-            end
-          end)
-          |> Map.fetch!(:rows)
-          |> Enum.map(&Enum.reverse/1)
+          |> Bigtable.Typed.group_by_row_key()
           |> Enum.map(&parse/1)
       end
 
