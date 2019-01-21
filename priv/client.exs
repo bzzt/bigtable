@@ -41,5 +41,3 @@ alias Bigtable.ReadRows
       ]
     )
   )
-
-IO.inspect(reply)

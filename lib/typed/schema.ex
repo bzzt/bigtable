@@ -27,7 +27,19 @@ defmodule Bigtable.Schema do
       unquote(block)
       defstruct @families
 
-      def get(ids) do
+      def get_all() do
+        regex = "^#{@prefix}#\\w+"
+
+        Bigtable.ReadRows.build()
+        |> Bigtable.RowFilter.row_key_regex(regex)
+        |> Bigtable.ReadRows.read()
+        |> Enum.map(fn {:ok, rows} -> rows.chunks end)
+        |> List.flatten()
+        |> Bigtable.Typed.group_by_row_key()
+        |> Enum.map(&parse/1)
+      end
+
+      def get(ids) when is_list(ids) do
         rows =
           [ids]
           |> List.flatten()
@@ -37,7 +49,12 @@ defmodule Bigtable.Schema do
           |> Enum.map(fn {:ok, rows} -> rows.chunks end)
           |> List.flatten()
           |> Bigtable.Typed.group_by_row_key()
-          |> Map.new(fn {key, value} -> {key, parse(value)} end)
+          |> Enum.map(&parse/1)
+      end
+
+      def get(id) when is_binary(id) do
+        get([id])
+        |> List.first()
       end
 
       def parse(row) do
@@ -73,29 +90,32 @@ defmodule Bigtable.Schema do
   end
 end
 
-defmodule BT.Schema.Position do
+defmodule BT.Schema.PositionTest do
   use Bigtable.Schema
 
   type do
+    column(:bearing, :integer)
     column(:latitude, :float)
     column(:longitude, :float)
-    column(:timestamp, :binary)
+    column(:timestamp, :string)
   end
 end
 
-defmodule BT.Schema.Vehicle do
+defmodule BT.Schema.VehicleTest do
   use Bigtable.Schema
 
   row :vehicle do
     family :vehicle do
       column(:battery, :integer)
-      column(:condition, :binary)
-      column(:driver, :binary)
-      column(:fleet, :binary)
-      column(:numberPlate, :binary)
-      column(:ride, :binary)
-      column(:position, BT.Schema.Position)
-      column(:previousPosition, BT.Schema.Position)
+      column(:checkedInAt, :string)
+      column(:condition, :string)
+      column(:driver, :string)
+      column(:fleet, :string)
+      column(:id, :string)
+      column(:numberPlate, :string)
+      column(:position, BT.Schema.PositionTest)
+      column(:previousPosition, BT.Schema.PositionTest)
+      column(:ride, :string)
     end
   end
 end
