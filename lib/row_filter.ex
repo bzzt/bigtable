@@ -192,6 +192,18 @@ defmodule Bigtable.RowFilter do
     |> build_filter()
   end
 
+  def row_key_regex(%V2.ReadRowsRequest{} = request, regex) do
+    filter = row_key_regex(regex)
+
+    filter
+    |> add_to_chain(request)
+  end
+
+  def row_key_regex(regex) do
+    {:row_key_regex_filter, regex}
+    |> build_filter()
+  end
+
   @spec default_filters() :: list(V2.RowFilter.t())
   defp default_filters() do
     column_filter = cells_per_column(1)

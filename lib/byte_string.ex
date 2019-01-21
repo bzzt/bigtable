@@ -9,7 +9,7 @@ defmodule Bigtable.ByteString do
         <<v::signed-little-float-64>> = byte_string
         v
 
-      :binary ->
+      :string ->
         to_string(byte_string)
 
       :boolean ->
