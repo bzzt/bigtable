@@ -7,12 +7,24 @@ defmodule Bigtable.MixProject do
     [
       app: :bigtable,
       version: @version,
+      package: package(),
+      homepage_url: "https://github.com/bzzt/bigtable",
+      source_url: "https://github.com/bzzt/bigtable",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       docs: docs(),
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [coveralls: :test]
+    ]
+  end
+
+  defp package() do
+    [
+      description: "Elixir client library for Google Bigtable.",
+      maintainers: ["Jason Scott", "Philip Prophet", "Daniel Fredriksson"],
+      licenses: ["MIT"],
+      links: %{github: "https://github.com/bzzt/bigtable"}
     ]
   end
 
