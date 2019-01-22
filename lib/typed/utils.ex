@@ -6,9 +6,13 @@ defmodule Bigtable.Typed.Utils do
   def build_update_key(access_patterns, prefix, map) do
     access_patterns
     |> Enum.reduce("#{prefix}", fn pattern, row_key ->
-      [column_family | rest] = String.split(pattern, ".") |> Enum.map(&String.to_atom/1)
+      keys = String.split(pattern, ".")
 
-      value = build_lens(column_family, rest) |> Lens.one!(map)
+      [column_family | rest] = keys |> Enum.map(&String.to_atom/1)
+
+      lens = build_lens(column_family, rest)
+
+      value = lens |> Lens.one!(map)
 
       if(is_nil(value)) do
         throw("Unable to find key #{pattern} on #{inspect(map)}")

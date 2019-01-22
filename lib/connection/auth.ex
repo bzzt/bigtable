@@ -14,6 +14,11 @@ defmodule Bigtable.Connection.Auth do
     "https://www.googleapis.com/auth/cloud-bigtable.admin.cluster",
     "https://www.googleapis.com/auth/cloud-bigtable.admin.table"
   ]
+
+  @doc """
+  Returns the current `Goth.Token` that will be used to authorize Bigtable requests
+  """
+  @spec get_token() :: Goth.Token.t()
   def get_token() do
     {:ok, token} =
       @scopes

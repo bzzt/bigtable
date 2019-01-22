@@ -11,27 +11,24 @@ defmodule Bigtable.Typed do
 
   defp apply_mutations(map, entry, family_name, parent_key \\ nil) do
     Enum.reduce(map, entry, fn {k, v}, accum ->
+      column_qualifier = column_qualifier(parent_key, k)
+
       case is_map(v) do
         true ->
-          column_qualifier =
-            case parent_key do
-              nil -> to_string(k)
-              key -> "#{key}.#{to_string(k)}"
-            end
-
           apply_mutations(v, accum, family_name, column_qualifier)
 
         false ->
-          column_qualifier =
-            case parent_key do
-              nil -> to_string(k)
-              key -> "#{key}.#{to_string(k)}"
-            end
-
           accum
           |> Bigtable.Mutations.set_cell(family_name, column_qualifier, v)
       end
     end)
+  end
+
+  defp column_qualifier(parent_key, key) do
+    case parent_key do
+      nil -> to_string(key)
+      parent -> "#{parent}.#{to_string(key)}"
+    end
   end
 
   def parse_result(result, type_spec) do

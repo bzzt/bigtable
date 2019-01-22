@@ -28,12 +28,16 @@ defmodule Bigtable.Schema do
       defstruct @families
 
       def get_all() do
-        Bigtable.Typed.Get.get_all(@prefix)
+        rows = Bigtable.Typed.Get.get_all(@prefix)
+
+        rows
         |> parse_result()
       end
 
       def get_by_id(ids) when is_list(ids) do
-        Bigtable.Typed.Get.get_by_id(ids, @prefix)
+        rows = Bigtable.Typed.Get.get_by_id(ids, @prefix)
+
+        rows
         |> parse_result()
       end
 

@@ -6,12 +6,16 @@ defmodule Bigtable.Typed.Delete do
   end
 
   def delete_by_id(ids, row_prefix) do
-    Enum.map(ids, &delete_row(&1, row_prefix))
+    mutations = Enum.map(ids, &delete_row(&1, row_prefix))
+
+    mutations
     |> MutateRows.mutate()
   end
 
   defp delete_row(id, row_prefix) do
-    Mutations.build("#{row_prefix}##{id}")
+    entry = Mutations.build("#{row_prefix}##{id}")
+
+    entry
     |> Mutations.delete_from_row()
   end
 end
