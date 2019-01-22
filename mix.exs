@@ -8,10 +8,12 @@ defmodule Bigtable.MixProject do
       app: :bigtable,
       version: @version,
       package: package(),
+      elixir: "~> 1.7",
+      elixirc_paths: elixirc_paths(Mix.env()),
+      start_permanent: Mix.env() == :prod,
+      name: "Bigtable",
       homepage_url: "https://github.com/bzzt/bigtable",
       source_url: "https://github.com/bzzt/bigtable",
-      elixir: "~> 1.7",
-      start_permanent: Mix.env() == :prod,
       deps: deps(),
       docs: docs(),
       test_coverage: [tool: ExCoveralls],
@@ -35,6 +37,9 @@ defmodule Bigtable.MixProject do
       extra_applications: [:logger, :grpc]
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   defp docs do
     [

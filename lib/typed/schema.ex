@@ -5,6 +5,7 @@ defmodule Bigtable.Schema do
   ## Examples
       iex> defmodule SchemaExample do
       ...>  use Bigtable.Schema
+      ...>  @update_patterns ["family_a.column_a"]
       ...>  row :entity do
       ...>    family :family_a do
       ...>      column(:column_a, :integer)
