@@ -1,3 +1,8 @@
+# Bigtable
+
+[![Hex.pm](https://img.shields.io/hexpm/v/bigtable.svg)](https://hex.pm/packages/bigtable)
+[![Coverage Status](https://coveralls.io/repos/github/bzzt/bigtable/badge.svg)](https://coveralls.io/github/bzzt/bigtable)
+
 ## WORK IN PROGRESS. DOCUMENTATION MAY BE INCORRECT. DO NOT USE IN PRODUCTION.
 
 ## Documentation
