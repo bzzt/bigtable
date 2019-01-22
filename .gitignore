@@ -26,3 +26,4 @@ bigtable-*.tar
 /priv/googleapis
 
 service.json
+.DS_Store
