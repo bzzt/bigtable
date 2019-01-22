@@ -1,21 +1,9 @@
-defmodule Bigtable.Typed.Update do
-  def mutations_from_maps(maps, row_prefix, update_patterns) do
-    Enum.map(maps, &mutations_from_map(&1, row_prefix, update_patterns))
-  end
-
-  defp mutations_from_map(map, row_prefix, update_patterns) do
-    Enum.map(update_patterns, fn pattern ->
-      row_key_properties(pattern)
-      |> build_key(row_prefix, map)
-      |> Bigtable.Typed.create_mutations(map)
-    end)
-  end
-
-  defp row_key_properties(update_pattern) do
+defmodule Bigtable.Typed.Utils do
+  def row_key_properties(update_pattern) do
     String.split(update_pattern, "#")
   end
 
-  defp build_key(access_patterns, prefix, map) do
+  def build_update_key(access_patterns, prefix, map) do
     access_patterns
     |> Enum.reduce("#{prefix}", fn pattern, row_key ->
       [column_family | rest] = String.split(pattern, ".") |> Enum.map(&String.to_atom/1)

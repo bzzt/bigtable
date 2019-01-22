@@ -28,38 +28,33 @@ defmodule Bigtable.Schema do
       defstruct @families
 
       def get_all() do
-        regex = "^#{@prefix}#\\w+"
-
-        Bigtable.ReadRows.build()
-        |> Bigtable.RowFilter.row_key_regex(regex)
-        |> Bigtable.ReadRows.read()
+        Bigtable.Typed.Get.get_all(@prefix)
         |> parse_result()
       end
 
-      def get(ids) when is_list(ids) do
-        rows =
-          [ids]
-          |> List.flatten()
-          |> Enum.map(fn id -> "#{@prefix}##{id}" end)
-          |> Bigtable.RowSet.row_keys()
-          |> Bigtable.ReadRows.read()
-          |> parse_result()
+      def get_by_id(ids) when is_list(ids) do
+        Bigtable.Typed.Get.get_by_id(ids, @prefix)
+        |> parse_result()
       end
 
-      def get(id) when is_binary(id) do
-        get([id])
-        |> List.first()
+      def get_by_id(id) when is_binary(id) do
+        get_by_id([id])
       end
 
       def update(maps) when is_list(maps) do
         Bigtable.Typed.Update.mutations_from_maps(maps, @prefix, @update_patterns)
-        |> List.flatten()
-        |> Bigtable.MutateRows.build()
-        |> Bigtable.MutateRows.mutate()
       end
 
       def update(map) when is_map(map) do
         update([map])
+      end
+
+      def delete(ids) when is_list(ids) do
+        Bigtable.Typed.Delete.delete_rows(ids, @prefix)
+      end
+
+      def delete(id) when is_binary(id) do
+        delete([id])
       end
 
       def parse_result(result) do
