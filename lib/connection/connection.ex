@@ -7,7 +7,7 @@ defmodule Bigtable.Connection do
   alias Bigtable.Connection.Auth
 
   @default_host "bigtable.googleapis.com:443"
-  @default_opts [interceptors: [GRPC.Logger.Client]]
+  @default_opts []
 
   ## Client API
   @doc false
