@@ -2,13 +2,9 @@
 
 ## Documentation
 
----
-
 Documentation available at https://hexdocs.pm/bigtable/
 
 ## Installation
-
----
 
 The package can be installed as:
 
