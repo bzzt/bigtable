@@ -1,5 +1,5 @@
 defmodule RowSetTest do
-  alias Bigtable.{ReadRows, RowSet}
+  alias Bigtable.RowSet
 
   use ExUnit.Case
 
@@ -56,13 +56,13 @@ defmodule RowSetTest do
     expected_row_keys([key])
   end
 
-  defp expected_request(filter) do
-    %Google.Bigtable.V2.ReadRowsRequest{
-      app_profile_id: "",
-      filter: filter,
-      rows: nil,
-      rows_limit: 0,
-      table_name: Bigtable.Utils.configured_table_name()
-    }
-  end
+  # defp expected_request(filter) do
+  #   %Google.Bigtable.V2.ReadRowsRequest{
+  #     app_profile_id: "",
+  #     filter: filter,
+  #     rows: nil,
+  #     rows_limit: 0,
+  #     table_name: Bigtable.Utils.configured_table_name()
+  #   }
+  # end
 end

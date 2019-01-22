@@ -1,4 +1,34 @@
 defmodule Bigtable.Schema do
+  @moduledoc """
+  Allows the creation of typed Bigtable schemas.
+
+  ## Examples
+      iex> defmodule SchemaExample do
+      ...>  use Bigtable.Schema
+      ...>  row :entity do
+      ...>    family :family_a do
+      ...>      column(:column_a, :integer)
+      ...>      column(:column_b, :boolean)
+      ...>    end
+      ...>    family :family_b do
+      ...>      column(:column_a, :map)
+      ...>      column(:column_b, :list)
+      ...>    end
+      ...>  end
+      ...> end
+      iex> SchemaExample.type() |> Map.from_struct()
+      %{
+        family_a: %{
+          column_a: :integer,
+          column_b: :boolean
+        },
+        family_b: %{
+          column_a: :map,
+          column_b: :list
+        }
+      }
+  """
+
   defmacro __using__(_opt) do
     quote do
       import unquote(__MODULE__)
