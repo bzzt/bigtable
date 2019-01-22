@@ -3,8 +3,8 @@ defmodule Bigtable.MutateRows do
   Provides functions to build `Google.Bigtable.V2.MutateRowsRequest` and submit them to Bigtable.
   """
 
-  alias Google.Bigtable.V2
   alias Bigtable.Connection
+  alias Google.Bigtable.V2
 
   @doc """
   Builds a `Google.Bigtable.V2.MutateRowsRequest` with a provided table name and a list of `Google.Bigtable.V2.MutateRowsRequest.Entry`.

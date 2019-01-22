@@ -2,8 +2,8 @@ defmodule Bigtable.RowSet do
   @moduledoc """
   Provides functions to build a `Google.Bigtable.V2.RowSet` and apply it to a `Google.Bigtable.V2.ReadRowsRequest`
   """
-  alias Google.Bigtable.V2
   alias Bigtable.ReadRows
+  alias Google.Bigtable.V2
 
   @doc """
   Adds a single or list of row keys to a `Google.Bigtable.V2.ReadRowsRequest`

@@ -1,4 +1,7 @@
 defmodule Bigtable.Schema do
+  alias Bigtable.Typed
+  alias Typed.{Delete, Get, Update}
+
   @moduledoc """
   Allows the creation of typed Bigtable schemas.
 
@@ -72,7 +75,7 @@ defmodule Bigtable.Schema do
 
       defstruct var!(columns)
 
-      def type() do
+      def type do
         %__MODULE__{}
       end
     end
@@ -107,15 +110,15 @@ defmodule Bigtable.Schema do
       unquote(block)
       defstruct @families
 
-      def get_all() do
-        rows = Bigtable.Typed.Get.get_all(@prefix)
+      def get_all do
+        rows = Get.get_all(@prefix)
 
         rows
         |> parse_result()
       end
 
       def get_by_id(ids) when is_list(ids) do
-        rows = Bigtable.Typed.Get.get_by_id(ids, @prefix)
+        rows = Get.get_by_id(ids, @prefix)
 
         rows
         |> parse_result()
@@ -126,7 +129,7 @@ defmodule Bigtable.Schema do
       end
 
       def update(maps) when is_list(maps) do
-        Bigtable.Typed.Update.mutations_from_maps(maps, @prefix, @update_patterns)
+        Update.mutations_from_maps(maps, @prefix, @update_patterns)
       end
 
       def update(map) when is_map(map) do
@@ -134,22 +137,22 @@ defmodule Bigtable.Schema do
       end
 
       def delete(ids) when is_list(ids) do
-        Bigtable.Typed.Delete.delete_by_id(ids, @prefix)
+        Delete.delete_by_id(ids, @prefix)
       end
 
       def delete(id) when is_binary(id) do
         delete([id])
       end
 
-      def delete_all() do
-        Bigtable.Typed.Delete.delete_all(@prefix, @update_patterns)
+      def delete_all do
+        Delete.delete_all(@prefix, @update_patterns)
       end
 
       def parse_result(result) do
-        Bigtable.Typed.parse_result(result, __MODULE__.type())
+        Typed.parse_result(result, __MODULE__.type())
       end
 
-      def type() do
+      def type do
         %__MODULE__{}
       end
     end

@@ -1,5 +1,5 @@
 defmodule Bigtable.RowFilter do
-  alias Google.Bigtable.V2
+  alias Google.Bigtable.V2.{ReadRowsRequest, RowFilter}
 
   @moduledoc """
   Provides functions for creating `Google.Bigtable.V2.RowFilter` and applying them to `Google.Bigtable.V2.RowFilter.Chain`
@@ -28,8 +28,8 @@ defmodule Bigtable.RowFilter do
           }}
       }
   """
-  @spec default_chain(V2.ReadRowsRequest.t()) :: V2.ReadRowsRequest.t()
-  def default_chain(%V2.ReadRowsRequest{} = request) do
+  @spec default_chain(ReadRowsRequest.t()) :: ReadRowsRequest.t()
+  def default_chain(%ReadRowsRequest{} = request) do
     filters = default_filters()
     chain(request, filters)
   end
@@ -54,8 +54,8 @@ defmodule Bigtable.RowFilter do
           }}
       }
   """
-  @spec default_chain() :: V2.RowFilter.t()
-  def default_chain() do
+  @spec default_chain() :: RowFilter.t()
+  def default_chain do
     default_filters()
     |> chain()
   end
@@ -100,14 +100,14 @@ defmodule Bigtable.RowFilter do
         }}
       }
   """
-  @spec chain(V2.ReadRowsRequest.t(), [V2.RowFilter.t()]) :: V2.ReadRowsRequest.t()
-  def chain(%V2.ReadRowsRequest{} = request, filters) when is_list(filters) do
+  @spec chain(ReadRowsRequest.t(), [RowFilter.t()]) :: ReadRowsRequest.t()
+  def chain(%ReadRowsRequest{} = request, filters) when is_list(filters) do
     filter = chain(filters)
     %{request | filter: filter}
   end
 
-  @spec chain(V2.ReadRowsRequest.t(), V2.RowFilter.t()) :: V2.ReadRowsRequest.t()
-  def chain(%V2.ReadRowsRequest{} = request, %V2.RowFilter{} = filter) do
+  @spec chain(ReadRowsRequest.t(), RowFilter.t()) :: ReadRowsRequest.t()
+  def chain(%ReadRowsRequest{} = request, %RowFilter{} = filter) do
     chain(request, [filter])
   end
 
@@ -147,14 +147,14 @@ defmodule Bigtable.RowFilter do
         }}
       }
   """
-  @spec chain([V2.RowFilter.t()]) :: V2.RowFilter.t()
+  @spec chain([RowFilter.t()]) :: RowFilter.t()
   def chain(filters) when is_list(filters) do
-    {:chain, V2.RowFilter.Chain.new(filters: filters)}
+    {:chain, RowFilter.Chain.new(filters: filters)}
     |> build_filter()
   end
 
-  @spec chain(V2.RowFilter.t()) :: V2.RowFilter.t()
-  def chain(%V2.RowFilter{} = filter) do
+  @spec chain(RowFilter.t()) :: RowFilter.t()
+  def chain(%RowFilter{} = filter) do
     chain([filter])
   end
 
@@ -175,8 +175,8 @@ defmodule Bigtable.RowFilter do
         }}
       }
   """
-  @spec cells_per_column(V2.ReadRowsRequest.t(), integer()) :: V2.ReadRowsRequest.t()
-  def cells_per_column(%V2.ReadRowsRequest{} = request, limit) when is_integer(limit) do
+  @spec cells_per_column(ReadRowsRequest.t(), integer()) :: ReadRowsRequest.t()
+  def cells_per_column(%ReadRowsRequest{} = request, limit) when is_integer(limit) do
     filter = cells_per_column(limit)
 
     filter
@@ -192,13 +192,13 @@ defmodule Bigtable.RowFilter do
         filter: {:cells_per_column_limit_filter, 2}
       }
   """
-  @spec cells_per_column(integer()) :: V2.RowFilter.t()
+  @spec cells_per_column(integer()) :: RowFilter.t()
   def cells_per_column(limit) when is_integer(limit) do
     {:cells_per_column_limit_filter, limit}
     |> build_filter()
   end
 
-  def row_key_regex(%V2.ReadRowsRequest{} = request, regex) do
+  def row_key_regex(%ReadRowsRequest{} = request, regex) do
     filter = row_key_regex(regex)
 
     filter
@@ -210,14 +210,14 @@ defmodule Bigtable.RowFilter do
     |> build_filter()
   end
 
-  @spec default_filters() :: list(V2.RowFilter.t())
-  defp default_filters() do
+  @spec default_filters() :: list(RowFilter.t())
+  defp default_filters do
     column_filter = cells_per_column(1)
     [column_filter, column_filter]
   end
 
   # Adds a filter to a V2.RowFilter.Chain on a V2.ReadRowsRequest
-  @spec add_to_chain(V2.RowFilter.t(), V2.ReadRowsRequest.t()) :: V2.ReadRowsRequest.t()
+  @spec add_to_chain(RowFilter.t(), ReadRowsRequest.t()) :: ReadRowsRequest.t()
   defp add_to_chain(filter, request) do
     # Fetches the request's previous filter chain
     {:chain, chain} = request.filter.filter
@@ -235,20 +235,20 @@ defmodule Bigtable.RowFilter do
   end
 
   # Creates a Bigtable.V2.RowFilter given a type and value
-  @spec build_filter({atom(), any()}) :: V2.RowFilter.t()
+  @spec build_filter({atom(), any()}) :: RowFilter.t()
   defp build_filter({type, value}) when is_atom(type) do
-    V2.RowFilter.new(filter: {type, value})
+    RowFilter.new(filter: {type, value})
   end
 
   # Removes duplicate filters given a filter type
-  @spec remove_duplicates(list(V2.RowFilter.t()), atom()) :: list(V2.RowFilter.t())
+  @spec remove_duplicates(list(RowFilter.t()), atom()) :: list(RowFilter.t())
   defp remove_duplicates(row_filters, row_filter_type) do
     Enum.filter(row_filters, &(get_filter_type(&1) != row_filter_type))
   end
 
   # Fetches filter type from filter tuple
-  @spec get_filter_type(V2.RowFilter.t()) :: atom()
-  defp get_filter_type(%V2.RowFilter{} = filter) do
+  @spec get_filter_type(RowFilter.t()) :: atom()
+  defp get_filter_type(%RowFilter{} = filter) do
     elem(filter.filter, 0)
   end
 end

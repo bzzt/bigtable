@@ -3,8 +3,10 @@ defmodule Bigtable.Mutations do
   Provides functions to build Bigtable mutations that are used when forming
   row mutation requests.
   """
-  alias Google.Bigtable.V2
-  alias V2.MutateRowsRequest.Entry
+  alias Bigtable.ByteString
+  alias Google.Bigtable.V2.{MutateRowsRequest, Mutation, TimestampRange}
+  alias MutateRowsRequest.Entry
+  alias Mutation.{DeleteFromColumn, DeleteFromFamily, DeleteFromRow, SetCell}
 
   @doc """
   Builds a `Google.Bigtable.V2.MutateRowsRequest.Entry` for use with `Google.Bigtable.V2.MutateRowRequest` and `Google.Bigtable.V2.MutateRowsRequest`.
@@ -48,10 +50,10 @@ defmodule Bigtable.Mutations do
   def set_cell(%Entry{} = mutation, family, column, value, timestamp \\ -1)
       when is_binary(family) and is_binary(column) and is_integer(timestamp) do
     set_mutation =
-      V2.Mutation.SetCell.new(
-        family_name: Bigtable.ByteString.to_byte_string(family),
+      SetCell.new(
+        family_name: ByteString.to_byte_string(family),
         column_qualifier: column,
-        value: Bigtable.ByteString.to_byte_string(value),
+        value: ByteString.to_byte_string(value),
         timestamp_micros: timestamp
       )
 
@@ -90,7 +92,7 @@ defmodule Bigtable.Mutations do
     time_range = create_time_range(time_range)
 
     mutation =
-      V2.Mutation.DeleteFromColumn.new(
+      DeleteFromColumn.new(
         family_name: family,
         column_qualifier: column,
         time_range: time_range
@@ -117,7 +119,7 @@ defmodule Bigtable.Mutations do
   """
   @spec delete_from_family(Entry.t(), binary()) :: Entry.t()
   def delete_from_family(%Entry{} = mutation_struct, family) when is_binary(family) do
-    mutation = V2.Mutation.DeleteFromFamily.new(family_name: family)
+    mutation = DeleteFromFamily.new(family_name: family)
 
     add_mutation(mutation_struct, :delete_from_family, mutation)
   end
@@ -137,29 +139,30 @@ defmodule Bigtable.Mutations do
         row_key: "Row#123"
       }
   """
+
   @spec delete_from_row(Entry.t()) :: Entry.t()
   def delete_from_row(%Entry{} = mutation_struct) do
-    mutation = V2.Mutation.DeleteFromRow.new()
+    mutation = DeleteFromRow.new()
 
     add_mutation(mutation_struct, :delete_from_row, mutation)
   end
 
   # Adds an additional V2.Mutation to the given mutation struct
-  @spec add_mutation(Entry.t(), atom(), V2.Mutation.t()) :: Entry.t()
+  @spec add_mutation(Entry.t(), atom(), Mutation.t()) :: Entry.t()
   defp add_mutation(%Entry{} = mutation_struct, type, mutation) do
     %{
       mutation_struct
-      | mutations: mutation_struct.mutations ++ [V2.Mutation.new(mutation: {type, mutation})]
+      | mutations: mutation_struct.mutations ++ [Mutation.new(mutation: {type, mutation})]
     }
   end
 
   # Creates a time range that can be used for column deletes
-  @spec create_time_range(Keyword.t()) :: V2.TimestampRange.t()
+  @spec create_time_range(Keyword.t()) :: TimestampRange.t()
   defp create_time_range(time_range) do
     start_timestamp_micros = Keyword.get(time_range, :start)
     end_timestamp_micros = Keyword.get(time_range, :end)
 
-    time_range = V2.TimestampRange.new()
+    time_range = TimestampRange.new()
 
     time_range =
       case start_timestamp_micros do

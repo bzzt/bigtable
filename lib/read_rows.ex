@@ -3,9 +3,9 @@ defmodule Bigtable.ReadRows do
   Provides functions to build `Google.Bigtable.V2.ReadRowsRequest` and submit them to Bigtable.
   """
 
-  alias Google.Bigtable.V2
-  alias Bigtable.RowFilter
   alias Bigtable.Connection
+  alias Bigtable.RowFilter
+  alias Google.Bigtable.V2
 
   @doc """
   Builds a `Google.Bigtable.V2.ReadRowsRequest` with a provided table name.
@@ -30,7 +30,7 @@ defmodule Bigtable.ReadRows do
       :ok
   """
   @spec build() :: V2.ReadRowsRequest.t()
-  def build() do
+  def build do
     build(Bigtable.Utils.configured_table_name())
   end
 
@@ -77,7 +77,7 @@ defmodule Bigtable.ReadRows do
   @spec read() ::
           {:error, GRPC.RPCError.t()}
           | [ok: V2.ReadRowsResponse.t()]
-  def read() do
+  def read do
     request = build()
 
     request
