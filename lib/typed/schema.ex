@@ -38,6 +38,32 @@ defmodule Bigtable.Schema do
     end
   end
 
+  @doc """
+  Defines a type that can be used as the value for a `Bigtable.Schema.column/2` definition.
+
+  ## Examples
+  ```elixir
+
+  defmodule Type do
+    use Bigtable.Schema
+
+    type do
+      column(:a, :integer)
+      column(:b, :string)
+    end
+  end
+
+  defmodule Schema do
+    use Bigtable.Schema
+
+    row :entity do
+      family :family do
+        column(:column, Type)
+      end
+    end
+  end
+  ```
+  """
   defmacro type(do: block) do
     quote do
       var!(columns) = []
@@ -50,6 +76,29 @@ defmodule Bigtable.Schema do
       end
     end
   end
+
+  @doc """
+  Defines a schema to be used when reading and mutating Bigtable rows.
+
+  ## Examples
+  ```elixir
+
+  defmodule Schema do
+    use Bigtable.Schema
+
+    row :entity do
+      family :family_a do
+        column(:column_a, :string)
+      end
+
+      family :family_b do
+        column(:column_a, :integer)
+        column(:column_b, :boolean)
+      end
+    end
+  end
+  ```
+  """
 
   defmacro row(name, do: block) do
     quote do
@@ -105,6 +154,13 @@ defmodule Bigtable.Schema do
     end
   end
 
+  @doc """
+  Defines a column family inside a `Bigtable.Schema.row/2` definition.
+
+  The name of the family should be provided to the macro as an atom.
+
+  The block of the macro should only contain `Bigtable.Schema.column/2` definitions.
+  """
   defmacro family(name, do: block) do
     quote do
       var!(columns) = []
@@ -113,6 +169,21 @@ defmodule Bigtable.Schema do
     end
   end
 
+  @doc """
+  Defines a column inside a `Bigtable.Schema.family/2` definition.
+
+  The first argument is an atom that will define the column's name.
+
+  The second argument defines the column's type and should be one of:
+  - `:integer`
+  - `:float`
+  - `:boolean`
+  - `:string`
+  - `:map`
+  - `:list`
+
+  If the column value is defined as either `:map` or `:list`, the value will be JSON encoded during mutations and decoded during reads.
+  """
   defmacro column(key, value) do
     c = {key, get_value_type(value)} |> Macro.escape()
 
