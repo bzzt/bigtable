@@ -1,9 +1,11 @@
 defmodule Bigtable.Typed.Get do
+  @moduledoc false
   alias Bigtable.{ReadRows, RowFilter, RowSet}
 
   def get_all(row_prefix, update_patterns) do
   end
 
+  @spec get_all(binary()) :: [ok: Google.Bigtable.V2.ReadRowsResponse]
   def get_all(row_prefix) do
     regex = "^#{row_prefix}#\\w+"
 
@@ -12,6 +14,7 @@ defmodule Bigtable.Typed.Get do
     |> ReadRows.read()
   end
 
+  @spec get_by_id([binary()], binary()) :: [ok: Google.Bigtable.V2.ReadRowsResponse]
   def get_by_id(ids, row_prefix) do
     ids
     |> Enum.map(fn id -> "#{row_prefix}##{id}" end)

@@ -99,6 +99,7 @@ defmodule Bigtable.Schema do
 end
 
 defmodule BT.Schema.PositionTest do
+  @moduledoc false
   use Bigtable.Schema
 
   type do
@@ -110,6 +111,7 @@ defmodule BT.Schema.PositionTest do
 end
 
 defmodule BT.Schema.VehicleTest do
+  @moduledoc false
   use Bigtable.Schema
 
   @update_patterns ["vehicle.id"]

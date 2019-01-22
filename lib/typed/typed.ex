@@ -1,6 +1,7 @@
 defmodule Bigtable.Typed do
   alias Bigtable.ByteString
 
+  @spec create_mutations(binary(), map()) :: Google.Bigtable.V2.MutateRowsRequest.Entry.t()
   def create_mutations(row_key, map) do
     entry = Bigtable.Mutations.build(row_key)
 
@@ -9,6 +10,12 @@ defmodule Bigtable.Typed do
     end)
   end
 
+  @spec apply_mutations(
+          map(),
+          Google.Bigtable.V2.MutateRowsRequest.Entry.t(),
+          binary(),
+          binary() | nil
+        ) :: Google.Bigtable.V2.MutateRowsRequest.Entry.t()
   defp apply_mutations(map, entry, family_name, parent_key \\ nil) do
     Enum.reduce(map, entry, fn {k, v}, accum ->
       column_qualifier = column_qualifier(parent_key, k)
@@ -24,6 +31,7 @@ defmodule Bigtable.Typed do
     end)
   end
 
+  @spec column_qualifier(binary() | nil, binary()) :: binary()
   defp column_qualifier(parent_key, key) do
     case parent_key do
       nil -> to_string(key)
@@ -102,15 +110,11 @@ defmodule Bigtable.Typed do
     case new_row?(row_key, prev_row_key) do
       true ->
         next_rows = List.insert_at(prev_rows, 0, [chunk])
-        # next_rows = Map.put(prev_rows, String.to_atom(row_key), [chunk])
 
         %{rows: next_rows, row_key: row_key}
 
       false ->
         next_rows = List.replace_at(prev_rows, 0, [chunk | head])
-        # next_rows =
-        #   Map.update!(prev_rows, String.to_atom(prev_row_key), fn prev -> [chunk | prev] end)
-
         %{accum | rows: next_rows}
     end
   end

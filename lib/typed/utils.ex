@@ -14,7 +14,7 @@ defmodule Bigtable.Typed.Utils do
 
       value = lens |> Lens.one!(map)
 
-      if(is_nil(value)) do
+      if is_nil(value) do
         throw("Unable to find key #{pattern} on #{inspect(map)}")
       end
 
