@@ -2,7 +2,10 @@ defmodule Bigtable.Typed.Delete do
   # TODO: Delete extra rowkey patterns
   alias Bigtable.{MutateRows, Mutations}
 
-  def delete_rows(ids, row_prefix) do
+  def delete_all(row_prefix, update_patterns) do
+  end
+
+  def delete_by_id(ids, row_prefix) do
     Enum.map(ids, &delete_row(&1, row_prefix))
     |> MutateRows.mutate()
   end

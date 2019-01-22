@@ -50,11 +50,15 @@ defmodule Bigtable.Schema do
       end
 
       def delete(ids) when is_list(ids) do
-        Bigtable.Typed.Delete.delete_rows(ids, @prefix)
+        Bigtable.Typed.Delete.delete_by_id(ids, @prefix)
       end
 
       def delete(id) when is_binary(id) do
         delete([id])
+      end
+
+      def delete_all() do
+        Bigtable.Typed.Delete.delete_all(@prefix, @update_patterns)
       end
 
       def parse_result(result) do
