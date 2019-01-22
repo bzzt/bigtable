@@ -8,7 +8,7 @@ defmodule Bigtable.MutateRow do
   alias Bigtable.Connection
 
   @doc """
-  Builds a MutateRow request with a provided table name and MutateRows.Entry
+  Builds a `Google.Bigtable.V2.MutateRowRequest` with a provided table name and `Google.Bigtable.V2.MutateRowsRequest.Entry`.
   """
   @spec build(V2.MutateRowsRequest.Entry.t(), binary()) :: V2.MutateRowRequest.t()
   def build(%Entry{} = row_mutations, table_name) when is_binary(table_name) do
@@ -20,7 +20,7 @@ defmodule Bigtable.MutateRow do
   end
 
   @doc """
-  Builds a MutateRow request with default table name and provided MutateRows.Entry
+  Builds a `Google.Bigtable.V2.MutateRowRequest` with default table name and provided `Google.Bigtable.V2.MutateRowsRequest.Entry`.
   """
   @spec build(V2.MutateRowsRequest.Entry.t()) :: V2.MutateRowRequest.t()
   def build(%Entry{} = row_mutations) do
@@ -28,8 +28,11 @@ defmodule Bigtable.MutateRow do
   end
 
   @doc """
-  Submits a provided MutateRowRequest to Bigtable
+  Submits a `Google.Bigtable.V2.MutateRowRequest` given either a  `Google.Bigtable.V2.MutateRowsRequest.Entry` or a `Google.Bigtable.V2.MutateRowRequest`.
+
+  Returns a `Google.Bigtable.V2.MutateRowResponse`
   """
+  @spec mutate(V2.MutateRowRequest.t()) :: V2.MutateRowResponse.t()
   def mutate(%V2.MutateRowRequest{} = request) do
     metadata = Connection.get_metadata()
 
@@ -39,9 +42,7 @@ defmodule Bigtable.MutateRow do
     |> Bigtable.Stub.mutate_row(request, metadata)
   end
 
-  @doc """
-  Builds and submits a MutateRowRequest with a provided MutateRowsRequest.Entry
-  """
+  @spec mutate(V2.MutateRowsRequest.Entry.t()) :: V2.MutateRowResponse.t()
   def mutate(%Entry{} = row_mutations) do
     request = build(row_mutations)
 

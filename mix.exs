@@ -51,20 +51,23 @@ defmodule Bigtable.MixProject do
   defp extras do
     [
       "guides/introduction/overview.md",
-      "guides/introduction/installation.md",
-      "guides/operations/read_rows.md"
+      "guides/introduction/installation.md"
+      # "guides/operations/read_rows.md"
     ]
   end
 
   defp groups_for_extras do
     [
-      Introduction: ~r/guides\/introduction\/.?/,
-      Operations: ~r/guides\/operations\/.?/
+      Introduction: ~r/guides\/introduction\/.?/
+      # Operations: ~r/guides\/operations\/.?/
     ]
   end
 
   defp groups_for_modules do
     [
+      "Typed Bigtable": [
+        Bigtable.Schema
+      ],
       Operations: [
         Bigtable.ReadRows,
         Bigtable.MutateRow,

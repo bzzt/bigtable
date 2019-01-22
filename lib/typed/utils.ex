@@ -1,4 +1,5 @@
 defmodule Bigtable.Typed.Utils do
+  @moduledoc false
   def row_key_properties(update_pattern) do
     String.split(update_pattern, "#")
   end

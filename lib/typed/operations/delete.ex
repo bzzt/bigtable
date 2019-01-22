@@ -7,7 +7,8 @@ defmodule Bigtable.Typed.Delete do
   def delete_all(row_prefix, update_patterns) do
   end
 
-  @spec delete_by_id([binary()], binary()) :: [ok: Google.Bigtable.V2.MutateRowsResponse.t()]
+  @spec delete_by_id([binary()], binary()) ::
+          {:error, GRPC.RPCError.t()} | {:ok, Google.Bigtable.V2.MutateRowsResponse.t()}
   def delete_by_id(ids, row_prefix) do
     mutations = Enum.map(ids, &delete_row(&1, row_prefix))
 

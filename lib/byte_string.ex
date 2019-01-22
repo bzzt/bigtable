@@ -1,4 +1,7 @@
 defmodule Bigtable.ByteString do
+  @moduledoc false
+  @spec parse_value(:boolean | :float | :integer | :list | :map | :string, binary()) ::
+          integer() | float() | binary() | boolean() | map() | list()
   def parse_value(type, byte_string) do
     case type do
       :integer ->
@@ -18,19 +21,17 @@ defmodule Bigtable.ByteString do
           1 -> true
         end
 
+      :map ->
+        Poison.decode!(byte_string)
+
       :list ->
         Poison.decode!(byte_string)
     end
   end
 
-  @spec to_byte_string(false | nil | true | binary() | maybe_improper_list() | number()) ::
+  @spec to_byte_string(false | nil | true | binary() | list() | map() | integer() | float()) ::
           binary()
-          | maybe_improper_list(
-              binary() | maybe_improper_list(any(), binary() | []) | byte(),
-              binary() | []
-            )
   def to_byte_string(value) do
-    # Poison.encode!(value)
     case value do
       v when is_nil(v) ->
         ""
@@ -51,6 +52,9 @@ defmodule Bigtable.ByteString do
         <<v::signed-little-float-64>>
 
       v when is_list(v) ->
+        Poison.encode!(v)
+
+      v when is_map(v) ->
         Poison.encode!(v)
     end
   end

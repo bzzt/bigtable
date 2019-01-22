@@ -6,19 +6,31 @@
 #mix.exs
 def deps do
   [
-    {:bigtable, "~> 0.1"},
+    {:bigtable, "~> 0.1.0"},
   ]
 end
 ```
 
 ## Configuration
 
+#### Local Development Using Bigtable Emulator
+
 ```elixir
-#config.exs
+#dev.exs
 config :bigtable,
   project: "project_id",
   instance: "instance_id",
   table: "table_name",
-  url: "localhost:8086"
+  endpoint: "localhost:8086"
+  ssl: false
+```
 
+#### Production Configuration
+
+```elixir
+#prod.exs
+config :bigtable,
+  project: "project_id",
+  instance: "instance_id",
+  table: "table_name"
 ```

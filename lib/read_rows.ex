@@ -37,9 +37,13 @@ defmodule Bigtable.ReadRows do
   @doc """
   Submits a `Google.Bigtable.V2.ReadRowsRequest` to Bigtable.
 
+  Can be called with either a `Google.Bigtable.V2.ReadRowsRequest` or a table name to read all rows from a non-configured table.
+
   Returns a list of `{:ok, %Google.Bigtable.V2.ReadRowsResponse{}}`.
   """
-  @spec read(V2.ReadRowsRequest.t()) :: {:ok, V2.ReadRowsResponse.t()}
+  @spec read(V2.ReadRowsRequest.t()) ::
+          {:error, GRPC.RPCError.t()}
+          | [ok: V2.ReadRowsResponse.t()]
   def read(%V2.ReadRowsRequest{} = request) do
     metadata = Connection.get_metadata()
 
@@ -53,12 +57,9 @@ defmodule Bigtable.ReadRows do
     end)
   end
 
-  @doc """
-  Builds a `Google.Bigtable.V2.ReadRowsRequest` with a provided table name and submits it to Bigtable.
-
-  Returns a list of `{:ok, %Google.Bigtable.V2.ReadRowsResponse{}}`.
-  """
-  @spec read(binary()) :: {:ok, V2.ReadRowsResponse.t()}
+  @spec read(binary()) ::
+          {:error, GRPC.RPCError.t()}
+          | [ok: V2.ReadRowsResponse.t()]
   def read(table_name) when is_binary(table_name) do
     request = build(table_name)
 
@@ -67,11 +68,15 @@ defmodule Bigtable.ReadRows do
   end
 
   @doc """
-  Builds a `Google.Bigtable.V2.ReadRowsRequest` with the configured table name and submits it to Bigtable.
+  Submits a `Google.Bigtable.V2.ReadRowsRequest` to Bigtable.
+
+  Without arguments, `Bigtable.ReadRows.read` will read all rows from the configured table.
 
   Returns a list of `{:ok, %Google.Bigtable.V2.ReadRowsResponse{}}`.
   """
-  @spec read() :: {:ok, V2.ReadRowsResponse.t()}
+  @spec read() ::
+          {:error, GRPC.RPCError.t()}
+          | [ok: V2.ReadRowsResponse.t()]
   def read() do
     request = build()
 

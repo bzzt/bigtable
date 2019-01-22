@@ -1,4 +1,6 @@
 defmodule Bigtable.Connection.Auth do
+  @moduledoc false
+
   @scopes [
     "https://www.googleapis.com/auth/bigtable.data",
     "https://www.googleapis.com/auth/bigtable.data.readonly",
