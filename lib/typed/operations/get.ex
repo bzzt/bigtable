@@ -1,5 +1,6 @@
 defmodule Bigtable.Typed.Get do
   @moduledoc false
+
   alias Bigtable.{ReadRows, RowFilter, RowSet}
 
   def get_all(row_prefix, update_patterns) do

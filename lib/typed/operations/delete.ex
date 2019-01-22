@@ -1,5 +1,6 @@
 defmodule Bigtable.Typed.Delete do
   @moduledoc false
+
   # TODO: Delete extra rowkey patterns
   alias Bigtable.{MutateRows, Mutations}
 

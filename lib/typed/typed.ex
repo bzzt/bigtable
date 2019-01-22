@@ -2,6 +2,7 @@ defmodule Bigtable.Typed do
   alias Bigtable.ByteString
 
   @spec create_mutations(binary(), map()) :: Google.Bigtable.V2.MutateRowsRequest.Entry.t()
+
   def create_mutations(row_key, map) do
     entry = Bigtable.Mutations.build(row_key)
 
