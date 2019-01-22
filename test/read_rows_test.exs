@@ -27,7 +27,8 @@ defmodule ReadRowsTest do
              filters: [
                %Google.Bigtable.V2.RowFilter{
                  filter: {:cells_per_column_limit_filter, 1}
-               }
+               },
+               %Google.Bigtable.V2.RowFilter{filter: {:cells_per_column_limit_filter, 1}}
              ]
            }}
       },

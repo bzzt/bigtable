@@ -20,6 +20,9 @@ defmodule Bigtable.RowFilter do
             filters: [
               %Google.Bigtable.V2.RowFilter{
                 filter: {:cells_per_column_limit_filter, 1}
+              },
+              %Google.Bigtable.V2.RowFilter{
+                filter: {:cells_per_column_limit_filter, 1}
               }
             ]
           }}
@@ -41,6 +44,9 @@ defmodule Bigtable.RowFilter do
         filter: {:chain,
           %Google.Bigtable.V2.RowFilter.Chain{
             filters: [
+              %Google.Bigtable.V2.RowFilter{
+                filter: {:cells_per_column_limit_filter, 1}
+              },
               %Google.Bigtable.V2.RowFilter{
                 filter: {:cells_per_column_limit_filter, 1}
               }
