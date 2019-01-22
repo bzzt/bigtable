@@ -11,7 +11,6 @@ defmodule ConnectionTest do
         adapter_payload: %{conn_pid: "MockPid"},
         cred: nil,
         host: "localhost",
-        interceptors: [{GRPC.Logger.Client, :info}],
         port: 8086,
         scheme: "http"
       }

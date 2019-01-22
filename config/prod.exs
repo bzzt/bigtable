@@ -3,7 +3,7 @@
 use Mix.Config
 
 config :goth,
-  json: Path.absname("./service.json") |> File.read!()
+  json: Path.absname("./secret/service.json") |> File.read!()
 
 config :bigtable,
   project: "datahub-222411",
