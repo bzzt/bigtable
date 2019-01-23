@@ -1,0 +1,13 @@
+version: "3"
+services:
+  bigtable-emulator:
+    image: shopify/bigtable-emulator
+    command: ["-cf", "dev.taxi.vehicle"]
+    expose:
+      - "9035"
+  bigtable-test:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    depends_on:
+      - bigtable-emulator

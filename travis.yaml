@@ -1,0 +1,5 @@
+services: docker
+
+install:
+  # Start the docker stuff
+  - docker-compose up --exit-code-from bigtable-test --build bigtable-test

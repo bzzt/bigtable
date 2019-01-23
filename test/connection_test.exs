@@ -6,12 +6,16 @@ defmodule ConnectionTest do
 
   describe "Connection.get_connection() " do
     test "should return a Channel struct" do
+      [host, port] =
+        Application.get_env(:bigtable, :endpoint)
+        |> String.split(":")
+
       expected = %GRPC.Channel{
         adapter: GRPC.Adapter.Gun,
         adapter_payload: %{conn_pid: "MockPid"},
         cred: nil,
-        host: "localhost",
-        port: 8086,
+        host: host,
+        port: String.to_integer(port),
         scheme: "http"
       }
 

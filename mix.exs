@@ -17,7 +17,7 @@ defmodule Bigtable.MixProject do
       deps: deps(),
       docs: docs(),
       test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: [coveralls: :test]
+      preferred_cli_env: [coveralls: :test, codecov: :test]
     ]
   end
 
@@ -87,8 +87,8 @@ defmodule Bigtable.MixProject do
       {:poison, "~> 3.1"},
       {:lens, "~> 0.8.0"},
       {:goth, "~> 0.8.0"},
-      {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
-      {:excoveralls, "~> 0.10", only: [:dev, :test]},
+      {:credo, "~> 1.0.0", only: [:dev, :test, :ci], runtime: false},
+      {:excoveralls, "~> 0.10", only: [:dev, :test, :ci]},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
       {:protobuf, "~> 0.5.3"},

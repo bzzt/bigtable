@@ -7,5 +7,5 @@ config :bigtable,
   project: "dev",
   instance: "dev",
   table: "taxi",
-  endpoint: "localhost:8086",
+  endpoint: "bigtable-emulator:9035",
   ssl: false
