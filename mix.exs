@@ -103,6 +103,7 @@ defmodule Bigtable.MixProject do
       {:credo, "~> 1.0.0", only: [:dev, :test, :ci], runtime: false},
       {:excoveralls, "~> 0.10", only: [:dev, :test, :ci]},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
+      {:inch_ex, only: :docs},
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
       {:protobuf, "~> 0.5.3"},
       {:google_protos, "~> 0.1"},
