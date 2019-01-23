@@ -1,9 +1,10 @@
 # Bigtable
 
-[![Hex.pm](https://img.shields.io/hexpm/v/bigtable.svg)](https://hex.pm/packages/bigtable)
-[![Coverage Status](https://coveralls.io/repos/github/bzzt/bigtable/badge.svg)](https://coveralls.io/github/bzzt/bigtable)
+Elixir client library for Google Bigtable.
 
-## WORK IN PROGRESS. DOCUMENTATION MAY BE INCORRECT. DO NOT USE IN PRODUCTION.
+[![Hex.pm](https://img.shields.io/hexpm/v/bigtable.svg)](https://hex.pm/packages/bigtable)
+[![codecov](https://codecov.io/gh/bzzt/bigtable/branch/master/graph/badge.svg)](https://codecov.io/gh/bzzt/bigtable)
+[![codebeat badge](https://codebeat.co/badges/6203650d-db88-4c48-9173-948cc3404145)](https://codebeat.co/projects/github-com-bzzt-bigtable-master)
 
 ## Documentation
 
@@ -18,3 +19,6 @@ def deps do
  [{:bigtable, "~> 0.1.0"}]
 end
 ```
+
+## Warning!
+**WORK IN PROGRESS. DOCUMENTATION MAY BE INCORRECT. DO NOT USE IN PRODUCTION.**
