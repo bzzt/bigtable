@@ -22,11 +22,17 @@ defmodule Bigtable.Connection.Auth do
   """
   @spec get_token() :: Goth.Token.t()
   def get_token do
-    {:ok, token} =
-      @scopes
-      |> Enum.join(" ")
-      |> Goth.Token.for_scope()
+    case Application.get_env(:goth, :disabled, false) do
+      true ->
+        %{token: ""}
 
-    token
+      false ->
+        {:ok, token} =
+          @scopes
+          |> Enum.join(" ")
+          |> Goth.Token.for_scope()
+
+        token
+    end
   end
 end

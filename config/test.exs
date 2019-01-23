@@ -1,11 +1,8 @@
 use Mix.Config
 
-config :goth,
-  json: Path.absname("./secret/test-service.json") |> File.read!()
-
 config :bigtable,
   project: "dev",
   instance: "dev",
-  table: "taxi",
-  endpoint: "localhost:8086",
+  table: "test",
+  endpoint: "localhost:9035",
   ssl: false

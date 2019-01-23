@@ -2,7 +2,9 @@ version: "3"
 services:
   bigtable-emulator:
     image: shopify/bigtable-emulator
-    command: ["-cf", "dev.taxi.vehicle"]
+    command: ["-cf", "dev.test.cf1", "dev.test.cf2"]
+    ports:
+      - "9035:9035"
     expose:
       - "9035"
   bigtable-test:

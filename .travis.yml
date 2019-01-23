@@ -3,5 +3,7 @@ language: generic
 services: docker
 
 install:
-  # Start the docker stuff
   - docker-compose up --exit-code-from bigtable-test --build bigtable-test
+after_success:
+  - mix coveralls.json
+  - bash < (curl -s https://codecov.io/bash)
