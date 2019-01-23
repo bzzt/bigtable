@@ -11,5 +11,7 @@ services:
     build:
       dockerfile: Dockerfile
       context: .
+    volumes:
+      - ./cover:/app/cover
     depends_on:
       - bigtable-emulator

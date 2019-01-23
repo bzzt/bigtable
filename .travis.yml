@@ -4,3 +4,5 @@ services: docker
 
 install:
   - docker-compose up --exit-code-from bigtable-test --build bigtable-test
+after_success:
+  - bash < (curl -s https://codecov.io/bash)

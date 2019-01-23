@@ -1,5 +1,8 @@
 use Mix.Config
 
+config :goth,
+  disabled: true
+
 config :bigtable,
   project: "dev",
   instance: "dev",

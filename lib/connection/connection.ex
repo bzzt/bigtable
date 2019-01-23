@@ -78,13 +78,13 @@ defmodule Bigtable.Connection do
     end
   end
 
-  defp get_custom_endpoint do
+  def get_custom_endpoint do
     env = System.get_env("BIGTABLE_EMULATOR_HOST")
-    custom = Application.get_env(:bigtable, :endpoint, env)
+    custom = Application.get_env(:bigtable, :endpoint, nil)
 
-    case custom do
+    case env do
       nil ->
-        nil
+        custom
 
       endpoint ->
         endpoint

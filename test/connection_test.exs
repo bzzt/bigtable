@@ -7,7 +7,7 @@ defmodule ConnectionTest do
   describe "Connection.get_connection() " do
     test "should return a Channel struct" do
       [host, port] =
-        Application.get_env(:bigtable, :endpoint)
+        Connection.get_custom_endpoint()
         |> String.split(":")
 
       expected = %GRPC.Channel{

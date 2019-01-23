@@ -16,8 +16,13 @@ defmodule Bigtable.MixProject do
       source_url: "https://github.com/bzzt/bigtable",
       deps: deps(),
       docs: docs(),
+      aliases: aliases(),
       test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: [coveralls: :test, codecov: :test]
+      preferred_cli_env: [
+        "coveralls.json": :test,
+        "coveralls.html": :test,
+        coverage: :test
+      ]
     ]
   end
 
@@ -77,6 +82,14 @@ defmodule Bigtable.MixProject do
         Bigtable.ReadRows,
         Bigtable.MutateRow,
         Bigtable.MutateRows
+      ]
+    ]
+  end
+
+  defp aliases do
+    [
+      coverage: [
+        "coveralls.json"
       ]
     ]
   end
