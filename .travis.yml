@@ -6,5 +6,3 @@ install:
   - docker-compose up --exit-code-from bigtable-test --build bigtable-test
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-  - MIX_ENV=docs mix deps.get
-  - MIX_ENV=docs mix inch.report
