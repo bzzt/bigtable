@@ -1,17 +1,21 @@
 defmodule Bigtable.Typed.Validation do
   def validate_map!(type_spec, map) do
     Enum.each(map, fn {k, v} ->
-      case typed_map?(k, v) do
-        true ->
-          nested_type = Map.get(type_spec, k)
-          nested_map = Map.get(map, k)
-          validate_map!(nested_type, nested_map)
+      if Map.get(type_spec, k) != nil do
+        case typed_map?(k, v) do
+          true ->
+            nested_type = Map.get(type_spec, k)
+            nested_map = Map.get(map, k)
+            validate_map!(nested_type, nested_map)
 
-        false ->
-          type = Map.get(type_spec, k)
+          false ->
+            type = Map.get(type_spec, k)
 
-          type
-          |> validate!(v, map)
+            type
+            |> validate!(v, map)
+        end
+      else
+        :ok
       end
     end)
   end

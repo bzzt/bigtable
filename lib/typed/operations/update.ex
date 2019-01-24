@@ -1,25 +1,25 @@
 defmodule Bigtable.Typed.Update do
   @moduledoc false
   alias Bigtable.{MutateRows, Typed}
-  alias Typed.Utils
+  alias Typed.{Utils, Validation}
+
+  def update(type_spec, maps, row_prefix, update_patterns) do
+    mutations = mutations_from_maps(type_spec, maps, row_prefix, update_patterns)
+
+    mutations
+    |> MutateRows.mutate()
+  end
 
   @spec mutations_from_maps(map(), [map()], binary(), [binary()]) ::
-          {:error, GRPC.RPCError}
-          | {
-              :ok,
-              Google.Bigtable.V2.MutateRowsResponse.t()
-            }
+          Google.Bigtable.V2.MutateRows.Entry.t()
   def mutations_from_maps(type_spec, maps, row_prefix, update_patterns) do
-    Enum.each(maps, &Bigtable.Typed.Validation.validate_map!(type_spec, &1))
+    Enum.each(maps, &Validation.validate_map!(type_spec, &1))
 
     mutations = Enum.map(maps, &mutations_from_map(type_spec, &1, row_prefix, update_patterns))
 
     mutations
     |> List.flatten()
     |> MutateRows.build()
-
-    :ok
-    # |> MutateRows.mutate()
   end
 
   # TODO: Only create mutations once and apply to all keys
@@ -33,7 +33,7 @@ defmodule Bigtable.Typed.Update do
 
       properties
       |> Utils.build_update_key(row_prefix, map)
-      |> Typed.create_mutations(map)
+      |> Typed.create_mutations(type_spec, map)
     end)
   end
 end

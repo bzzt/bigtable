@@ -130,6 +130,7 @@ defmodule Bigtable.Schema do
 
       def update(maps) when is_list(maps) do
         Update.mutations_from_maps(__MODULE__.type(), maps, @prefix, @update_patterns)
+        |> Bigtable.MutateRows.mutate()
       end
 
       def update(map) when is_map(map) do

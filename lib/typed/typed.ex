@@ -2,12 +2,18 @@ defmodule Bigtable.Typed do
   @moduledoc false
   alias Bigtable.ByteString
 
-  @spec create_mutations(binary(), map()) :: Google.Bigtable.V2.MutateRowsRequest.Entry.t()
-  def create_mutations(row_key, map) do
+  @spec create_mutations(map(), binary(), map()) :: Google.Bigtable.V2.MutateRowsRequest.Entry.t()
+  def create_mutations(row_key, type_spec, map) do
     entry = Bigtable.Mutations.build(row_key)
 
     Enum.reduce(map, entry, fn {k, v}, accum ->
-      apply_mutations(v, accum, to_string(k))
+      case Map.get(type_spec, k) do
+        nil ->
+          accum
+
+        type ->
+          apply_mutations(type, v, accum, to_string(k))
+      end
     end)
   end
 
@@ -17,17 +23,22 @@ defmodule Bigtable.Typed do
           binary(),
           binary() | nil
         ) :: Google.Bigtable.V2.MutateRowsRequest.Entry.t()
-  defp apply_mutations(map, entry, family_name, parent_key \\ nil) do
+  defp apply_mutations(type_spec, map, entry, family_name, parent_key \\ nil) do
     Enum.reduce(map, entry, fn {k, v}, accum ->
       column_qualifier = column_qualifier(parent_key, k)
 
-      case is_map(v) do
-        true ->
-          apply_mutations(v, accum, family_name, column_qualifier)
+      if Map.get(type_spec, k) == nil do
+        accum
+      else
+        case is_map(v) do
+          true ->
+            child_spec = Map.get(type_spec, k)
+            apply_mutations(child_spec, v, accum, family_name, column_qualifier)
 
-        false ->
-          accum
-          |> Bigtable.Mutations.set_cell(family_name, column_qualifier, v)
+          false ->
+            accum
+            |> Bigtable.Mutations.set_cell(family_name, column_qualifier, v)
+        end
       end
     end)
   end
