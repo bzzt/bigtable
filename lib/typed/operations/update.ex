@@ -33,7 +33,7 @@ defmodule Bigtable.Typed.Update do
 
       properties
       |> Utils.build_update_key(row_prefix, map)
-      |> Typed.create_mutations(type_spec, map)
+      |> Typed.Mutations.create_mutations(type_spec, map)
     end)
   end
 end
