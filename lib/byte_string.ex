@@ -1,6 +1,9 @@
 defmodule Bigtable.ByteString do
   @moduledoc false
 
+  def parse_value(_, ""), do: nil
+  def parse_value(_, nil), do: nil
+
   @spec parse_value(:integer, binary()) :: integer()
   def parse_value(:integer, byte_string) do
     <<v::integer-signed-32>> = byte_string
