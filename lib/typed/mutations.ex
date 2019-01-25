@@ -15,6 +15,8 @@ defmodule Bigtable.Typed.Mutations do
     end)
   end
 
+  # TODO: Make all fields on map type nil if root value is nil
+
   @spec apply_mutations(
           map(),
           Google.Bigtable.V2.MutateRowsRequest.Entry.t(),
