@@ -29,12 +29,7 @@ defmodule RowFilterIntegration do
 
   describe "RowFilter.cells_per_column" do
     test "should properly limit the number of cells returned" do
-      for i <- 1..3 do
-        Mutations.build("Test#1")
-        |> Mutations.set_cell("cf1", "column", to_string(i))
-        |> MutateRow.build()
-        |> MutateRow.mutate()
-      end
+      seed_multiple_values("Test#1")
 
       [ok: raw] = ReadRows.read()
 
@@ -54,12 +49,7 @@ defmodule RowFilterIntegration do
 
   describe "RowFilter.row_key_regex" do
     test "should properly filter rows based on row key", context do
-      Enum.each(context.row_keys, fn key ->
-        Mutations.build(key)
-        |> Mutations.set_cell("cf1", "column", "value")
-        |> MutateRow.build()
-        |> MutateRow.mutate()
-      end)
+      seed_values(context)
 
       rows = ReadRows.read()
 
@@ -80,5 +70,43 @@ defmodule RowFilterIntegration do
       assert length(test_filtered) == 3
       assert length(other_filtered) == 2
     end
+  end
+
+  describe "RowFilter.chain" do
+    test "should properly apply a chain of filters", context do
+      seed_values(context)
+      seed_multiple_values("Test#1")
+
+      filters = [
+        RowFilter.row_key_regex("^Test#1"),
+        RowFilter.cells_per_column(1)
+      ]
+
+      [ok: result] =
+        ReadRows.build()
+        |> RowFilter.chain(filters)
+        |> ReadRows.read()
+
+      assert length(result.chunks) == 1
+      assert List.first(result.chunks) |> Map.get(:row_key) == "Test#1"
+    end
+  end
+
+  defp seed_multiple_values(row_key) do
+    for i <- 1..3 do
+      Mutations.build(row_key)
+      |> Mutations.set_cell("cf1", "column", to_string(i))
+      |> MutateRow.build()
+      |> MutateRow.mutate()
+    end
+  end
+
+  defp seed_values(context) do
+    Enum.each(context.row_keys, fn key ->
+      Mutations.build(key)
+      |> Mutations.set_cell("cf1", "column", "value")
+      |> MutateRow.build()
+      |> MutateRow.mutate()
+    end)
   end
 end
