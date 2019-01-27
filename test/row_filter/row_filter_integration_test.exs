@@ -10,6 +10,8 @@ defmodule RowFilterIntegration do
     row_keys = ["Test#1", "Test#2", "Test#3", "Other#1", "Other#2"]
 
     on_exit(fn ->
+      IO.puts("Dropping Rows")
+
       mutations =
         Enum.map(row_keys, fn key ->
           entry = Mutations.build(key)
@@ -32,6 +34,8 @@ defmodule RowFilterIntegration do
       seed_multiple_values()
 
       [ok: raw] = ReadRows.read()
+
+      IO.inspect(raw)
 
       assert length(raw.chunks) == 3
 
@@ -122,13 +126,22 @@ defmodule RowFilterIntegration do
   end
 
   defp seed_multiple_values do
-    for i <- 1..3 do
-      {:ok, _} =
+    IO.puts("Inserting Rows")
+
+    mutations =
+      Enum.map(1..3, fn i ->
         Mutations.build("Test#1")
         |> Mutations.set_cell("cf1", "column", to_string(i), 1000 * i)
-        |> MutateRow.build()
-        |> MutateRow.mutate()
-    end
+      end)
+
+    result =
+      mutations
+      |> MutateRows.build()
+      |> MutateRows.mutate()
+
+    IO.inspect(result)
+
+    IO.puts("Rows Inserted")
   end
 
   defp seed_values(context) do
