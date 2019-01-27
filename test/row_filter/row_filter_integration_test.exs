@@ -29,7 +29,12 @@ defmodule RowFilterIntegration do
 
   describe "RowFilter.cells_per_column" do
     test "should properly limit the number of cells returned" do
-      seed_multiple_values("Test#1")
+      for i <- 1..3 do
+        Mutations.build("Test#1")
+        |> Mutations.set_cell("cf1", "column", to_string(i))
+        |> MutateRow.build()
+        |> MutateRow.mutate()
+      end
 
       [ok: raw] = ReadRows.read()
 
@@ -75,7 +80,13 @@ defmodule RowFilterIntegration do
   describe "RowFilter.chain" do
     test "should properly apply a chain of filters", context do
       seed_values(context)
-      seed_multiple_values("Test#1")
+
+      for i <- 1..3 do
+        Mutations.build("Test#1")
+        |> Mutations.set_cell("cf1", "column", to_string(i))
+        |> MutateRow.build()
+        |> MutateRow.mutate()
+      end
 
       filters = [
         RowFilter.row_key_regex("^Test#1"),
@@ -89,15 +100,6 @@ defmodule RowFilterIntegration do
 
       assert length(result.chunks) == 1
       assert List.first(result.chunks) |> Map.get(:row_key) == "Test#1"
-    end
-  end
-
-  defp seed_multiple_values(row_key) do
-    for i <- 1..3 do
-      Mutations.build(row_key)
-      |> Mutations.set_cell("cf1", "column", to_string(i))
-      |> MutateRow.build()
-      |> MutateRow.mutate()
     end
   end
 
