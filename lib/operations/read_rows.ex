@@ -54,16 +54,25 @@ defmodule Bigtable.ReadRows do
           {:error, GRPC.RPCError.t()}
           | [ok: V2.ReadRowsResponse.t()]
   def read(%V2.ReadRowsRequest{} = request) do
-    metadata = Connection.get_metadata()
+    metadata =
+      Connection.get_metadata()
+      |> Keyword.put(:return_headers, true)
 
-    {:ok, rows} =
+    {:ok, rows, _} =
       Connection.get_connection()
       |> Bigtable.Stub.read_rows(request, metadata)
 
     rows
-    |> Enum.filter(fn {status, row} ->
+    |> Stream.filter(fn {status, row} ->
+      IO.inspect(status)
+
+      if(status == :trailers) do
+        IO.inspect(row)
+      end
+
       status == :ok and !Enum.empty?(row.chunks)
     end)
+    |> Enum.to_list()
   end
 
   @spec read(binary()) ::

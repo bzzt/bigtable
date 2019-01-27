@@ -33,16 +33,12 @@ defmodule RowFilterIntegration do
 
       [ok: raw] = ReadRows.read()
 
-      IO.inspect(raw)
-
       assert length(raw.chunks) == 3
 
       [ok: filtered] =
         ReadRows.build()
         |> RowFilter.cells_per_column(1)
         |> ReadRows.read()
-
-      IO.inspect(filtered)
 
       filtered_value = List.first(filtered.chunks) |> Map.get(:value)
 
