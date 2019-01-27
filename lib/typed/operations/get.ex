@@ -3,9 +3,6 @@ defmodule Bigtable.Typed.Get do
 
   alias Bigtable.{ReadRows, RowFilter, RowSet}
 
-  def get_all(row_prefix, update_patterns) do
-  end
-
   @spec get_all(binary()) :: [{:ok, Google.Bigtable.V2.ReadRowsResponse.t()}]
   def get_all(row_prefix) do
     regex = "^#{row_prefix}#\\w+"

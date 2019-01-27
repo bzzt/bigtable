@@ -129,7 +129,7 @@ defmodule Bigtable.Schema do
       end
 
       def update(maps) when is_list(maps) do
-        Update.mutations_from_maps(maps, @prefix, @update_patterns)
+        Update.update(__MODULE__.type(), maps, @prefix, @update_patterns)
       end
 
       def update(map) when is_map(map) do
@@ -145,11 +145,11 @@ defmodule Bigtable.Schema do
       end
 
       def delete_all do
-        Delete.delete_all(@prefix, @update_patterns)
+        Delete.delete_all()
       end
 
       def parse_result(result) do
-        Typed.parse_result(result, __MODULE__.type())
+        Typed.Reads.parse_result(result, __MODULE__.type())
       end
 
       def type do

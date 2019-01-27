@@ -4,6 +4,7 @@ defmodule Bigtable.MutateRow do
   """
 
   alias Bigtable.Connection
+  alias Bigtable.Operations.Utils
   alias Google.Bigtable.V2
   alias V2.MutateRowsRequest.Entry
 
@@ -38,8 +39,17 @@ defmodule Bigtable.MutateRow do
 
     connection = Connection.get_connection()
 
-    connection
-    |> Bigtable.Stub.mutate_row(request, metadata)
+    {:ok, stream, _} =
+      connection
+      |> Bigtable.Stub.mutate_row(request, metadata)
+
+    result =
+      stream
+      |> Utils.process_stream()
+
+    IO.inspect(result)
+
+    {:ok, result}
   end
 
   @spec mutate(V2.MutateRowsRequest.Entry.t()) :: V2.MutateRowResponse.t()

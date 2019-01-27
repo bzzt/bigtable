@@ -28,7 +28,7 @@ defmodule Bigtable.Connection do
   def get_metadata do
     token = Auth.get_token()
     metadata = %{authorization: "Bearer #{token.token}"}
-    [metadata: metadata, content_type: "application/grpc"]
+    [metadata: metadata, content_type: "application/grpc", return_headers: true]
   end
 
   # Server Callbacks

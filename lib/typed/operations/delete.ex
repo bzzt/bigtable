@@ -1,10 +1,10 @@
 defmodule Bigtable.Typed.Delete do
   @moduledoc false
-
-  # TODO: Delete extra rowkey patterns
   alias Bigtable.{MutateRows, Mutations}
 
-  def delete_all(row_prefix, update_patterns) do
+  # TODO: Delete extra rowkey patterns
+  def delete_all do
+    throw("Not implemented")
   end
 
   @spec delete_by_id([binary()], binary()) ::

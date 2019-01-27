@@ -4,30 +4,40 @@ defmodule Bigtable.ReadRows do
   """
 
   alias Bigtable.Connection
-  alias Bigtable.RowFilter
+  alias Bigtable.Operations.Utils
   alias Google.Bigtable.V2
 
   @doc """
   Builds a `Google.Bigtable.V2.ReadRowsRequest` with a provided table name.
 
   ## Examples
-      iex> request = Bigtable.ReadRows.build("table")
-      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.table_name
-      "table"
+      iex> table_name = "projects/[project_id]/instances/[instnace_id]/tables/[table_name]"
+      iex> Bigtable.ReadRows.build(table_name)
+      %Google.Bigtable.V2.ReadRowsRequest{
+        app_profile_id: "",
+        filter: nil,
+        rows: nil,
+        rows_limit: 0,
+        table_name: "projects/[project_id]/instances/[instnace_id]/tables/[table_name]"
+      }
   """
   @spec build(binary()) :: V2.ReadRowsRequest.t()
   def build(table_name) when is_binary(table_name) do
     V2.ReadRowsRequest.new(table_name: table_name, app_profile_id: "")
-    |> RowFilter.default_chain()
   end
 
   @doc """
   Builds a `Google.Bigtable.V2.ReadRowsRequest` with the configured table name.
 
   ## Examples
-      iex> request = Bigtable.ReadRows.build()
-      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: :ok
-      :ok
+      iex> Bigtable.ReadRows.build()
+      %Google.Bigtable.V2.ReadRowsRequest{
+        app_profile_id: "",
+        filter: nil,
+        rows: nil,
+        rows_limit: 0,
+        table_name: "projects/dev/instances/dev/tables/test"
+      }
   """
   @spec build() :: V2.ReadRowsRequest.t()
   def build do
@@ -47,14 +57,18 @@ defmodule Bigtable.ReadRows do
   def read(%V2.ReadRowsRequest{} = request) do
     metadata = Connection.get_metadata()
 
-    {:ok, rows} =
+    {:ok, stream, _} =
       Connection.get_connection()
       |> Bigtable.Stub.read_rows(request, metadata)
 
-    rows
-    |> Enum.filter(fn {status, row} ->
-      status == :ok and !Enum.empty?(row.chunks)
-    end)
+    result =
+      stream
+      |> Utils.process_stream()
+      |> Enum.filter(&contains_chunks?/1)
+
+    IO.inspect(result)
+
+    result
   end
 
   @spec read(binary()) ::
@@ -82,5 +96,12 @@ defmodule Bigtable.ReadRows do
 
     request
     |> read
+  end
+
+  defp contains_chunks?({:ok, response}), do: !Enum.empty?(response.chunks)
+
+  defp remaining_resp?({status, resp}) do
+    IO.puts("ReadRows status: #{inspect(status)}")
+    status != :trailers
   end
 end

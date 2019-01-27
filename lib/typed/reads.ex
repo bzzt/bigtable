@@ -1,50 +1,12 @@
-defmodule Bigtable.Typed do
+defmodule Bigtable.Typed.Reads do
   @moduledoc false
   alias Bigtable.ByteString
-
-  @spec create_mutations(binary(), map()) :: Google.Bigtable.V2.MutateRowsRequest.Entry.t()
-  def create_mutations(row_key, map) do
-    entry = Bigtable.Mutations.build(row_key)
-
-    Enum.reduce(map, entry, fn {k, v}, accum ->
-      apply_mutations(v, accum, to_string(k))
-    end)
-  end
-
-  @spec apply_mutations(
-          map(),
-          Google.Bigtable.V2.MutateRowsRequest.Entry.t(),
-          binary(),
-          binary() | nil
-        ) :: Google.Bigtable.V2.MutateRowsRequest.Entry.t()
-  defp apply_mutations(map, entry, family_name, parent_key \\ nil) do
-    Enum.reduce(map, entry, fn {k, v}, accum ->
-      column_qualifier = column_qualifier(parent_key, k)
-
-      case is_map(v) do
-        true ->
-          apply_mutations(v, accum, family_name, column_qualifier)
-
-        false ->
-          accum
-          |> Bigtable.Mutations.set_cell(family_name, column_qualifier, v)
-      end
-    end)
-  end
-
-  @spec column_qualifier(binary() | nil, binary()) :: binary()
-  defp column_qualifier(parent_key, key) do
-    case parent_key do
-      nil -> to_string(key)
-      parent -> "#{parent}.#{to_string(key)}"
-    end
-  end
 
   def parse_result(result, type_spec) do
     result
     |> Enum.map(fn {:ok, rows} -> rows.chunks end)
     |> List.flatten()
-    |> Bigtable.Typed.group_by_row_key()
+    |> group_by_row_key()
     |> Enum.map(&parse_typed(type_spec, &1))
   end
 
