@@ -61,9 +61,14 @@ defmodule Bigtable.ReadRows do
       Connection.get_connection()
       |> Bigtable.Stub.read_rows(request, metadata)
 
-    stream
-    |> Utils.process_stream()
-    |> Enum.filter(&contains_chunks?/1)
+    result =
+      stream
+      |> Utils.process_stream()
+      |> Enum.filter(&contains_chunks?/1)
+
+    IO.inspect(result)
+
+    result
   end
 
   @spec read(binary()) ::

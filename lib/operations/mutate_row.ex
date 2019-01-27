@@ -47,6 +47,8 @@ defmodule Bigtable.MutateRow do
       stream
       |> Utils.process_stream()
 
+    IO.inspect(result)
+
     {:ok, result}
   end
 
