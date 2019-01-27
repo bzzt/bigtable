@@ -80,6 +80,27 @@ defmodule RowFilterTest do
     end
   end
 
+  describe "RowFilter.row_key_regex()" do
+    test "should apply a row_key_regex V2.RowFilter to a V2.ReadRowsRequest", context do
+      regex = "^Test#\w+"
+      filter = RowFilter.row_key_regex(regex)
+
+      expected = expected_request(filter)
+
+      assert RowFilter.row_key_regex(context.request, regex) == expected
+    end
+
+    test "should return a V2.RowFilter given a column limit" do
+      regex = "^Test#\w+"
+
+      expected = %Google.Bigtable.V2.RowFilter{
+        filter: {:row_key_regex_filter, regex}
+      }
+
+      assert RowFilter.row_key_regex(regex) == expected
+    end
+  end
+
   defp expected_chain(filters) when is_list(filters) do
     %Google.Bigtable.V2.RowFilter{
       filter:
