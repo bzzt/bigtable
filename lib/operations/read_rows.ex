@@ -63,15 +63,8 @@ defmodule Bigtable.ReadRows do
       |> Bigtable.Stub.read_rows(request, metadata)
 
     rows
-    |> Stream.filter(fn {status, row} ->
-      IO.inspect(status)
-
-      if(status == :trailers) do
-        IO.inspect(row)
-      end
-
-      status == :ok and !Enum.empty?(row.chunks)
-    end)
+    |> Stream.take_while(&remaining_resp?/1)
+    |> Stream.filter(&contains_chunks?/1)
     |> Enum.to_list()
   end
 
@@ -101,4 +94,8 @@ defmodule Bigtable.ReadRows do
     request
     |> read
   end
+
+  defp contains_chunks?({:ok, response}), do: !Enum.empty?(response.chunks)
+
+  defp remaining_resp?({status, _}), do: status != :trailers
 end
