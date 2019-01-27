@@ -106,18 +106,7 @@ defmodule ReadRowsTest do
   defp expected_request(table_name \\ Bigtable.Utils.configured_table_name()) do
     %Google.Bigtable.V2.ReadRowsRequest{
       app_profile_id: "",
-      filter: %Google.Bigtable.V2.RowFilter{
-        filter:
-          {:chain,
-           %Google.Bigtable.V2.RowFilter.Chain{
-             filters: [
-               %Google.Bigtable.V2.RowFilter{
-                 filter: {:cells_per_column_limit_filter, 1}
-               },
-               %Google.Bigtable.V2.RowFilter{filter: {:cells_per_column_limit_filter, 1}}
-             ]
-           }}
-      },
+      filter: nil,
       rows: nil,
       rows_limit: 0,
       table_name: table_name

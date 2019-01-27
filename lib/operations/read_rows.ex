@@ -4,7 +4,6 @@ defmodule Bigtable.ReadRows do
   """
 
   alias Bigtable.Connection
-  alias Bigtable.RowFilter
   alias Google.Bigtable.V2
 
   @doc """
@@ -18,7 +17,6 @@ defmodule Bigtable.ReadRows do
   @spec build(binary()) :: V2.ReadRowsRequest.t()
   def build(table_name) when is_binary(table_name) do
     V2.ReadRowsRequest.new(table_name: table_name, app_profile_id: "")
-    |> RowFilter.default_chain()
   end
 
   @doc """
