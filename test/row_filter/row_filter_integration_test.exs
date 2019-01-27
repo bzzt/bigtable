@@ -125,7 +125,7 @@ defmodule RowFilterIntegration do
     for i <- 1..3 do
       {:ok, _} =
         Mutations.build("Test#1")
-        |> Mutations.set_cell("cf1", "column", to_string(i))
+        |> Mutations.set_cell("cf1", "column", to_string(i), 1000 * i)
         |> MutateRow.build()
         |> MutateRow.mutate()
     end
