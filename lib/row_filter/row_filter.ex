@@ -99,6 +99,7 @@ defmodule Bigtable.RowFilter do
   end
 
   # Creates a Bigtable.V2.RowFilter given a type and value
+  @doc false
   @spec build_filter({atom(), any()}) :: RowFilter.t()
   def build_filter({type, value}) when is_atom(type) do
     RowFilter.new(filter: {type, value})

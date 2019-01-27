@@ -10,9 +10,15 @@ defmodule Bigtable.ReadRows do
   Builds a `Google.Bigtable.V2.ReadRowsRequest` with a provided table name.
 
   ## Examples
-      iex> request = Bigtable.ReadRows.build("table")
-      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.table_name
-      "table"
+      iex> table_name = "projects/[project_id]/instances/[instnace_id]/tables/[table_name]"
+      iex> Bigtable.ReadRows.build(table_name)
+      %Google.Bigtable.V2.ReadRowsRequest{
+        app_profile_id: "",
+        filter: nil,
+        rows: nil,
+        rows_limit: 0,
+        table_name: "projects/[project_id]/instances/[instnace_id]/tables/[table_name]"
+      }
   """
   @spec build(binary()) :: V2.ReadRowsRequest.t()
   def build(table_name) when is_binary(table_name) do
@@ -23,9 +29,14 @@ defmodule Bigtable.ReadRows do
   Builds a `Google.Bigtable.V2.ReadRowsRequest` with the configured table name.
 
   ## Examples
-      iex> request = Bigtable.ReadRows.build()
-      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: :ok
-      :ok
+      iex> Bigtable.ReadRows.build()
+      %Google.Bigtable.V2.ReadRowsRequest{
+        app_profile_id: "",
+        filter: nil,
+        rows: nil,
+        rows_limit: 0,
+        table_name: "projects/dev/instances/dev/tables/test"
+      }
   """
   @spec build() :: V2.ReadRowsRequest.t()
   def build do
