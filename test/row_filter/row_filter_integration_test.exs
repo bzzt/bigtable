@@ -72,6 +72,34 @@ defmodule RowFilterIntegration do
     end
   end
 
+  describe "RowFilter.value_regex" do
+    test "should properly filter rows based on value", context do
+      first_mutation =
+        Mutations.build("Test#1")
+        |> Mutations.set_cell("cf1", "column", "foo")
+
+      second_mutation =
+        Mutations.build("Test#2")
+        |> Mutations.set_cell("cf1", "column", "foooo")
+
+      third_mutation =
+        Mutations.build("Test#3")
+        |> Mutations.set_cell("cf1", "column", "bar")
+
+      {:ok, _} =
+        [first_mutation, second_mutation, third_mutation]
+        |> MutateRows.build()
+        |> MutateRows.mutate()
+
+      result =
+        ReadRows.build()
+        |> RowFilter.value_regex("foo")
+        |> ReadRows.read()
+
+      assert length(result) == 2
+    end
+  end
+
   describe "RowFilter.chain" do
     test "should properly apply a chain of filters", context do
       seed_values(context)

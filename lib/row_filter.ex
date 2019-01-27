@@ -101,6 +101,24 @@ defmodule Bigtable.RowFilter do
   end
 
   @doc """
+  Adds a value regex `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`
+
+  ## Examples
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.value_regex("^test$")
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:value_regex_filter, "^test$"}
+      }
+  """
+  @spec value_regex(ReadRowsRequest.t(), binary()) :: ReadRowsRequest.t()
+  def value_regex(%ReadRowsRequest{} = request, regex) do
+    filter = value_regex(regex)
+
+    filter
+    |> apply_filter(request)
+  end
+
+  @doc """
   Creates a value regex `Google.Bigtable.V2.RowFilter`
 
   ## Examples

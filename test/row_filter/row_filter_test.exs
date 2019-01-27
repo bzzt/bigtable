@@ -100,6 +100,12 @@ defmodule RowFilterTest do
       ]
     end
 
+    test "should apply a value_regex V2.RowFilter to a V2.ReadRowsRequest", context do
+      expected = expected_request(context.filter)
+
+      assert RowFilter.value_regex(context.request, context.regex) == expected
+    end
+
     test "should return a V2.RowFilter given a regex", context do
       assert RowFilter.value_regex(context.regex) == context.filter
     end
