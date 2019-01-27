@@ -4,6 +4,7 @@ defmodule Bigtable.ReadRows do
   """
 
   alias Bigtable.Connection
+  alias Bigtable.Operations.Utils
   alias Google.Bigtable.V2
 
   @doc """
@@ -56,14 +57,13 @@ defmodule Bigtable.ReadRows do
   def read(%V2.ReadRowsRequest{} = request) do
     metadata = Connection.get_metadata()
 
-    {:ok, rows, _} =
+    {:ok, stream, _} =
       Connection.get_connection()
       |> Bigtable.Stub.read_rows(request, metadata)
 
-    rows
-    |> Stream.take_while(&remaining_resp?/1)
-    |> Stream.filter(&contains_chunks?/1)
-    |> Enum.to_list()
+    stream
+    |> Utils.process_stream()
+    |> Enum.filter(&contains_chunks?/1)
   end
 
   @spec read(binary()) ::

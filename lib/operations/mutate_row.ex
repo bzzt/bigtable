@@ -4,6 +4,7 @@ defmodule Bigtable.MutateRow do
   """
 
   alias Bigtable.Connection
+  alias Bigtable.Operations.Utils
   alias Google.Bigtable.V2
   alias V2.MutateRowsRequest.Entry
 
@@ -38,14 +39,13 @@ defmodule Bigtable.MutateRow do
 
     connection = Connection.get_connection()
 
-    {:ok, resp, _} =
+    {:ok, stream, _} =
       connection
       |> Bigtable.Stub.mutate_row(request, metadata)
 
     result =
-      resp
-      |> Stream.take_while(&remaining_resp?/1)
-      |> Enum.to_list()
+      stream
+      |> Utils.process_stream()
 
     {:ok, result}
   end
@@ -56,10 +56,5 @@ defmodule Bigtable.MutateRow do
 
     request
     |> mutate()
-  end
-
-  defp remaining_resp?({status, resp}) do
-    IO.puts("MutateRow status: #{inspect(status)}")
-    status != :trailers
   end
 end

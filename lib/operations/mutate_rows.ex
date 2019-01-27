@@ -4,6 +4,7 @@ defmodule Bigtable.MutateRows do
   """
 
   alias Bigtable.Connection
+  alias Bigtable.Operations.Utils
   alias Google.Bigtable.V2
 
   @doc """
@@ -34,38 +35,28 @@ defmodule Bigtable.MutateRows do
 
   Returns a `Google.Bigtable.V2.MutateRowsResponse`
   """
-  @spec mutate(Google.Bigtable.V2.MutateRowsRequest.t()) ::
-          {:error, GRPC.RPCError.t()}
-          | {:ok, V2.MutateRowsResponse.t()}
+  @spec mutate(Google.Bigtable.V2.MutateRowsRequest.t()) :: {:ok, [any()]}
   def mutate(%V2.MutateRowsRequest{} = request) do
     connection = Connection.get_connection()
 
     metadata = Connection.get_metadata()
 
-    {:ok, resp, _} =
+    {:ok, stream, _} =
       connection
       |> Bigtable.Stub.mutate_rows(request, metadata)
 
     result =
-      resp
-      |> Stream.take_while(&remaining_resp?/1)
-      |> Enum.to_list()
+      stream
+      |> Utils.process_stream()
 
     {:ok, result}
   end
 
-  @spec mutate([Google.Bigtable.V2.MutateRowsRequest.Entry.t()]) ::
-          {:error, GRPC.RPCError.t()}
-          | {:ok, V2.MutateRowsResponse.t()}
+  @spec mutate([Google.Bigtable.V2.MutateRowsRequest.Entry.t()]) :: {:ok, [any()]}
   def mutate(entries) when is_list(entries) do
     request = build(entries)
 
     request
     |> mutate
-  end
-
-  defp remaining_resp?({status, resp}) do
-    IO.puts("MutateRows status: #{inspect(status)}")
-    status != :trailers
   end
 end
