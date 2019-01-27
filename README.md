@@ -23,3 +23,51 @@ end
 
 ## Warning!
 **WORK IN PROGRESS. DOCUMENTATION MAY BE INCORRECT. DO NOT USE IN PRODUCTION.**
+
+## Feature List
+
+### Operations:
+
+- [x] Read Rows
+- [x] Mutate Row
+- [x] Mutate Rows
+- [ ] Check And Mutate Row
+- [ ] Read Modify Write Row
+- [ ] Sample Row Keys
+
+### Mutations:
+
+- [x] Set Cell
+- [x] Delete From Column
+- [x] Delete From Family
+- [x] Delete From Row
+
+### Row Sets:
+
+- [x] Row Keys
+- [x] Row Ranges
+
+### Row Filters:
+
+- [x] Chain
+- [x] Cells Per Column Limit
+- [x] Row Key Regex
+- [x] Value Regex
+- [ ] Condition
+- [ ] Row Sample
+- [ ] Family Name Regex
+- [ ] Column Qualifier Regex
+- [ ] Column Range
+- [ ] Timestamp Range
+- [ ] Value Range
+- [ ] Cells Per Row Offset
+- [ ] Cells Per Row Limit
+- [ ] Strip Value Transfformer
+- [ ] Apply Label Transformer
+
+### Read Modify Write Rule:
+
+- [ ] Family Name
+- [ ] Column Qualifier
+- [ ] Append Value
+- [ ] Increment Amount
