@@ -70,10 +70,10 @@ defmodule Bigtable.RowFilter do
   Adds a row key regex `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`
 
   ## Examples
-      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.row_key_regex("^Test#\w+")
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.row_key_regex("^Test#\\w+")
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
       %Google.Bigtable.V2.RowFilter{
-        filter: {:row_key_regex_filter, "^Test#w+"}
+        filter: {:row_key_regex_filter, "^Test#\\w+"}
       }
   """
   @spec row_key_regex(ReadRowsRequest.t(), binary()) :: ReadRowsRequest.t()
@@ -88,9 +88,9 @@ defmodule Bigtable.RowFilter do
   Creates a row key regex `Google.Bigtable.V2.RowFilter`
 
   ## Examples
-      iex> Bigtable.RowFilter.row_key_regex("^Test#\w+")
+      iex> Bigtable.RowFilter.row_key_regex("^Test#\\w+")
       %Google.Bigtable.V2.RowFilter{
-        filter: {:row_key_regex_filter, "^Test#\w+"}
+        filter: {:row_key_regex_filter, "^Test#\\w+"}
       }
   """
   @spec row_key_regex(binary()) :: RowFilter.t()

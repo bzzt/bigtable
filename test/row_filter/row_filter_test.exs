@@ -1,5 +1,6 @@
 defmodule RowFilterTest do
-  alias Bigtable.{ReadRows, RowFilter}
+  @moduledoc false
+  alias Bigtable.RowFilter
 
   use ExUnit.Case
 
