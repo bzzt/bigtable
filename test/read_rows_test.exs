@@ -44,7 +44,7 @@ defmodule ReadRowsTest do
       ]
     end
 
-    test "should read from an empty table", context do
+    test "should read from an empty table" do
       assert ReadRows.read() == []
     end
 

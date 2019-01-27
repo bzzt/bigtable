@@ -1,4 +1,5 @@
 defmodule Bigtable.RowFilter do
+  alias Bigtable.RowFilter.{CellsPerColumn, Chain, RowKeyRegex}
   alias Google.Bigtable.V2.{ReadRowsRequest, RowFilter}
 
   @moduledoc """
@@ -149,13 +150,12 @@ defmodule Bigtable.RowFilter do
   """
   @spec chain([RowFilter.t()]) :: RowFilter.t()
   def chain(filters) when is_list(filters) do
-    {:chain, RowFilter.Chain.new(filters: filters)}
-    |> build_filter()
+    Chain.build_filter(filters)
   end
 
   @spec chain(RowFilter.t()) :: RowFilter.t()
   def chain(%RowFilter{} = filter) do
-    chain([filter])
+    Chain.build_filter(filter)
   end
 
   @doc """
@@ -177,10 +177,7 @@ defmodule Bigtable.RowFilter do
   """
   @spec cells_per_column(ReadRowsRequest.t(), integer()) :: ReadRowsRequest.t()
   def cells_per_column(%ReadRowsRequest{} = request, limit) when is_integer(limit) do
-    filter = cells_per_column(limit)
-
-    filter
-    |> add_to_chain(request)
+    CellsPerColumn.apply_filter(request, limit)
   end
 
   @doc """
@@ -194,61 +191,62 @@ defmodule Bigtable.RowFilter do
   """
   @spec cells_per_column(integer()) :: RowFilter.t()
   def cells_per_column(limit) when is_integer(limit) do
-    {:cells_per_column_limit_filter, limit}
-    |> build_filter()
+    CellsPerColumn.build_filter(limit)
   end
 
+  @doc """
+  Adds a row key regex `Google.Bigtable.V2.RowFilter` to an existing `Google.Bigtable.V2.RowFilter` chain on a `Google.Bigtable.V2.ReadRowsRequest`
+
+  ## Examples
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.row_key_regex("^Test#\w+")
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
+      %Google.Bigtable.V2.RowFilter{
+        filter: {
+          :chain,
+          %Google.Bigtable.V2.RowFilter.Chain{
+            filters: [
+              %Google.Bigtable.V2.RowFilter{
+                filter: {:cells_per_column_limit_filter, 1}
+              },
+              %Google.Bigtable.V2.RowFilter{
+                filter: {:cells_per_column_limit_filter, 1}
+              },
+              %Google.Bigtable.V2.RowFilter{
+                filter: {:row_key_regex_filter, "^Test#w+"}
+              }
+            ]
+          }
+        }
+      }
+  """
+  @spec row_key_regex(ReadRowsRequest.t(), binary()) :: ReadRowsRequest.t()
   def row_key_regex(%ReadRowsRequest{} = request, regex) do
-    filter = row_key_regex(regex)
-
-    filter
-    |> add_to_chain(request)
+    RowKeyRegex.apply_filter(request, regex)
   end
 
+  @doc """
+  Creates a row key regex `Google.Bigtable.V2.RowFilter`
+
+  ## Examples
+      iex> Bigtable.RowFilter.row_key_regex("^Test#\w+")
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:row_key_regex_filter, "^Test#\w+"}
+      }
+  """
+  @spec row_key_regex(binary()) :: RowFilter.t()
   def row_key_regex(regex) do
-    {:row_key_regex_filter, regex}
-    |> build_filter()
+    RowKeyRegex.build_filter(regex)
+  end
+
+  # Creates a Bigtable.V2.RowFilter given a type and value
+  @spec build_filter({atom(), any()}) :: RowFilter.t()
+  def build_filter({type, value}) when is_atom(type) do
+    RowFilter.new(filter: {type, value})
   end
 
   @spec default_filters() :: list(RowFilter.t())
   defp default_filters do
     column_filter = cells_per_column(1)
     [column_filter, column_filter]
-  end
-
-  # Adds a filter to a V2.RowFilter.Chain on a V2.ReadRowsRequest
-  @spec add_to_chain(RowFilter.t(), ReadRowsRequest.t()) :: ReadRowsRequest.t()
-  defp add_to_chain(filter, request) do
-    # Fetches the request's previous filter chain
-    {:chain, chain} = request.filter.filter
-
-    type = get_filter_type(filter)
-
-    # Ensures only the latest version of each filter is used
-    # when filters are applied through piping
-    prev_filters =
-      chain.filters
-      |> remove_duplicates(type)
-
-    # Adds the provided filter to the request's previous chain
-    %{request | filter: chain(prev_filters ++ [filter])}
-  end
-
-  # Creates a Bigtable.V2.RowFilter given a type and value
-  @spec build_filter({atom(), any()}) :: RowFilter.t()
-  defp build_filter({type, value}) when is_atom(type) do
-    RowFilter.new(filter: {type, value})
-  end
-
-  # Removes duplicate filters given a filter type
-  @spec remove_duplicates(list(RowFilter.t()), atom()) :: list(RowFilter.t())
-  defp remove_duplicates(row_filters, row_filter_type) do
-    Enum.filter(row_filters, &(get_filter_type(&1) != row_filter_type))
-  end
-
-  # Fetches filter type from filter tuple
-  @spec get_filter_type(RowFilter.t()) :: atom()
-  defp get_filter_type(%RowFilter{} = filter) do
-    elem(filter.filter, 0)
   end
 end
