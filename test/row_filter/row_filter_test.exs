@@ -1,5 +1,5 @@
 defmodule RowFilterTest do
-  alias Bigtable.RowFilter
+  alias Bigtable.{ReadRows, RowFilter}
 
   use ExUnit.Case
 
@@ -88,12 +88,18 @@ defmodule RowFilterTest do
   end
 
   describe "RowFilter.value_regex_filter" do
-    test "should return a V2.RowFilter given a regex" do
+    setup do
       regex = "^test$"
 
-      expected = %Google.Bigtable.V2.RowFilter{
-        filter: {:value_regex_filter, regex}
-      }
+      [
+        regex: regex,
+        filter: %Google.Bigtable.V2.RowFilter{
+          filter: {:value_regex_filter, regex}
+        }
+      ]
+    end
+
+    test "should return a V2.RowFilter given a regex" do
     end
   end
 
