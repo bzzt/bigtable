@@ -61,14 +61,9 @@ defmodule Bigtable.ReadRows do
       Connection.get_connection()
       |> Bigtable.Stub.read_rows(request, metadata)
 
-    result =
-      stream
-      |> Utils.process_stream()
-      |> Enum.filter(&contains_chunks?/1)
-
-    IO.inspect(result)
-
-    result
+    stream
+    |> Utils.process_stream()
+    |> Enum.filter(&contains_chunks?/1)
   end
 
   @spec read(binary()) ::
@@ -99,9 +94,4 @@ defmodule Bigtable.ReadRows do
   end
 
   defp contains_chunks?({:ok, response}), do: !Enum.empty?(response.chunks)
-
-  defp remaining_resp?({status, resp}) do
-    IO.puts("ReadRows status: #{inspect(status)}")
-    status != :trailers
-  end
 end

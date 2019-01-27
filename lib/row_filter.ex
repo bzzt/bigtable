@@ -1,5 +1,4 @@
 defmodule Bigtable.RowFilter do
-  alias Bigtable.RowFilter.{CellsPerColumn, Chain, RowKeyRegex}
   alias Google.Bigtable.V2.{ReadRowsRequest, RowFilter}
 
   @moduledoc """
@@ -30,8 +29,9 @@ defmodule Bigtable.RowFilter do
   """
   @spec chain(ReadRowsRequest.t(), [RowFilter.t()]) :: ReadRowsRequest.t()
   def chain(%ReadRowsRequest{} = request, filters) when is_list(filters) do
-    chain = Chain.build_filter(filters)
-    %{request | filter: chain}
+    {:chain, RowFilter.Chain.new(filters: filters)}
+    |> build_filter()
+    |> apply_filter(request)
   end
 
   @doc """
@@ -63,7 +63,8 @@ defmodule Bigtable.RowFilter do
   """
   @spec cells_per_column(integer()) :: RowFilter.t()
   def cells_per_column(limit) when is_integer(limit) do
-    CellsPerColumn.build_filter(limit)
+    {:cells_per_column_limit_filter, limit}
+    |> build_filter()
   end
 
   @doc """
@@ -95,7 +96,23 @@ defmodule Bigtable.RowFilter do
   """
   @spec row_key_regex(binary()) :: RowFilter.t()
   def row_key_regex(regex) do
-    RowKeyRegex.build_filter(regex)
+    {:row_key_regex_filter, regex}
+    |> build_filter()
+  end
+
+  @doc """
+  Creates a value regex `Google.Bigtable.V2.RowFilter`
+
+  ## Examples
+      iex> Bigtable.RowFilter.value_regex("^test$")
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:value_regex_filter, "^test$"}
+      }
+  """
+  @spec value_regex(binary()) :: RowFilter.t()
+  def value_regex(regex) do
+    {:value_regex_filter, regex}
+    |> build_filter()
   end
 
   # Creates a Bigtable.V2.RowFilter given a type and value

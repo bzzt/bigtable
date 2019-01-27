@@ -101,7 +101,7 @@ defmodule RowFilterTest do
     end
 
     test "should return a V2.RowFilter given a regex", context do
-      # assert RowFilter.value_regex(context.regex) == context.filter
+      assert RowFilter.value_regex(context.regex) == context.filter
     end
   end
 
