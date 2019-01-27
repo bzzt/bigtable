@@ -54,9 +54,7 @@ defmodule Bigtable.ReadRows do
           {:error, GRPC.RPCError.t()}
           | [ok: V2.ReadRowsResponse.t()]
   def read(%V2.ReadRowsRequest{} = request) do
-    metadata =
-      Connection.get_metadata()
-      |> Keyword.put(:return_headers, true)
+    metadata = Connection.get_metadata()
 
     {:ok, rows, _} =
       Connection.get_connection()
@@ -97,5 +95,8 @@ defmodule Bigtable.ReadRows do
 
   defp contains_chunks?({:ok, response}), do: !Enum.empty?(response.chunks)
 
-  defp remaining_resp?({status, _}), do: status != :trailers
+  defp remaining_resp?({status, resp}) do
+    IO.puts("ReadRows status: #{inspect(status)}")
+    status != :trailers
+  end
 end

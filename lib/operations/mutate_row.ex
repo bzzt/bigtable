@@ -38,8 +38,16 @@ defmodule Bigtable.MutateRow do
 
     connection = Connection.get_connection()
 
-    connection
-    |> Bigtable.Stub.mutate_row(request, metadata)
+    {:ok, resp, _} =
+      connection
+      |> Bigtable.Stub.mutate_row(request, metadata)
+
+    result =
+      resp
+      |> Stream.take_while(&remaining_resp?/1)
+      |> Enum.to_list()
+
+    {:ok, result}
   end
 
   @spec mutate(V2.MutateRowsRequest.Entry.t()) :: V2.MutateRowResponse.t()
@@ -48,5 +56,10 @@ defmodule Bigtable.MutateRow do
 
     request
     |> mutate()
+  end
+
+  defp remaining_resp?({status, resp}) do
+    IO.puts("MutateRow status: #{inspect(status)}")
+    status != :trailers
   end
 end

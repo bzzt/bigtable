@@ -42,8 +42,16 @@ defmodule Bigtable.MutateRows do
 
     metadata = Connection.get_metadata()
 
-    connection
-    |> Bigtable.Stub.mutate_rows(request, metadata)
+    {:ok, resp, _} =
+      connection
+      |> Bigtable.Stub.mutate_rows(request, metadata)
+
+    result =
+      resp
+      |> Stream.take_while(&remaining_resp?/1)
+      |> Enum.to_list()
+
+    {:ok, result}
   end
 
   @spec mutate([Google.Bigtable.V2.MutateRowsRequest.Entry.t()]) ::
@@ -54,5 +62,10 @@ defmodule Bigtable.MutateRows do
 
     request
     |> mutate
+  end
+
+  defp remaining_resp?({status, resp}) do
+    IO.puts("MutateRows status: #{inspect(status)}")
+    status != :trailers
   end
 end
