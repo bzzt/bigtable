@@ -56,9 +56,9 @@ end
 - [x] Value Regex
 - [x] Family Name Regex
 - [x] Column Qualifier Regex
+- [x] Column Range
 - [ ] Condition
 - [ ] Row Sample
-- [ ] Column Range
 - [ ] Timestamp Range
 - [ ] Value Range
 - [ ] Cells Per Row Offset

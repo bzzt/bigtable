@@ -266,16 +266,60 @@ defmodule RowFilterIntegration do
   end
 
   describe "RowFilter.column_range" do
+    setup do
+      seed_range("Test#1")
+    end
+
     test "should properly filter inclusive range in single row" do
+      range = {"column2", "column4"}
+
+      [ok: result] =
+        ReadRows.build()
+        |> RowFilter.column_range("cf1", range)
+        |> ReadRows.read()
+
+      assert length(result.chunks) == 3
     end
 
     test "should properly filter inclusive range in multiple rows" do
+      seed_range("Test#2")
+
+      range = {"column2", "column4"}
+
+      result =
+        ReadRows.build()
+        |> RowFilter.column_range("cf1", range)
+        |> ReadRows.read()
+
+      assert length(result) == 2
+      chunks = chunks_from_rows(result)
+      assert length(chunks) == 6
     end
 
     test "should properly filter exclusive range in single row" do
+      range = {"column2", "column4", false}
+
+      [ok: result] =
+        ReadRows.build()
+        |> RowFilter.column_range("cf1", range)
+        |> ReadRows.read()
+
+      assert length(result.chunks) == 1
     end
 
     test "should properly filter exclusive range in multiple rows" do
+      seed_range("Test#2")
+
+      range = {"column2", "column4", false}
+
+      result =
+        ReadRows.build()
+        |> RowFilter.column_range("cf1", range)
+        |> ReadRows.read()
+
+      assert length(result) == 2
+      chunks = chunks_from_rows(result)
+      assert length(chunks) == 2
     end
   end
 
@@ -317,6 +361,18 @@ defmodule RowFilterIntegration do
     IO.inspect(result)
 
     IO.puts("Rows Inserted")
+  end
+
+  defp seed_range(row_key) do
+    {:ok, _} =
+      Mutations.build(row_key)
+      |> Mutations.set_cell("cf1", "column1", "value1")
+      |> Mutations.set_cell("cf1", "column2", "value2")
+      |> Mutations.set_cell("cf1", "column3", "value3")
+      |> Mutations.set_cell("cf1", "column4", "value4")
+      |> Mutations.set_cell("cf1", "column5", "value5")
+      |> MutateRow.build()
+      |> MutateRow.mutate()
   end
 
   defp seed_values(context) do

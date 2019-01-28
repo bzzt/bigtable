@@ -29,7 +29,7 @@ defmodule Bigtable.RowFilter.ColumnRange do
   defp exclusive_range(start_qualifier, end_qualifier) do
     [
       start_qualifier: {:start_qualifier_open, start_qualifier},
-      end_qualifier: {:start_qualifier_closed, end_qualifier}
+      end_qualifier: {:end_qualifier_open, end_qualifier}
     ]
   end
 

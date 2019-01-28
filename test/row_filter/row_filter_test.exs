@@ -183,7 +183,7 @@ defmodule RowFilterTest do
              %Google.Bigtable.V2.ColumnRange{
                family_name: family_name,
                start_qualifier: {:start_qualifier_open, start_qualifier},
-               end_qualifier: {:start_qualifier_closed, end_qualifier}
+               end_qualifier: {:end_qualifier_open, end_qualifier}
              }}
         }
       ]
