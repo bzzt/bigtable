@@ -319,6 +319,104 @@ defmodule RowFilterIntegration do
     end
   end
 
+  describe "RowFilter.timestamp_range" do
+    setup do
+      seed_timestamp_range("Test#1")
+    end
+
+    test "should properly filter start timestamp in single row" do
+      range = [start_timestamp: 2000]
+
+      [ok: result] =
+        ReadRows.build()
+        |> RowFilter.timestamp_range(range)
+        |> ReadRows.read()
+
+      assert length(result.chunks) == 6
+      assert Enum.all?(result.chunks, fn c -> c.timestamp_micros >= 2000 end)
+    end
+
+    test "should properly filter end timestamp in single row" do
+      range = [end_timestamp: 2000]
+
+      [ok: result] =
+        ReadRows.build()
+        |> RowFilter.timestamp_range(range)
+        |> ReadRows.read()
+
+      assert length(result.chunks) == 2
+      assert Enum.all?(result.chunks, fn c -> c.timestamp_micros < 2000 end)
+    end
+
+    test "should properly filter timestamp range in single row" do
+      range = [start_timestamp: 2000, end_timestamp: 4000]
+
+      [ok: result] =
+        ReadRows.build()
+        |> RowFilter.timestamp_range(range)
+        |> ReadRows.read()
+
+      assert length(result.chunks) == 4
+
+      assert Enum.all?(result.chunks, fn c ->
+               timestamp = c.timestamp_micros
+               timestamp < 4000 and timestamp >= 2000
+             end)
+    end
+
+    test "should properly filter start timestamp in multiple rows" do
+      seed_timestamp_range("Test#2")
+
+      range = [start_timestamp: 2000]
+
+      result =
+        ReadRows.build()
+        |> RowFilter.timestamp_range(range)
+        |> ReadRows.read()
+
+      assert length(result) == 2
+      chunks = chunks_from_rows(result)
+      assert length(chunks) == 12
+      assert Enum.all?(chunks, fn c -> c.timestamp_micros >= 2000 end)
+    end
+
+    test "should properly filter end timestamp in multiple rows" do
+      seed_timestamp_range("Test#2")
+
+      range = [end_timestamp: 2000]
+
+      result =
+        ReadRows.build()
+        |> RowFilter.timestamp_range(range)
+        |> ReadRows.read()
+
+      assert length(result) == 2
+      chunks = chunks_from_rows(result)
+      assert length(chunks) == 4
+      assert Enum.all?(chunks, fn c -> c.timestamp_micros < 2000 end)
+    end
+
+    test "should properly filter timestamp range in multiple rows" do
+      seed_timestamp_range("Test#2")
+
+      range = [start_timestamp: 2000, end_timestamp: 4000]
+
+      result =
+        ReadRows.build()
+        |> RowFilter.timestamp_range(range)
+        |> ReadRows.read()
+
+      assert length(result) == 2
+      chunks = chunks_from_rows(result)
+      assert length(chunks) == 8
+
+      assert Enum.all?(chunks, fn c ->
+               timestamp = c.timestamp_micros
+               timestamp < 4000 and timestamp >= 2000
+             end)
+    end
+  end
+
   describe "RowFilter.chain" do
     test "should properly apply a chain of filters", context do
       seed_values(context)
@@ -350,6 +448,21 @@ defmodule RowFilterIntegration do
     mutations
     |> MutateRows.build()
     |> MutateRows.mutate()
+  end
+
+  defp seed_timestamp_range(row_key) do
+    {:ok, _} =
+      Mutations.build(row_key)
+      |> Mutations.set_cell("cf1", "column1", "value1", 1000)
+      |> Mutations.set_cell("cf1", "column1", "value2", 2000)
+      |> Mutations.set_cell("cf1", "column1", "value3", 3000)
+      |> Mutations.set_cell("cf1", "column1", "value4", 4000)
+      |> Mutations.set_cell("cf2", "column1", "value1", 1000)
+      |> Mutations.set_cell("cf2", "column1", "value2", 2000)
+      |> Mutations.set_cell("cf2", "column1", "value3", 3000)
+      |> Mutations.set_cell("cf2", "column1", "value3", 4000)
+      |> MutateRow.build()
+      |> MutateRow.mutate()
   end
 
   defp seed_range(row_key) do

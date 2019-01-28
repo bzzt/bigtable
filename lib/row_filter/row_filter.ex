@@ -273,6 +273,9 @@ defmodule Bigtable.RowFilter do
   @doc """
   Adds a timestamp range `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
 
+  `start_timestamp`: Inclusive lower bound. If left empty, interpreted as 0.
+  `end_timestamp`: Exclusive upper bound. If left empty, interpreted as infinity.
+
   ## Examples
       iex> range = [start_timestamp: 1000, end_timestamp: 2000]
       iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.timestamp_range(range)
@@ -297,6 +300,9 @@ defmodule Bigtable.RowFilter do
 
   @doc """
   Creates a timestamp range `Google.Bigtable.V2.RowFilter`.
+
+  `start_timestamp`: Inclusive lower bound. If left empty, interpreted as 0.
+  `end_timestamp`: Exclusive upper bound. If left empty, interpreted as infinity.
 
   ## Examples
       iex> range = [start_timestamp: 1000, end_timestamp: 2000]
