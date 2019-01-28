@@ -3,7 +3,7 @@ defmodule Bigtable.RowFilter do
   alias Google.Bigtable.V2.{ReadRowsRequest, RowFilter}
 
   @moduledoc """
-  Provides functions for creating `Google.Bigtable.V2.RowFilter` and applying them to a `Google.Bigtable.V2.ReadRowsRequest` or `Google.Bigtable.V2.RowFilter.Chain`
+  Provides functions for creating `Google.Bigtable.V2.RowFilter` and applying them to a `Google.Bigtable.V2.ReadRowsRequest` or `Google.Bigtable.V2.RowFilter.Chain`.
   """
 
   @doc """
@@ -36,7 +36,7 @@ defmodule Bigtable.RowFilter do
   end
 
   @doc """
-  Adds a cells per column `Google.Bigtable.V2.RowFilter` to a `Google.Bigtable.V2.ReadRowsRequest`
+  Adds a cells per column `Google.Bigtable.V2.RowFilter` to a `Google.Bigtable.V2.ReadRowsRequest`.
 
   ## Examples
       iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.cells_per_column(2)
@@ -54,7 +54,7 @@ defmodule Bigtable.RowFilter do
   end
 
   @doc """
-  Creates a cells per column `Google.Bigtable.V2.RowFilter`
+  Creates a cells per column `Google.Bigtable.V2.RowFilter`.
 
   ## Examples
       iex> Bigtable.RowFilter.cells_per_column(2)
@@ -69,7 +69,7 @@ defmodule Bigtable.RowFilter do
   end
 
   @doc """
-  Adds a row key regex `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`
+  Adds a row key regex `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
 
   ## Examples
       iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.row_key_regex("^Test#\\w+")
@@ -87,7 +87,7 @@ defmodule Bigtable.RowFilter do
   end
 
   @doc """
-  Creates a row key regex `Google.Bigtable.V2.RowFilter`
+  Creates a row key regex `Google.Bigtable.V2.RowFilter`.
 
   ## Examples
       iex> Bigtable.RowFilter.row_key_regex("^Test#\\w+")
@@ -102,7 +102,7 @@ defmodule Bigtable.RowFilter do
   end
 
   @doc """
-  Adds a value regex `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`
+  Adds a value regex `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
 
   ## Examples
       iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.value_regex("^test$")
@@ -120,7 +120,7 @@ defmodule Bigtable.RowFilter do
   end
 
   @doc """
-  Creates a value regex `Google.Bigtable.V2.RowFilter`
+  Creates a value regex `Google.Bigtable.V2.RowFilter`.
 
   ## Examples
       iex> Bigtable.RowFilter.value_regex("^test$")
@@ -135,7 +135,7 @@ defmodule Bigtable.RowFilter do
   end
 
   @doc """
-  Adds a family name regex `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`
+  Adds a family name regex `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
 
   ## Examples
       iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.family_name_regex("^testFamily$")
@@ -153,7 +153,7 @@ defmodule Bigtable.RowFilter do
   end
 
   @doc """
-  Creates a family name regex `Google.Bigtable.V2.RowFilter`
+  Creates a family name regex `Google.Bigtable.V2.RowFilter`.
 
   ## Examples
       iex> Bigtable.RowFilter.family_name_regex("^testFamily$")
@@ -168,7 +168,7 @@ defmodule Bigtable.RowFilter do
   end
 
   @doc """
-  Adds a column qualifier regex `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`
+  Adds a column qualifier regex `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
 
   ## Examples
       iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.column_qualifier_regex("^testColumn$")
@@ -186,7 +186,7 @@ defmodule Bigtable.RowFilter do
   end
 
   @doc """
-  Creates a family name regex `Google.Bigtable.V2.RowFilter`
+  Creates a family name regex `Google.Bigtable.V2.RowFilter`.
 
   ## Examples
       iex> Bigtable.RowFilter.column_qualifier_regex("^testColumn$")
@@ -199,6 +199,29 @@ defmodule Bigtable.RowFilter do
     {:column_qualifier_regex_filter, regex}
     |> build_filter()
   end
+
+  @doc """
+  Adds a column range `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
+
+  Column range should be provided in the format {start, end} or {start, end, inclusive}.
+
+  Defaults to inclusive start and end column qualifiers.
+
+  ## Examples
+      iex> range = {"column2", "column4"}
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.column_range("family", range)
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
+      %Google.Bigtable.V2.RowFilter{
+        filter: {
+        :column_range_filter,
+          %Google.Bigtable.V2.ColumnRange{
+            end_qualifier: {:end_qualifier_closed, "column4"},
+            family_name: "family",
+            start_qualifier: {:start_qualifier_closed, "column2"}
+          }
+        }
+      }
+  """
 
   @spec column_range(
           Google.Bigtable.V2.ReadRowsRequest.t(),
@@ -215,6 +238,28 @@ defmodule Bigtable.RowFilter do
     filter
     |> apply_filter(request)
   end
+
+  @doc """
+  Creates a column range `Google.Bigtable.V2.RowFilter`.
+
+  Column range should be provided in the format {start, end} or {start, end, inclusive}.
+
+  Defaults to inclusive start and end column qualifiers.
+
+  ## Examples
+      iex> range = {"column2", "column4"}
+      iex> Bigtable.RowFilter.column_range("family", range)
+      %Google.Bigtable.V2.RowFilter{
+        filter: {
+        :column_range_filter,
+          %Google.Bigtable.V2.ColumnRange{
+            end_qualifier: {:end_qualifier_closed, "column4"},
+            family_name: "family",
+            start_qualifier: {:start_qualifier_closed, "column2"}
+          }
+        }
+      }
+  """
 
   @spec column_range(binary(), {binary(), binary(), boolean()} | {binary(), binary()}) ::
           RowFilter.t()
