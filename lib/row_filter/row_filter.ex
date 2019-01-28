@@ -1,4 +1,5 @@
 defmodule Bigtable.RowFilter do
+  alias Bigtable.RowFilter.ColumnRange
   alias Google.Bigtable.V2.{ReadRowsRequest, RowFilter}
 
   @moduledoc """
@@ -196,6 +197,31 @@ defmodule Bigtable.RowFilter do
   @spec column_qualifier_regex(binary()) :: RowFilter.t()
   def column_qualifier_regex(regex) do
     {:column_qualifier_regex_filter, regex}
+    |> build_filter()
+  end
+
+  @spec column_range(
+          Google.Bigtable.V2.ReadRowsRequest.t(),
+          binary(),
+          {binary(), binary()} | {binary(), binary(), boolean()}
+        ) :: ReadRowsRequest.t()
+  def column_range(
+        %ReadRowsRequest{} = request,
+        family_name,
+        range
+      ) do
+    filter = column_range(family_name, range)
+
+    filter
+    |> apply_filter(request)
+  end
+
+  @spec column_range(binary(), {binary(), binary(), boolean()} | {binary(), binary()}) ::
+          RowFilter.t()
+  def column_range(family_name, range) do
+    range_filter = ColumnRange.create_range(family_name, range)
+
+    {:column_range_filter, range_filter}
     |> build_filter()
   end
 

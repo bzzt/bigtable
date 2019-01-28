@@ -77,7 +77,7 @@ defmodule RowFilterIntegration do
   end
 
   describe "RowFilter.value_regex" do
-    test "should properly filter a single row based on value", context do
+    test "should properly filter a single row based on value" do
       mutation =
         Mutations.build("Test#1")
         |> Mutations.set_cell("cf1", "column1", "foo")
@@ -98,7 +98,7 @@ defmodule RowFilterIntegration do
       assert length(result.chunks) == 2
     end
 
-    test "should properly filter multiple rows based on value", context do
+    test "should properly filter multiple rows based on value" do
       first_mutation =
         Mutations.build("Test#1")
         |> Mutations.set_cell("cf1", "column1", "foo")
@@ -130,7 +130,7 @@ defmodule RowFilterIntegration do
   end
 
   describe "RowFilter.family_name_regex" do
-    test "should properly filter a single row based on family name", context do
+    test "should properly filter a single row based on family name" do
       mutation =
         Mutations.build("Test#1")
         |> Mutations.set_cell("cf2", "cf2-column", "cf2-value")
@@ -156,7 +156,7 @@ defmodule RowFilterIntegration do
       assert length(other_result.chunks) == 1
     end
 
-    test "should properly filter a multiple rows based on family name", context do
+    test "should properly filter a multiple rows based on family name" do
       first_mutation =
         Mutations.build("Test#1")
         |> Mutations.set_cell("cf2", "cf2-column", "cf2-value")
@@ -195,7 +195,7 @@ defmodule RowFilterIntegration do
   end
 
   describe "RowFilter.column_qualifier_regex" do
-    test "should properly filter a single row based on column qualifier", context do
+    test "should properly filter a single row based on column qualifier" do
       mutation =
         Mutations.build("Test#1")
         |> Mutations.set_cell("cf2", "foo-column", "bar-value")
@@ -223,7 +223,7 @@ defmodule RowFilterIntegration do
       assert length(bar_result.chunks) == 3
     end
 
-    test "should properly filter a multiple rows based on column qualifier", context do
+    test "should properly filter a multiple rows based on column qualifier" do
       first_mutation =
         Mutations.build("Test#1")
         |> Mutations.set_cell("cf2", "foo-column", "bar-value")
@@ -262,6 +262,20 @@ defmodule RowFilterIntegration do
       assert length(bar_result) == 2
       bar_chunks = bar_result |> chunks_from_rows()
       assert length(bar_chunks) == 6
+    end
+  end
+
+  describe "RowFilter.column_range" do
+    test "should properly filter inclusive range in single row" do
+    end
+
+    test "should properly filter inclusive range in multiple rows" do
+    end
+
+    test "should properly filter exclusive range in single row" do
+    end
+
+    test "should properly filter exclusive range in multiple rows" do
     end
   end
 

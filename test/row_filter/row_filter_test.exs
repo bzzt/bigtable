@@ -157,6 +157,83 @@ defmodule RowFilterTest do
     end
   end
 
+  describe "RowFilter.column_range" do
+    setup do
+      family_name = "cf1"
+      start_qualifier = "column2"
+      end_qualifier = "column4"
+
+      [
+        family_name: family_name,
+        inclusive_range: {start_qualifier, end_qualifier},
+        inclusive_range_flagged: {start_qualifier, end_qualifier, true},
+        exclusive_range: {start_qualifier, end_qualifier, false},
+        inclusive_filter: %Google.Bigtable.V2.RowFilter{
+          filter:
+            {:column_range_filter,
+             %Google.Bigtable.V2.ColumnRange{
+               family_name: family_name,
+               start_qualifier: {:start_qualifier_closed, start_qualifier},
+               end_qualifier: {:end_qualifier_closed, end_qualifier}
+             }}
+        },
+        exclusive_filter: %Google.Bigtable.V2.RowFilter{
+          filter:
+            {:column_range_filter,
+             %Google.Bigtable.V2.ColumnRange{
+               family_name: family_name,
+               start_qualifier: {:start_qualifier_open, start_qualifier},
+               end_qualifier: {:start_qualifier_closed, end_qualifier}
+             }}
+        }
+      ]
+    end
+
+    test "should apply an inclusive column_range V2.RowFilter to a V2.ReadRowsRequest", context do
+      expected = expected_request(context.inclusive_filter)
+
+      family_name = context.family_name
+      request = context.request
+
+      with_flag = RowFilter.column_range(request, family_name, context.inclusive_range_flagged)
+
+      without_flag = RowFilter.column_range(request, family_name, context.inclusive_range)
+
+      assert with_flag == expected
+      assert without_flag == expected
+    end
+
+    test "should apply an exclusive column_range V2.RowFilter to a V2.ReadRowsRequest", context do
+      expected = expected_request(context.exclusive_filter)
+
+      result =
+        RowFilter.column_range(context.request, context.family_name, context.exclusive_range)
+
+      assert result == expected
+    end
+
+    test "should return an inclusive column_range V2.RowFilter given a range",
+         context do
+      expected = context.inclusive_filter
+
+      family_name = context.family_name
+
+      with_flag = RowFilter.column_range(family_name, context.inclusive_range_flagged)
+      without_flag = RowFilter.column_range(family_name, context.inclusive_range)
+
+      assert with_flag == expected
+      assert without_flag == expected
+    end
+
+    test "should return an exclusive column_range V2.RowFilter given a range", context do
+      expected = context.exclusive_filter
+
+      result = RowFilter.column_range(context.family_name, context.exclusive_range)
+
+      assert result == expected
+    end
+  end
+
   defp expected_chain(filters) when is_list(filters) do
     %Google.Bigtable.V2.RowFilter{
       filter:

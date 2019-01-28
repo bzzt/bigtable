@@ -193,6 +193,8 @@ defmodule Bigtable.RowSet do
     end
   end
 
+  # Returns an inclusive or exclusive range depending on the boolean flag
+
   defp translate_range({start_key, end_key, inclusive}) do
     case inclusive do
       true -> inclusive_range(start_key, end_key)
@@ -200,7 +202,6 @@ defmodule Bigtable.RowSet do
     end
   end
 
-  # Returns an inclusive or exclusive range depending on the boolean flag
   defp translate_range({start_key, end_key}) do
     inclusive_range(start_key, end_key)
   end

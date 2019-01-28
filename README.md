@@ -55,9 +55,9 @@ end
 - [x] Row Key Regex
 - [x] Value Regex
 - [x] Family Name Regex
+- [x] Column Qualifier Regex
 - [ ] Condition
 - [ ] Row Sample
-- [ ] Column Qualifier Regex
 - [ ] Column Range
 - [ ] Timestamp Range
 - [ ] Value Range
