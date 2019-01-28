@@ -1,6 +1,6 @@
 defmodule Bigtable.RowFilter do
   alias Bigtable.RowFilter.ColumnRange
-  alias Google.Bigtable.V2.{ReadRowsRequest, RowFilter}
+  alias Google.Bigtable.V2.{ReadRowsRequest, RowFilter, TimestampRange}
 
   @moduledoc """
   Provides functions for creating `Google.Bigtable.V2.RowFilter` and applying them to a `Google.Bigtable.V2.ReadRowsRequest` or `Google.Bigtable.V2.RowFilter.Chain`.
@@ -264,9 +264,62 @@ defmodule Bigtable.RowFilter do
   @spec column_range(binary(), {binary(), binary(), boolean()} | {binary(), binary()}) ::
           RowFilter.t()
   def column_range(family_name, range) do
-    range_filter = ColumnRange.create_range(family_name, range)
+    range = ColumnRange.create_range(family_name, range)
 
-    {:column_range_filter, range_filter}
+    {:column_range_filter, range}
+    |> build_filter()
+  end
+
+  @doc """
+  Adds a timestamp range `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
+
+  ## Examples
+      iex> range = [start_timestamp: 1000, end_timestamp: 2000]
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.timestamp_range(range)
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
+      %Google.Bigtable.V2.RowFilter{
+        filter: {
+          :timestamp_range_filter,
+          %Google.Bigtable.V2.TimestampRange{
+            end_timestamp_micros: 2000,
+            start_timestamp_micros: 1000
+          }
+        }
+      }
+  """
+  @spec timestamp_range(ReadRowsRequest.t(), Keyword.t()) :: ReadRowsRequest.t()
+  def timestamp_range(%ReadRowsRequest{} = request, timestamps) do
+    filter = timestamp_range(timestamps)
+
+    filter
+    |> apply_filter(request)
+  end
+
+  @doc """
+  Creates a timestamp range `Google.Bigtable.V2.RowFilter`.
+
+  ## Examples
+      iex> range = [start_timestamp: 1000, end_timestamp: 2000]
+      iex> Bigtable.RowFilter.timestamp_range(range)
+      %Google.Bigtable.V2.RowFilter{
+        filter: {
+          :timestamp_range_filter,
+          %Google.Bigtable.V2.TimestampRange{
+            end_timestamp_micros: 2000,
+            start_timestamp_micros: 1000
+          }
+        }
+      }
+  """
+  @spec timestamp_range(Keyword.t()) :: RowFilter.t()
+  def timestamp_range(timestamps) do
+    range =
+      TimestampRange.new(
+        start_timestamp_micros: Keyword.get(timestamps, :start_timestamp, 0),
+        end_timestamp_micros: Keyword.get(timestamps, :end_timestamp, 0)
+      )
+
+    {:timestamp_range_filter, range}
     |> build_filter()
   end
 

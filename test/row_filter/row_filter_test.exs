@@ -234,6 +234,52 @@ defmodule RowFilterTest do
     end
   end
 
+  describe "RowFilter.timestamp_range" do
+    test "should apply a timerange filter V2.RowFilter to a V2.ReadRowsRequest", context do
+      start_timestamp = 1000
+      end_timestamp = 2000
+      range = [start_timestamp: start_timestamp, end_timestamp: end_timestamp]
+
+      filter = expected_timestamp_filter(start_timestamp, end_timestamp)
+
+      expected = expected_request(filter)
+
+      result = RowFilter.timestamp_range(context.request, range)
+
+      assert result == expected
+    end
+
+    test "should return default timestamp range when no timestamps provided" do
+      expected = expected_timestamp_filter(0, 0)
+
+      assert RowFilter.timestamp_range([]) == expected
+    end
+
+    test "should return timestamp range with start and end provided" do
+      start_timestamp = 1000
+      end_timestamp = 2000
+
+      expected = expected_timestamp_filter(start_timestamp, end_timestamp)
+
+      range = [start_timestamp: start_timestamp, end_timestamp: end_timestamp]
+
+      result = RowFilter.timestamp_range(range)
+
+      assert result == expected
+    end
+  end
+
+  defp expected_timestamp_filter(start_timestamp, end_timestamp) do
+    %Google.Bigtable.V2.RowFilter{
+      filter:
+        {:timestamp_range_filter,
+         %Google.Bigtable.V2.TimestampRange{
+           start_timestamp_micros: start_timestamp,
+           end_timestamp_micros: end_timestamp
+         }}
+    }
+  end
+
   defp expected_chain(filters) when is_list(filters) do
     %Google.Bigtable.V2.RowFilter{
       filter:
