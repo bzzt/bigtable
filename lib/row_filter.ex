@@ -133,6 +133,39 @@ defmodule Bigtable.RowFilter do
     |> build_filter()
   end
 
+  @doc """
+  Adds a family name regex `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`
+
+  ## Examples
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.family_name_regex("^testFamily$")
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:family_name_regex_filter, "^testFamily$"}
+      }
+  """
+  @spec family_name_regex(ReadRowsRequest.t(), binary()) :: ReadRowsRequest.t()
+  def family_name_regex(%ReadRowsRequest{} = request, regex) do
+    filter = family_name_regex(regex)
+
+    filter
+    |> apply_filter(request)
+  end
+
+  @doc """
+  Creates a family name regex `Google.Bigtable.V2.RowFilter`
+
+  ## Examples
+      iex> Bigtable.RowFilter.family_name_regex("^familyTest$")
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:family_name_regex_filter, "^familyTest$"}
+      }
+  """
+  @spec family_name_regex(binary()) :: RowFilter.t()
+  def family_name_regex(regex) do
+    {:family_name_regex_filter, regex}
+    |> build_filter()
+  end
+
   # Creates a Bigtable.V2.RowFilter given a type and value
   @doc false
   @spec build_filter({atom(), any()}) :: RowFilter.t()

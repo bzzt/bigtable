@@ -104,6 +104,34 @@ defmodule RowFilterIntegration do
     end
   end
 
+  describe "RowFilter.family_name_regex" do
+    test "should properly filter rows based on family name", context do
+      mutation =
+        Mutations.build("Test#1")
+        |> Mutations.set_cell("cf2", "cf2-column", "cf2-value")
+        |> Mutations.set_cell("cf1", "cf1-column", "cf1-value")
+        |> Mutations.set_cell("otherFamily", "other-column", "other-value")
+
+      {:ok, _} =
+        mutation
+        |> MutateRow.build()
+        |> MutateRow.mutate()
+
+      [ok: cf_result] =
+        ReadRows.build()
+        |> RowFilter.family_name_regex("cf")
+        |> ReadRows.read()
+
+      [ok: other_result] =
+        ReadRows.build()
+        |> RowFilter.family_name_regex("other")
+        |> ReadRows.read()
+
+      assert length(cf_result.chunks) == 2
+      assert length(other_result.chunks) == 1
+    end
+  end
+
   describe "RowFilter.chain" do
     test "should properly apply a chain of filters", context do
       seed_values(context)

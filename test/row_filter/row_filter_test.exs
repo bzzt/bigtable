@@ -54,13 +54,13 @@ defmodule RowFilterTest do
       ]
     end
 
-    test "should apply a cells per column V2.RowFilter to a V2.ReadRowsRequest", context do
+    test "should apply a cells_per_column_limit V2.RowFilter to a V2.ReadRowsRequest", context do
       expected = expected_request(context.filter)
 
       assert RowFilter.cells_per_column(context.request, context.limit) == expected
     end
 
-    test "should return a V2.RowFilter given a column limit", context do
+    test "should return a cells_per_column_limit V2.RowFilter given an integer", context do
       assert RowFilter.cells_per_column(context.limit) == context.filter
     end
   end
@@ -83,12 +83,12 @@ defmodule RowFilterTest do
       assert RowFilter.row_key_regex(context.request, context.regex) == expected
     end
 
-    test "should return a V2.RowFilter given a column limit", context do
+    test "should return a row_key_regex V2.RowFilter given a column limit", context do
       assert RowFilter.row_key_regex(context.regex) == context.filter
     end
   end
 
-  describe "RowFilter.value_regex_filter" do
+  describe "RowFilter.value_regex" do
     setup do
       regex = "^test$"
 
@@ -106,8 +106,31 @@ defmodule RowFilterTest do
       assert RowFilter.value_regex(context.request, context.regex) == expected
     end
 
-    test "should return a V2.RowFilter given a regex", context do
+    test "should return a value_regex V2.RowFilter given a regex", context do
       assert RowFilter.value_regex(context.regex) == context.filter
+    end
+  end
+
+  describe "RowFilter.family_name_regex" do
+    setup do
+      regex = "^familyTest$"
+
+      [
+        regex: regex,
+        filter: %Google.Bigtable.V2.RowFilter{
+          filter: {:family_name_regex_filter, regex}
+        }
+      ]
+    end
+
+    test "should apply a family_name_regex V2.RowFilter to a V2.ReadRowsRequest", context do
+      expected = expected_request(context.filter)
+
+      assert RowFilter.family_name_regex(context.request, context.regex) == expected
+    end
+
+    test "should return a family_name_regex V2.RowFilter given a regex", context do
+      assert RowFilter.family_name_regex(context.regex) == context.filter
     end
   end
 
