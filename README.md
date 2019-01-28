@@ -22,6 +22,7 @@ end
 ```
 
 ## Warning!
+
 **WORK IN PROGRESS. DOCUMENTATION MAY BE INCORRECT. DO NOT USE IN PRODUCTION.**
 
 ## Feature List
@@ -53,9 +54,9 @@ end
 - [x] Cells Per Column Limit
 - [x] Row Key Regex
 - [x] Value Regex
+- [x] Family Name Regex
 - [ ] Condition
 - [ ] Row Sample
-- [ ] Family Name Regex
 - [ ] Column Qualifier Regex
 - [ ] Column Range
 - [ ] Timestamp Range

@@ -134,6 +134,29 @@ defmodule RowFilterTest do
     end
   end
 
+  describe "RowFilter.column_qualifier_regex" do
+    setup do
+      regex = "^columnTest$"
+
+      [
+        regex: regex,
+        filter: %Google.Bigtable.V2.RowFilter{
+          filter: {:column_qualifier_regex_filter, regex}
+        }
+      ]
+    end
+
+    test "should apply a column_qualifier_regex V2.RowFilter to a V2.ReadRowsRequest", context do
+      expected = expected_request(context.filter)
+
+      assert RowFilter.column_qualifier_regex(context.request, context.regex) == expected
+    end
+
+    test "should return a column_qualifier_regex V2.RowFilter given a regex", context do
+      assert RowFilter.column_qualifier_regex(context.regex) == context.filter
+    end
+  end
+
   defp expected_chain(filters) when is_list(filters) do
     %Google.Bigtable.V2.RowFilter{
       filter:

@@ -155,14 +155,47 @@ defmodule Bigtable.RowFilter do
   Creates a family name regex `Google.Bigtable.V2.RowFilter`
 
   ## Examples
-      iex> Bigtable.RowFilter.family_name_regex("^familyTest$")
+      iex> Bigtable.RowFilter.family_name_regex("^testFamily$")
       %Google.Bigtable.V2.RowFilter{
-        filter: {:family_name_regex_filter, "^familyTest$"}
+        filter: {:family_name_regex_filter, "^testFamily$"}
       }
   """
   @spec family_name_regex(binary()) :: RowFilter.t()
   def family_name_regex(regex) do
     {:family_name_regex_filter, regex}
+    |> build_filter()
+  end
+
+  @doc """
+  Adds a column qualifier regex `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`
+
+  ## Examples
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.column_qualifier_regex("^testColumn$")
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:column_qualifier_regex_filter, "^testColumn$"}
+      }
+  """
+  @spec column_qualifier_regex(ReadRowsRequest.t(), binary()) :: ReadRowsRequest.t()
+  def column_qualifier_regex(%ReadRowsRequest{} = request, regex) do
+    filter = column_qualifier_regex(regex)
+
+    filter
+    |> apply_filter(request)
+  end
+
+  @doc """
+  Creates a family name regex `Google.Bigtable.V2.RowFilter`
+
+  ## Examples
+      iex> Bigtable.RowFilter.column_qualifier_regex("^testColumn$")
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:column_qualifier_regex_filter, "^testColumn$"}
+      }
+  """
+  @spec column_qualifier_regex(binary()) :: RowFilter.t()
+  def column_qualifier_regex(regex) do
+    {:column_qualifier_regex_filter, regex}
     |> build_filter()
   end
 
