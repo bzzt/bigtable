@@ -33,7 +33,7 @@ defmodule Bigtable.MutateRow do
 
   Returns a `Google.Bigtable.V2.MutateRowResponse`
   """
-  @spec mutate(V2.MutateRowRequest.t()) :: V2.MutateRowResponse.t()
+  @spec mutate(V2.MutateRowRequest.t()) :: {:ok, [V2.MutateRowResponse.t()]}
   def mutate(%V2.MutateRowRequest{} = request) do
     metadata = Connection.get_metadata()
 
@@ -50,7 +50,7 @@ defmodule Bigtable.MutateRow do
     {:ok, result}
   end
 
-  @spec mutate(V2.MutateRowsRequest.Entry.t()) :: V2.MutateRowResponse.t()
+  @spec mutate(V2.MutateRowsRequest.Entry.t()) :: {:ok, [V2.MutateRowResponse.t()]}
   def mutate(%Entry{} = row_mutations) do
     request = build(row_mutations)
 
