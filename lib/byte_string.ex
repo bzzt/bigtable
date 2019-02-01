@@ -34,23 +34,25 @@ defmodule Bigtable.ByteString do
   @spec to_byte_string(nil) :: binary()
   def to_byte_string(v) when is_nil(v), do: ""
 
-  @spec to_byte_string(binary()) :: binary()
-  def to_byte_string(v) when is_binary(v), do: v
+  # @spec to_byte_string(binary()) :: binary()
+  # def to_byte_string(v) when is_binary(v), do: v
 
-  @spec to_byte_string(boolean()) :: binary()
-  def to_byte_string(v) when is_boolean(v) do
-    case v do
-      true -> to_byte_string(1)
-      false -> to_byte_string(0)
-    end
-  end
+  # @spec to_byte_string(boolean()) :: binary()
+  # def to_byte_string(v) when is_boolean(v) do
+  #   case v do
+  #     true -> to_byte_string(-1)
+  #     false -> to_byte_string(0)
+  #   end
+  # end
 
-  @spec to_byte_string(integer()) :: binary()
-  def to_byte_string(v) when is_integer(v), do: <<v::integer-signed-32>>
+  # @spec to_byte_string(integer()) :: binary()
+  # def to_byte_string(v) when is_integer(v), do: <<v::integer-signed-32>>
 
-  @spec to_byte_string(float()) :: binary()
-  def to_byte_string(v) when is_float(v), do: <<v::signed-little-float-64>>
+  # @spec to_byte_string(float()) :: binary()
+  # def to_byte_string(v) when is_float(v), do: <<v::signed-little-float-64>>
 
   @spec to_byte_string(list() | map()) :: binary()
   def to_byte_string(v) when is_list(v) or is_map(v), do: Poison.encode!(v)
+
+  def to_byte_string(v), do: to_string(v)
 end
