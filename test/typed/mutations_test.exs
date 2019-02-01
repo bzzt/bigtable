@@ -38,7 +38,7 @@ defmodule TypedMutationsTest do
         }
       }
 
-      expected = expected_entry(<<0, 0, 0, 1>>, <<0, 0, 0, 2>>)
+      expected = expected_entry("true", "2")
 
       result = Mutations.create_mutations(context.row_key, context.type_spec, map)
 
@@ -71,7 +71,7 @@ defmodule TypedMutationsTest do
                column_qualifier: "test_column",
                family_name: "test_family",
                timestamp_micros: -1,
-               value: <<0, 0, 0, 0>>
+               value: "false"
              }}
         },
         %Google.Bigtable.V2.Mutation{
