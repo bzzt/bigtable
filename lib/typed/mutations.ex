@@ -36,9 +36,19 @@ defmodule Bigtable.Typed.Mutations do
 
         _ ->
           accum
-          |> Bigtable.Mutations.set_cell(family_name, column_qualifier, v)
+          |> add_cell_mutation(family_name, column_qualifier, v)
       end
     end)
+  end
+
+  defp add_cell_mutation(accum, family_name, column_qualifier, nil) do
+    accum
+    |> Bigtable.Mutations.delete_from_column(family_name, column_qualifier)
+  end
+
+  defp add_cell_mutation(accum, family_name, column_qualifier, value) do
+    accum
+    |> Bigtable.Mutations.set_cell(family_name, column_qualifier, value)
   end
 
   defp nested_map(type, value, accum, family_name, column_qualifier) do
@@ -55,7 +65,7 @@ defmodule Bigtable.Typed.Mutations do
       if is_map(v) do
         Map.put(accum, k, nil_values(v))
       else
-        Map.put(accum, k, "")
+        Map.put(accum, k, nil)
       end
     end)
   end
