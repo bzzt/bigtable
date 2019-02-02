@@ -53,7 +53,69 @@ defmodule TypedMutationsTest do
         }
       }
 
-      expected = expected_entry("", "")
+      expected = %Google.Bigtable.V2.MutateRowsRequest.Entry{
+        row_key: "Test#1",
+        mutations: [
+          %Google.Bigtable.V2.Mutation{
+            mutation:
+              {:set_cell,
+               %Google.Bigtable.V2.Mutation.SetCell{
+                 column_qualifier: "test_column",
+                 family_name: "test_family",
+                 timestamp_micros: -1,
+                 value: "false"
+               }}
+          },
+          %Google.Bigtable.V2.Mutation{
+            mutation:
+              {:delete_from_column,
+               %Google.Bigtable.V2.Mutation.DeleteFromColumn{
+                 column_qualifier: "test_nested.double_nested.double_nested_a",
+                 family_name: "test_family",
+                 time_range: %Google.Bigtable.V2.TimestampRange{
+                   end_timestamp_micros: 0,
+                   start_timestamp_micros: 0
+                 }
+               }}
+          },
+          %Google.Bigtable.V2.Mutation{
+            mutation:
+              {:delete_from_column,
+               %Google.Bigtable.V2.Mutation.DeleteFromColumn{
+                 column_qualifier: "test_nested.double_nested.double_nested_b",
+                 family_name: "test_family",
+                 time_range: %Google.Bigtable.V2.TimestampRange{
+                   end_timestamp_micros: 0,
+                   start_timestamp_micros: 0
+                 }
+               }}
+          },
+          %Google.Bigtable.V2.Mutation{
+            mutation:
+              {:delete_from_column,
+               %Google.Bigtable.V2.Mutation.DeleteFromColumn{
+                 column_qualifier: "test_nested.nested_a",
+                 family_name: "test_family",
+                 time_range: %Google.Bigtable.V2.TimestampRange{
+                   end_timestamp_micros: 0,
+                   start_timestamp_micros: 0
+                 }
+               }}
+          },
+          %Google.Bigtable.V2.Mutation{
+            mutation:
+              {:delete_from_column,
+               %Google.Bigtable.V2.Mutation.DeleteFromColumn{
+                 column_qualifier: "test_nested.nested_b",
+                 family_name: "test_family",
+                 time_range: %Google.Bigtable.V2.TimestampRange{
+                   end_timestamp_micros: 0,
+                   start_timestamp_micros: 0
+                 }
+               }}
+          }
+        ]
+      }
 
       result = Mutations.create_mutations(context.row_key, context.type_spec, map)
 
