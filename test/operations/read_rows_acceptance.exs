@@ -1,41 +1,63 @@
-defmodule Acceptance do
+defmodule GoogleAcceptanceTest do
   defmacro __using__(json: json) do
-    tests =
-      File.read!(json)
-      |> Poison.decode!()
-      |> Map.get("tests")
+    alias Bigtable.Reader.ChunkReader
 
-    Enum.map(tests, fn t ->
+    File.read!(json)
+    |> Poison.decode!(keys: :atoms)
+    |> Map.get(:tests)
+    |> Enum.map(fn t ->
       quote do
-        test unquote(t["name"]) do
-          t = unquote(Macro.escape(t))
+        test unquote(t.name) do
+          %{chunks: chunks, results: results} = unquote(Macro.escape(t))
 
-          Enum.map(t["chunks"], fn c ->
-            Google.Bigtable.V2.ReadRowsResponse.CellChunk.(c)
-          end)
+          has_error = initial = %{cr: %ChunkReader{}, error: false, processed: []}
+
+          result = Enum.reduce(chunks, initial, &process_chunk/2)
+
+          if results_error?(results) do
+            assert result.error == true
+          end
         end
       end
     end)
   end
 end
 
-defmodule ReadRowAcceptanceTest do
+defmodule ReadRowsAcceptanceTest do
+  alias Bigtable.Reader.ChunkReader
+  alias Google.Bigtable.V2.ReadRowsResponse.CellChunk
+
   use ExUnit.Case
+  use GoogleAcceptanceTest, json: "test/operations/read-rows-acceptance.json"
 
-  use Acceptance, json: "test/operations/read-rows-acceptance.json"
+  defp process_chunk(cc, accum) do
+    chunk =
+      Map.put(cc, :row_status, chunk_status(cc))
+      |> Map.drop([:commit_row, :reset_row])
+      |> Map.to_list()
+      |> CellChunk.new()
 
-  # defmacro acceptance(tests) do
-  #   IO.inspect(tests)
-  # end
+    case ChunkReader.process(accum.cr, chunk) do
+      {:ok, c, r} ->
+        %{cr: r, processed: [c | accum.processed]}
 
-  # tests =
-  #   File.read!("test/operations/read-rows-acceptance.json")
-  #   |> Poison.decode!()
-  #   |> Map.get("tests")
+      {:error, _} ->
+        %{cr: accum.cr, error: true, processed: nil}
+    end
+  end
 
-  # Acceptance.generate_tests()
+  defp chunk_status(chunk) do
+    cond do
+      Map.get(chunk, :commit_row, false) ->
+        {:commit_row, true}
 
-  # Enum.map(tests, fn t ->
-  #   ExUnit.Case.register_test(__ENV__, :acceptance, t["name"], [])
-  # end)
+      Map.get(chunk, :reset_row, false) ->
+        {:reset_row, true}
+
+      true ->
+        nil
+    end
+  end
+
+  defp results_error?(results), do: Enum.any?(results, &Map.get(&1, :error, false))
 end

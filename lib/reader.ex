@@ -46,9 +46,10 @@ defmodule Bigtable.Reader.ChunkReader do
     case cr.state do
       :new_row ->
         with :ok <- validate_new_row(cr, cc) do
+          {:ok, cc, cr}
         else
-          error ->
-            error
+          {:error, msg} ->
+            {:error, msg}
         end
     end
   end
@@ -59,7 +60,7 @@ defmodule Bigtable.Reader.ChunkReader do
         {:error, "reset_row not allowed between rows"}
 
       !Chunk.row_key?(cc) or !Chunk.family?(cc) or !Chunk.qualifier?(cc) ->
-        {:error, "missing key field for new row #{cc}"}
+        {:error, "missing key field for new row #{inspect(cc)}"}
 
       cr.last_key != "" and cr.last_key >= cc.row_key ->
         {:error, "out of order row key: #{cr.last_key}, #{cc.row_key}"}
