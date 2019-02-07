@@ -72,5 +72,36 @@
             "label": "",
             "error": true
         }]
+    }, {
+        "name": "bare commit implies ts=0",
+        "chunks": [{
+            "row_key": "RK",
+            "family_name": "A",
+            "qualifier": "C",
+            "timestamp_micros": 100,
+            "value": "value-VAL",
+            "commit_row": false
+        }, {
+            "commit_row": true
+        }],
+        "results": [{
+                "rk": "RK",
+                "fm": "A",
+                "qual": "C",
+                "ts": 100,
+                "value": "value-VAL",
+                "label": "",
+                "error": false
+            },
+            {
+                "rk": "RK",
+                "fm": "A",
+                "qual": "C",
+                "ts": 0,
+                "value": "",
+                "label": "",
+                "error": false
+            }
+        ]
     }]
 }

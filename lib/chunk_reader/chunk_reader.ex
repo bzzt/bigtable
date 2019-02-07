@@ -73,10 +73,28 @@ defmodule Bigtable.ChunkReader do
 
       :row_in_progress ->
         with :ok <- validate_row_in_progress(cr, cc) do
+          next_state =
+            cr
+            |> update_if_contains(cc, :family_name, :cur_fam)
+            |> update_if_contains(cc, :qualifier, :cur_qual)
+            |> update_if_contains(cc, :timestamp_micros, :cur_ts)
+            |> handle_cell_value(cc)
+
+          {:ok, next_state.cur_row}
         else
           {:error, msg} ->
             {:error, msg}
         end
+    end
+  end
+
+  defp update_if_contains(cr, cc, cc_key, cr_key) do
+    value = Map.get(cc, cc_key)
+
+    if value != nil do
+      Map.put(cr, cr_key, value)
+    else
+      cr
     end
   end
 

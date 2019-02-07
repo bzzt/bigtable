@@ -1,55 +1,29 @@
 {
     "tests": [{
-        "name": "invalid - no commit",
-        "chunks": [{
-            "row_key": "RK",
-            "family_name": "A",
-            "qualifier": "C",
-            "timestamp_micros": 100,
-            "value": "value-VAL",
-            "commit_row": false
-        }],
-        "results": [{
-            "rk": "",
-            "fm": "",
-            "qual": "",
-            "ts": 0,
-            "value": "",
-            "label": "",
-            "error": true
-        }]
-    }, {
-        "name": "invalid - no cell key before commit",
-        "chunks": [{
-            "commit_row": true
-        }],
-        "results": [{
-            "rk": "",
-            "fm": "",
-            "qual": "",
-            "ts": 0,
-            "value": "",
-            "label": "",
-            "error": true
-        }]
-    }, {
-        "name": "invalid - no cell key before value",
-        "chunks": [{
-            "timestamp_micros": 100,
-            "value": "value-VAL",
-            "commit_row": false
-        }],
-        "results": [{
-            "rk": "",
-            "fm": "",
-            "qual": "",
-            "ts": 0,
-            "value": "",
-            "label": "",
-            "error": true
-        }]
-    }]
-}                "ts": 0,
+            "name": "simple row with timestamp",
+            "chunks": [
+                "row_key: \"RK\"\nfamily_name: \u003c\n  value: \"A\"\n\u003e\nqualifier: \u003c\n  value: \"C\"\n\u003e\ntimestamp_micros: 100\nvalue: \"value-VAL\"\ncommit_row: true\n"
+            ],
+            "results": [{
+                "rk": "RK",
+                "fm": "A",
+                "qual": "C",
+                "ts": 100,
+                "value": "value-VAL",
+                "label": "",
+                "error": false
+            }]
+        },
+        {
+            "name": "missing timestamp, implied ts=0",
+            "chunks": [
+                "row_key: \"RK\"\nfamily_name: \u003c\n  value: \"A\"\n\u003e\nqualifier: \u003c\n  value: \"C\"\n\u003e\nvalue: \"value-VAL\"\ncommit_row: true\n"
+            ],
+            "results": [{
+                "rk": "RK",
+                "fm": "A",
+                "qual": "C",
+                "ts": 0,
                 "value": "value-VAL",
                 "label": "",
                 "error": false
