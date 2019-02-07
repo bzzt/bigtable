@@ -70,6 +70,13 @@ defmodule Bigtable.ChunkReader do
           {:error, msg} ->
             {:error, msg}
         end
+
+      :row_in_progress ->
+        with :ok <- validate_row_in_progress(cr, cc) do
+        else
+          {:error, msg} ->
+            {:error, msg}
+        end
     end
   end
 
@@ -83,6 +90,37 @@ defmodule Bigtable.ChunkReader do
 
       cr.last_key != "" and cr.last_key >= cc.row_key ->
         {:error, "out of order row key: #{cr.last_key}, #{cc.row_key}"}
+
+      true ->
+        :ok
+    end
+  end
+
+  defp validate_row_in_progress(cr, cc) do
+    row_status = validate_row_status(cc)
+
+    cond do
+      row_status != :ok ->
+        row_status
+
+      row_key?(cc) and cc.row_key != cr.cur_key ->
+        {:error, "received new row key #{cc.row_key} during existing row #{cr.cur_key}"}
+
+      family?(cc) and !qualifier?(cc) ->
+        {:error, "family name #{cc.family_name} specified without a qualifier"}
+
+      true ->
+        :ok
+    end
+  end
+
+  defp validate_row_status(cc) do
+    cond do
+      reset_row?(cc) and (any_key_present?(cc) or value?(cc) or value_size?(cc) or labels?(cc)) ->
+        {:error, "reset must not be specified with other fields #{inspect(cc)}"}
+
+      commit_row?(cc) and value_size?(cc) ->
+        {:error, "commit row found in between chunks in a cell"}
 
       true ->
         :ok
@@ -126,11 +164,18 @@ defmodule Bigtable.ChunkReader do
     Map.merge(cr, next_state)
   end
 
-  defp row_key?(cc), do: has_value?(cc, :row_key)
-  defp family?(cc), do: has_value?(cc, :family_name)
-  defp qualifier?(cc), do: has_value?(cc, :qualifier)
+  defp any_key_present?(cc) do
+    row_key?(cc) or family?(cc) or qualifier?(cc) or cc.timestamp_micros != 0
+  end
 
-  defp has_value?(cc, key) do
+  defp value?(cc), do: cc.value != nil
+  defp value_size?(cc), do: cc.value_size > 0
+  defp labels?(cc), do: has_property?(cc, :labels)
+  defp row_key?(cc), do: has_property?(cc, :row_key)
+  defp family?(cc), do: has_property?(cc, :family_name)
+  defp qualifier?(cc), do: has_property?(cc, :qualifier)
+
+  defp has_property?(cc, key) do
     val = Map.get(cc, key)
     val != nil and val != ""
   end
