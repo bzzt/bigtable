@@ -224,5 +224,42 @@
                 "error": false
             }
         ]
+    }, {
+        "name": "two families",
+        "chunks": [{
+                "row_key": "RK",
+                "family_name": "A",
+                "qualifier": "C",
+                "timestamp_micros": 99,
+                "value": "value-VAL_1",
+                "commit_row": false
+            },
+            {
+                "family_name": "B",
+                "qualifier": "E",
+                "timestamp_micros": 98,
+                "value": "value-VAL_2",
+                "commit_row": true
+            }
+        ],
+        "results": [{
+                "rk": "RK",
+                "fm": "A",
+                "qual": "C",
+                "ts": 99,
+                "value": "value-VAL_1",
+                "label": "",
+                "error": false
+            },
+            {
+                "rk": "RK",
+                "fm": "B",
+                "qual": "E",
+                "ts": 98,
+                "value": "value-VAL_2",
+                "label": "",
+                "error": false
+            }
+        ]
     }]
 }

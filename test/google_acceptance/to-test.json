@@ -866,6 +866,41 @@
                     "error": false
                 }
             ]
+        }, {
+            "name": "with labels",
+            "chunks": [{
+                "row_key": "RK",
+                "family_name": "A",
+                "qualifier": "C",
+                "timestamp_micros": 99,
+                "labels": "L_1",
+                "value": "value-VAL_1",
+                "commit_row": false
+            }, {
+                "timestamp_micros": 98,
+                "labels": "L_2",
+                "value": "value-VAL_2",
+                "commit_row": true
+            }],
+            "results": [{
+                    "rk": "RK",
+                    "fm": "A",
+                    "qual": "C",
+                    "ts": 99,
+                    "value": "value-VAL_1",
+                    "label": "L_1",
+                    "error": false
+                },
+                {
+                    "rk": "RK",
+                    "fm": "A",
+                    "qual": "C",
+                    "ts": 98,
+                    "value": "value-VAL_2",
+                    "label": "L_2",
+                    "error": false
+                }
+            ]
         }
     ]
 }

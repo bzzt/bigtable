@@ -38,8 +38,8 @@ defmodule GoogleAcceptanceTest do
               |> Enum.flat_map(fn {family_name, read_items} ->
                 read_items
                 |> Enum.map(&TestResult.from_chunk(family_name, &1))
+                |> Enum.reverse()
               end)
-              |> Enum.reverse()
 
             assert converted == expected
           end
