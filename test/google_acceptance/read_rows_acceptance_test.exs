@@ -1,7 +1,23 @@
-defmodule GoogleAcceptanceTest do
-  defmacro __using__(json: json) do
-    alias Bigtable.Reader.ChunkReader
+defmodule TestResult do
+  alias Google.Bigtable.V2.ReadRowsResponse.CellChunk
+  defstruct rk: "", fm: "", qual: "", ts: 0, value: "", label: "", error: false
 
+  def from_chunk(%CellChunk{} = cc) do
+    %__MODULE__{
+      rk: cc.row_key,
+      fm: cc.family_name,
+      qual: cc.qualifier,
+      ts: cc.timestamp_micros,
+      value: cc.value,
+      label: cc.labels
+    }
+  end
+end
+
+defmodule GoogleAcceptanceTest do
+  alias Bigtable.ChunkReader
+
+  defmacro __using__(json: json) do
     File.read!(json)
     |> Poison.decode!(keys: :atoms)
     |> Map.get(:tests)
@@ -10,12 +26,11 @@ defmodule GoogleAcceptanceTest do
         test unquote(t.name) do
           %{chunks: chunks, results: results} = unquote(Macro.escape(t))
 
-          has_error = initial = %{cr: %ChunkReader{}, error: false, processed: []}
-
-          result = Enum.reduce(chunks, initial, &process_chunk/2)
+          result = process_chunks(chunks)
 
           if results_error?(results) do
             assert result.error == true
+          else
           end
         end
       end
@@ -24,26 +39,36 @@ defmodule GoogleAcceptanceTest do
 end
 
 defmodule ReadRowsAcceptanceTest do
-  alias Bigtable.Reader.ChunkReader
+  alias Bigtable.ChunkReader
   alias Google.Bigtable.V2.ReadRowsResponse.CellChunk
 
   use ExUnit.Case
   use GoogleAcceptanceTest, json: "test/operations/read-rows-acceptance.json"
 
+  defp process_chunks(chunks) do
+    {:ok, cr} = ChunkReader.open()
+    initial = %{cr: cr, error: false, processed: []}
+    Enum.reduce(chunks, initial, &process_chunk/2)
+  end
+
   defp process_chunk(cc, accum) do
-    chunk =
-      Map.put(cc, :row_status, chunk_status(cc))
-      |> Map.drop([:commit_row, :reset_row])
-      |> Map.to_list()
-      |> CellChunk.new()
+    chunk = build_chunk(cc)
 
     case ChunkReader.process(accum.cr, chunk) do
       {:ok, c, r} ->
-        %{cr: r, processed: [c | accum.processed]}
+        test_result = TestResult.from_chunk(c)
+        %{cr: r, processed: [test_result | accum.processed]}
 
       {:error, _} ->
         %{cr: accum.cr, error: true, processed: nil}
     end
+  end
+
+  defp build_chunk(cc) do
+    Map.put(cc, :row_status, chunk_status(cc))
+    |> Map.drop([:commit_row, :reset_row])
+    |> Map.to_list()
+    |> CellChunk.new()
   end
 
   defp chunk_status(chunk) do
