@@ -1,15 +1,16 @@
 defmodule TestResult do
   alias Bigtable.ChunkReader.ReadItem
   alias Google.Bigtable.V2.ReadRowsResponse.CellChunk
-  defstruct rk: "", fm: "", qual: "", ts: 0, value: "", label: "", error: false
 
   def from_chunk(family_name, %ReadItem{} = ri) do
-    %__MODULE__{
+    %{
       rk: ri.row_key,
       fm: family_name,
       qual: ri.qualifier,
       ts: ri.timestamp,
-      value: ri.value
+      value: ri.value,
+      error: false,
+      label: ""
     }
   end
 end
@@ -24,13 +25,23 @@ defmodule GoogleAcceptanceTest do
     |> Enum.map(fn t ->
       quote do
         test unquote(t.name) do
-          %{chunks: chunks, results: results} = unquote(Macro.escape(t))
+          %{chunks: chunks, results: expected} = unquote(Macro.escape(t))
 
           result = process_chunks(chunks)
+          {processed_status, processed_result} = result.processed
 
-          if results_error?(results) do
-            assert result.error == true
+          if results_error?(expected) do
+            assert result.close_error == true or processed_status == :error
           else
+            converted =
+              processed_result
+              |> Enum.flat_map(fn {family_name, read_items} ->
+                read_items
+                |> Enum.map(&TestResult.from_chunk(family_name, &1))
+              end)
+              |> Enum.reverse()
+
+            assert converted == expected
           end
         end
       end
@@ -47,32 +58,21 @@ defmodule ReadRowsAcceptanceTest do
 
   defp process_chunks(chunks) do
     {:ok, cr} = ChunkReader.open()
-    initial = %{cr: cr, error: false, processed: []}
 
-    Enum.reduce(chunks, initial, &process_chunk/2)
-    |> Map.update!(:error, &(&1 or ChunkReader.close(cr) != :ok))
-  end
+    processed =
+      Enum.reduce(chunks, :ok, fn cc, accum ->
+        case accum do
+          {:error, _} ->
+            accum
 
-  defp process_chunk(cc, accum) do
-    if Map.get(accum, :error) do
-      accum
-    else
-      chunk = build_chunk(cc)
-      processed = ChunkReader.process(accum.cr, chunk)
+          _ ->
+            chunk = build_chunk(cc)
 
-      case processed do
-        {:ok, row} ->
-          test_result =
-            Enum.flat_map(row, fn {family_name, read_items} ->
-              Enum.map(read_items, &TestResult.from_chunk(family_name, &1))
-            end)
+            ChunkReader.process(cr, chunk)
+        end
+      end)
 
-          %{accum | processed: [test_result | accum.processed]}
-
-        {:error, _} ->
-          %{accum | error: true, processed: nil}
-      end
-    end
+    %{close_error: ChunkReader.close(cr) != :ok, processed: processed}
   end
 
   defp build_chunk(cc) do
