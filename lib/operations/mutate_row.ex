@@ -39,15 +39,22 @@ defmodule Bigtable.MutateRow do
 
     connection = Connection.get_connection()
 
-    {:ok, stream, _} =
+    result =
       connection
       |> Bigtable.Stub.mutate_row(request, metadata)
 
-    result =
-      stream
-      |> Utils.process_stream()
+    case result do
+      {:ok, stream, _} ->
+        stream
+        |> Utils.process_stream()
+        |> List.first()
 
-    {:ok, result}
+      {:error, error} when is_map(error) ->
+        {:error, Map.get(error, :message, "unknown error")}
+
+      _ ->
+        {:error, "unknown error"}
+    end
   end
 
   @spec mutate(V2.MutateRowsRequest.Entry.t()) :: V2.MutateRowResponse.t()

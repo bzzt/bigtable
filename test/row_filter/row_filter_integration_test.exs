@@ -463,6 +463,8 @@ defmodule RowFilterIntegration do
       |> Mutations.set_cell("cf2", "column1", "value3", 4000)
       |> MutateRow.build()
       |> MutateRow.mutate()
+
+    :ok
   end
 
   defp seed_range(row_key) do
@@ -475,6 +477,8 @@ defmodule RowFilterIntegration do
       |> Mutations.set_cell("cf1", "column5", "value5")
       |> MutateRow.build()
       |> MutateRow.mutate()
+
+    :ok
   end
 
   defp seed_values(context) do
@@ -484,6 +488,8 @@ defmodule RowFilterIntegration do
         |> Mutations.set_cell("cf1", "column", "value")
         |> MutateRow.build()
         |> MutateRow.mutate()
+
+      :ok
     end)
   end
 
