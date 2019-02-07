@@ -1,7 +1,7 @@
 defmodule Bigtable.ChunkReader do
   alias Google.Bigtable.V2.ReadRowsResponse.CellChunk
 
-  use Agent
+  use Agent, restart: :temporary
 
   defmodule ReaderState do
     defstruct [
@@ -23,6 +23,10 @@ defmodule Bigtable.ChunkReader do
 
   def open() do
     DynamicSupervisor.start_child(__MODULE__.Supervisor, __MODULE__)
+  end
+
+  def close(reader) do
+    Agent.stop(reader)
   end
 
   def process(reader, %CellChunk{} = cc) do
