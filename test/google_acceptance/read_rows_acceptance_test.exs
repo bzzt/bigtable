@@ -25,7 +25,9 @@ defmodule GoogleAcceptanceTest do
     |> Enum.take(24)
     |> Enum.map(fn t ->
       quote do
-        test unquote(t.name) do
+        if unquote(t.name) == "two rows", do: @tag(:wip)
+
+        test(unquote(t.name)) do
           %{chunks: chunks, results: expected} = unquote(Macro.escape(t))
 
           result = process_chunks(chunks)

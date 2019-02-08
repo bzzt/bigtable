@@ -157,11 +157,11 @@ defmodule Bigtable.ChunkReader do
   end
 
   defp validate_row_in_progress(cr, cc) do
-    row_status = validate_row_status(cc)
+    status = validate_row_status(cc)
 
     cond do
-      row_status(cc) != :ok ->
-        row_status
+      status != :ok ->
+        status
 
       row_key?(cc) and cc.row_key != cr.cur_key ->
         {:error, "received new row key #{cc.row_key} during existing row #{cr.cur_key}"}
@@ -175,11 +175,11 @@ defmodule Bigtable.ChunkReader do
   end
 
   defp validate_cell_in_progress(cr, cc) do
-    row_status = validate_row_status(cc)
+    status = validate_row_status(cc)
 
     cond do
-      row_status(cc) != :ok ->
-        row_status
+      status != :ok ->
+        status
 
       cr.cur_val == nil ->
         {:error, "no cached cell while CELL_IN_PROGRESS #{cc}"}
@@ -242,11 +242,10 @@ defmodule Bigtable.ChunkReader do
 
     Map.put(cr, :cur_val, next_value)
     |> Map.put(:cur_label, next_label)
-    |> Map.put(:state, :row_in_progress)
-    |> finish_cell()
+    |> finish_cell(cc)
   end
 
-  defp finish_cell(cr) do
+  defp finish_cell(cr, cc) do
     label =
       case cr.cur_label do
         label when is_list(label) ->
@@ -269,11 +268,24 @@ defmodule Bigtable.ChunkReader do
         [ri | prev]
       end)
 
-    next_state = %{
-      cur_row: next_row,
-      cur_label: nil,
-      cur_val: nil
-    }
+    to_merge =
+      if commit_row?(cc) do
+        %{
+          last_key: cr.cur_key,
+          state: :new_row
+        }
+      else
+        %{
+          state: :row_in_progress
+        }
+      end
+
+    next_state =
+      Map.merge(to_merge, %{
+        cur_row: next_row,
+        cur_label: nil,
+        cur_val: nil
+      })
 
     Map.merge(cr, next_state)
   end
