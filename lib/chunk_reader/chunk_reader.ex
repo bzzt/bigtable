@@ -5,6 +5,7 @@ defmodule Bigtable.ChunkReader do
 
   defmodule ReadItem do
     defstruct [
+      :label,
       :row_key,
       :qualifier,
       :timestamp,
@@ -15,6 +16,7 @@ defmodule Bigtable.ChunkReader do
   defmodule ReaderState do
     defstruct [
       :cur_key,
+      :cur_label,
       :cur_fam,
       :cur_qual,
       :cur_ts,
@@ -186,7 +188,15 @@ defmodule Bigtable.ChunkReader do
         cr.cur_val <> cc.value
       end
 
+    next_label =
+      if has_property?(cr, :cur_label) do
+        cr.cur_label
+      else
+        Map.get(cc, :labels, "")
+      end
+
     Map.put(cr, :cur_val, next_value)
+    |> Map.put(:cur_label, next_label)
     |> Map.put(:state, :cell_in_progress)
   end
 
@@ -198,15 +208,33 @@ defmodule Bigtable.ChunkReader do
         cr.cur_val <> cc.value
       end
 
+    next_label =
+      if has_property?(cr, :cur_label) do
+        cr.cur_label
+      else
+        Map.get(cc, :labels, "")
+      end
+
     Map.put(cr, :cur_val, next_value)
+    |> Map.put(:cur_label, next_label)
     |> Map.put(:state, :row_in_progress)
     |> finish_cell()
   end
 
   defp finish_cell(cr) do
+    label =
+      case cr.cur_label do
+        label when is_list(label) ->
+          Enum.join(label, " ")
+
+        label ->
+          label
+      end
+
     ri = %ReadItem{
-      row_key: cr.cur_key,
+      label: label,
       qualifier: cr.cur_qual,
+      row_key: cr.cur_key,
       timestamp: cr.cur_ts,
       value: cr.cur_val
     }
@@ -218,6 +246,7 @@ defmodule Bigtable.ChunkReader do
 
     next_state = %{
       cur_row: next_row,
+      cur_label: nil,
       cur_val: nil
     }
 
