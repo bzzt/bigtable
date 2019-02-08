@@ -22,7 +22,7 @@ defmodule GoogleAcceptanceTest do
     File.read!(json)
     |> Poison.decode!(keys: :atoms)
     |> Map.get(:tests)
-    |> Enum.take(14)
+    |> Enum.take(24)
     |> Enum.map(fn t ->
       quote do
         test unquote(t.name) do

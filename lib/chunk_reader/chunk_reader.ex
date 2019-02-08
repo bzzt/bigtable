@@ -19,11 +19,11 @@ defmodule Bigtable.ChunkReader do
       :cur_label,
       :cur_fam,
       :cur_qual,
-      :cur_ts,
       :cur_val,
       :last_key,
-      state: :new_row,
-      cur_row: %{}
+      cur_row: %{},
+      cur_ts: 0,
+      state: :new_row
     ]
   end
 
@@ -55,9 +55,31 @@ defmodule Bigtable.ChunkReader do
         result
 
       next_state ->
+        # next_state =
+        #   if commit_row?(cc) do
+        #     %ReaderState{
+        #       last_key: last_row_key(cr)
+        #     }
+        #   else
+        #     updated_state
+        #   end
+
         Agent.update(cr_pid, fn _ -> next_state end)
 
         {:ok, next_state.cur_row}
+    end
+  end
+
+  defp last_row_key(%{cur_row: cur_row}) do
+    cells =
+      Map.values(cur_row)
+      |> List.flatten()
+
+    if length(cells) > 0 do
+      List.first(cells)
+      |> Map.fetch!(:row_key)
+    else
+      ""
     end
   end
 
@@ -94,11 +116,14 @@ defmodule Bigtable.ChunkReader do
 
   defp handle_state(:row_in_progress, cr, cc) do
     with :ok <- validate_row_in_progress(cr, cc) do
-      cr
-      |> update_if_contains(cc, :family_name, :cur_fam)
-      |> update_if_contains(cc, :qualifier, :cur_qual)
-      |> update_if_contains(cc, :timestamp_micros, :cur_ts)
-      |> handle_cell_value(cc)
+      if reset_row?(cc) do
+      else
+        cr
+        |> update_if_contains(cc, :family_name, :cur_fam)
+        |> update_if_contains(cc, :qualifier, :cur_qual)
+        |> update_if_contains(cc, :timestamp_micros, :cur_ts)
+        |> handle_cell_value(cc)
+      end
     else
       e ->
         e
