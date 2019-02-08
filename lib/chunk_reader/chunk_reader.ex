@@ -48,43 +48,58 @@ defmodule Bigtable.ChunkReader do
   def process(cr_pid, %CellChunk{} = cc) do
     cr = Agent.get(cr_pid, & &1)
 
-    case cr.state do
-      :new_row ->
-        with :ok <- validate_new_row(cr, cc) do
-          to_merge = %{
-            cur_key: cc.row_key,
-            cur_fam: cc.family_name,
-            cur_qual: cc.qualifier,
-            cur_ts: cc.timestamp_micros
-          }
+    result =
+      case cr.state do
+        :new_row ->
+          with :ok <- validate_new_row(cr, cc) do
+            to_merge = %{
+              cur_key: cc.row_key,
+              cur_fam: cc.family_name,
+              cur_qual: cc.qualifier,
+              cur_ts: cc.timestamp_micros
+            }
 
-          next_state =
             cr
             |> Map.merge(to_merge)
             |> handle_cell_value(cc)
+          else
+            e ->
+              e
+          end
 
-          Agent.update(cr_pid, fn _ -> next_state end)
-
-          {:ok, next_state.cur_row}
-        else
-          {:error, msg} ->
-            {:error, msg}
-        end
-
-      :row_in_progress ->
-        with :ok <- validate_row_in_progress(cr, cc) do
-          next_state =
+        :row_in_progress ->
+          with :ok <- validate_row_in_progress(cr, cc) do
             cr
             |> update_if_contains(cc, :family_name, :cur_fam)
             |> update_if_contains(cc, :qualifier, :cur_qual)
             |> update_if_contains(cc, :timestamp_micros, :cur_ts)
             |> handle_cell_value(cc)
+          else
+            e ->
+              e
+          end
 
-          {:ok, next_state.cur_row}
-        else
-          {:error, msg} ->
-            {:error, msg}
-        end
+        :cell_in_progress ->
+          with :ok <- validate_cell_in_progress(cr, cc) do
+            if reset_row?(cc) do
+            else
+              cr
+              |> handle_cell_value(cc)
+            end
+          else
+            e ->
+              e
+          end
+      end
+
+    case result do
+      {:error, _} ->
+        result
+
+      next_state ->
+        Agent.update(cr_pid, fn _ -> next_state end)
+
+        {:ok, next_state.cur_row}
     end
   end
 
@@ -118,7 +133,7 @@ defmodule Bigtable.ChunkReader do
     row_status = validate_row_status(cc)
 
     cond do
-      row_status != :ok ->
+      row_status(cc) != :ok ->
         row_status
 
       row_key?(cc) and cc.row_key != cr.cur_key ->
@@ -126,6 +141,24 @@ defmodule Bigtable.ChunkReader do
 
       family?(cc) and !qualifier?(cc) ->
         {:error, "family name #{cc.family_name} specified without a qualifier"}
+
+      true ->
+        :ok
+    end
+  end
+
+  defp validate_cell_in_progress(cr, cc) do
+    row_status = validate_row_status(cc)
+
+    cond do
+      row_status(cc) != :ok ->
+        row_status
+
+      cr.cur_val == nil ->
+        {:error, "no cached cell while CELL_IN_PROGRESS #{cc}"}
+
+      !reset_row?(cc) and any_key_present?(cc) ->
+        {:error, "cell key components found while CELL_IN_PROGRESS #{cc}"}
 
       true ->
         :ok
@@ -146,6 +179,15 @@ defmodule Bigtable.ChunkReader do
   end
 
   defp handle_cell_value(cr, %{value_size: value_size} = cc) when value_size > 0 do
+    next_value =
+      if cr.cur_val == nil do
+        <<>> <> cc.value
+      else
+        cr.cur_val <> cc.value
+      end
+
+    Map.put(cr, :cur_val, next_value)
+    |> Map.put(:state, :cell_in_progress)
   end
 
   defp handle_cell_value(cr, cc) do
@@ -157,6 +199,7 @@ defmodule Bigtable.ChunkReader do
       end
 
     Map.put(cr, :cur_val, next_value)
+    |> Map.put(:state, :row_in_progress)
     |> finish_cell()
   end
 
@@ -175,8 +218,7 @@ defmodule Bigtable.ChunkReader do
 
     next_state = %{
       cur_row: next_row,
-      cur_val: nil,
-      state: :row_in_progress
+      cur_val: nil
     }
 
     Map.merge(cr, next_state)

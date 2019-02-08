@@ -24,6 +24,8 @@ defmodule GoogleAcceptanceTest do
     |> Map.get(:tests)
     |> Enum.map(fn t ->
       quote do
+        if unquote(t.name) == "split cell, bare commit", do: @tag(:wip)
+
         test unquote(t.name) do
           %{chunks: chunks, results: expected} = unquote(Macro.escape(t))
 
