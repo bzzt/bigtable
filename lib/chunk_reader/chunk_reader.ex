@@ -48,58 +48,58 @@ defmodule Bigtable.ChunkReader do
   def process(cr_pid, %CellChunk{} = cc) do
     cr = Agent.get(cr_pid, & &1)
 
-    result =
-      case cr.state do
-        :new_row ->
-          with :ok <- validate_new_row(cr, cc) do
-            to_merge = %{
-              cur_key: cc.row_key,
-              cur_fam: cc.family_name,
-              cur_qual: cc.qualifier,
-              cur_ts: cc.timestamp_micros
-            }
-
-            cr
-            |> Map.merge(to_merge)
-            |> handle_cell_value(cc)
-          else
-            e ->
-              e
-          end
-
-        :row_in_progress ->
-          with :ok <- validate_row_in_progress(cr, cc) do
-            cr
-            |> update_if_contains(cc, :family_name, :cur_fam)
-            |> update_if_contains(cc, :qualifier, :cur_qual)
-            |> update_if_contains(cc, :timestamp_micros, :cur_ts)
-            |> handle_cell_value(cc)
-          else
-            e ->
-              e
-          end
-
-        :cell_in_progress ->
-          with :ok <- validate_cell_in_progress(cr, cc) do
-            if reset_row?(cc) do
-            else
-              cr
-              |> handle_cell_value(cc)
-            end
-          else
-            e ->
-              e
-          end
-      end
-
-    case result do
-      {:error, _} ->
+    case handle_state(cr.state, cr, cc) do
+      {:error, _} = result ->
         result
 
       next_state ->
         Agent.update(cr_pid, fn _ -> next_state end)
 
         {:ok, next_state.cur_row}
+    end
+  end
+
+  defp handle_state(:new_row, cr, cc) do
+    with :ok <- validate_new_row(cr, cc) do
+      to_merge = %{
+        cur_key: cc.row_key,
+        cur_fam: cc.family_name,
+        cur_qual: cc.qualifier,
+        cur_ts: cc.timestamp_micros
+      }
+
+      cr
+      |> Map.merge(to_merge)
+      |> handle_cell_value(cc)
+    else
+      e ->
+        e
+    end
+  end
+
+  defp handle_state(:cell_in_progress, cr, cc) do
+    with :ok <- validate_cell_in_progress(cr, cc) do
+      if reset_row?(cc) do
+      else
+        cr
+        |> handle_cell_value(cc)
+      end
+    else
+      e ->
+        e
+    end
+  end
+
+  defp handle_state(:row_in_progress, cr, cc) do
+    with :ok <- validate_row_in_progress(cr, cc) do
+      cr
+      |> update_if_contains(cc, :family_name, :cur_fam)
+      |> update_if_contains(cc, :qualifier, :cur_qual)
+      |> update_if_contains(cc, :timestamp_micros, :cur_ts)
+      |> handle_cell_value(cc)
+    else
+      e ->
+        e
     end
   end
 
