@@ -28,36 +28,40 @@ defmodule Bigtable.ChunkReader do
   end
 
   def start_link(_) do
-    Agent.start_link(fn -> %ReaderState{} end)
+    GenServer.start_link(__MODULE__, %ReaderState{}, [])
   end
 
   def open() do
     DynamicSupervisor.start_child(__MODULE__.Supervisor, __MODULE__)
   end
 
-  def close(cr_pid) do
-    %{state: state} = Agent.get(cr_pid, & &1)
+  def close(pid) do
+    GenServer.call(pid, :close)
+  end
 
-    Agent.stop(cr_pid)
+  def process(pid, cc) do
+    GenServer.call(pid, {:process, cc})
+  end
 
-    if state == :new_row do
-      :ok
+  def init(state) do
+    {:ok, state}
+  end
+
+  def handle_call(:close, _from, cr) do
+    if cr.state == :new_row do
+      {:reply, {:ok, cr}, cr}
     else
-      {:error, "invalid state for end of stream #{state}"}
+      {:reply, {:error, "invalid state for end of stream #{cr.state}"}, cr}
     end
   end
 
-  def process(cr_pid, %CellChunk{} = cc) do
-    cr = Agent.get(cr_pid, & &1)
-
+  def handle_call({:process, cc}, _from, cr) do
     case handle_state(cr.state, cr, cc) do
-      {:error, _} = result ->
-        result
+      {:error, _msg} = result ->
+        {:reply, result, cr}
 
       next_state ->
-        Agent.update(cr_pid, fn _ -> next_state end)
-
-        {:ok, next_state.cur_row}
+        {:reply, {:ok, next_state.cur_row}, next_state}
     end
   end
 
