@@ -1002,8 +1002,10 @@
                 "family_name": "A",
                 "qualifier": "C",
                 "timestamp_micros": 99,
-                "labels": "L_"
-            }, { "value": "value-VAL_1", "commit_row": false }, {
+                "labels": "L_1",
+                "value": "value-VAL_1",
+                "commit_row": false
+            }, {
                 "timestamp_micros": 98,
                 "value": "value-VAL_2",
                 "commit_row": true
@@ -1012,7 +1014,7 @@
                 "family_name": "B",
                 "qualifier": "D",
                 "timestamp_micros": 97,
-                "labels": "L_",
+                "labels": "L_3",
                 "value": "value-VAL_3",
                 "commit_row": false
             }, {
@@ -1068,9 +1070,18 @@
                     "value": "v",
                     "value_size": 11,
                     "commit_row": false
+                }, {
+                    "value": "alue-VAL_1",
+                    "commit_row": true
+                }, {
+                    "row_key": "RK_2",
+                    "family_name": "A",
+                    "qualifier": "C",
+                    "timestamp_micros": 100,
+                    "value": "v",
+                    "value_size": 11,
+                    "commit_row": false
                 },
-                { "value": "alue-VAL_1", "commit_row": true },
-                { "row_key": "RK_2", "family_name": "A", "qualifier": "C", "timestamp_micros": 100, "value": "v", "value_size": 11, "commit_row": false },
                 {
                     "value": "alue-VAL_2",
                     "commit_row": true
@@ -1183,7 +1194,8 @@
                 "value": "value-VAL",
                 "commit_row": false
             }, {
-                "reset_row": true,
+                "reset_row": true
+            },{
                 "row_key": "RK",
                 "family_name": "A",
                 "qualifier": "C",

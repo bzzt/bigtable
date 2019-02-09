@@ -22,10 +22,13 @@ defmodule GoogleAcceptanceTest do
     File.read!(json)
     |> Poison.decode!(keys: :atoms)
     |> Map.get(:tests)
-    |> Enum.take(24)
+    |> Enum.take(36)
     |> Enum.map(fn t ->
       quote do
-        if unquote(t.name) == "two rows", do: @tag(:wip)
+        if unquote(t.name) == "simple reset" do
+          IO.puts("WIP")
+          @tag :wip
+        end
 
         test(unquote(t.name)) do
           %{chunks: chunks, results: expected} = unquote(Macro.escape(t))
@@ -33,7 +36,7 @@ defmodule GoogleAcceptanceTest do
           result = process_chunks(chunks)
           {processed_status, processed_result} = result.processed
 
-          if results_error?(expected) do
+          if null_result?(chunks, expected) or results_error?(expected) do
             assert result.close_error == true or processed_status == :error
           else
             converted =
@@ -98,5 +101,6 @@ defmodule ReadRowsAcceptanceTest do
     end
   end
 
+  defp null_result?(chunks, results), do: length(chunks) > 0 and results == nil
   defp results_error?(results), do: Enum.any?(results, &Map.get(&1, :error, false))
 end

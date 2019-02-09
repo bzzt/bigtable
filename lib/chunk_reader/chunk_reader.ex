@@ -55,31 +55,9 @@ defmodule Bigtable.ChunkReader do
         result
 
       next_state ->
-        # next_state =
-        #   if commit_row?(cc) do
-        #     %ReaderState{
-        #       last_key: last_row_key(cr)
-        #     }
-        #   else
-        #     updated_state
-        #   end
-
         Agent.update(cr_pid, fn _ -> next_state end)
 
         {:ok, next_state.cur_row}
-    end
-  end
-
-  defp last_row_key(%{cur_row: cur_row}) do
-    cells =
-      Map.values(cur_row)
-      |> List.flatten()
-
-    if length(cells) > 0 do
-      List.first(cells)
-      |> Map.fetch!(:row_key)
-    else
-      ""
     end
   end
 
@@ -104,6 +82,7 @@ defmodule Bigtable.ChunkReader do
   defp handle_state(:cell_in_progress, cr, cc) do
     with :ok <- validate_cell_in_progress(cr, cc) do
       if reset_row?(cc) do
+        reset_to_new_row(cr)
       else
         cr
         |> handle_cell_value(cc)
@@ -117,6 +96,7 @@ defmodule Bigtable.ChunkReader do
   defp handle_state(:row_in_progress, cr, cc) do
     with :ok <- validate_row_in_progress(cr, cc) do
       if reset_row?(cc) do
+        reset_to_new_row(cr)
       else
         cr
         |> update_if_contains(cc, :family_name, :cur_fam)
@@ -290,13 +270,30 @@ defmodule Bigtable.ChunkReader do
     Map.merge(cr, next_state)
   end
 
+  defp reset_to_new_row(cr) do
+    Map.merge(cr, %{
+      cur_key: nil,
+      cur_fam: nil,
+      cur_qual: nil,
+      cur_val: nil,
+      cur_row: %{},
+      cur_ts: 0,
+      state: :new_row
+    })
+  end
+
   defp any_key_present?(cc) do
     row_key?(cc) or family?(cc) or qualifier?(cc) or cc.timestamp_micros != 0
   end
 
-  defp value?(cc), do: cc.value != nil
+  defp value?(cc), do: has_property?(cc, :value)
   defp value_size?(cc), do: cc.value_size > 0
-  defp labels?(cc), do: has_property?(cc, :labels)
+
+  defp labels?(cc) do
+    value = Map.get(cc, :labels)
+    value != [] and value != nil and value != ""
+  end
+
   defp row_key?(cc), do: has_property?(cc, :row_key)
   defp family?(cc), do: has_property?(cc, :family_name)
   defp qualifier?(cc), do: has_property?(cc, :qualifier)
