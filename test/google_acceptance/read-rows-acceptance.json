@@ -1195,7 +1195,7 @@
                 "commit_row": false
             }, {
                 "reset_row": true
-            },{
+            }, {
                 "row_key": "RK",
                 "family_name": "A",
                 "qualifier": "C",
@@ -1285,7 +1285,8 @@
                 "value": "value-VAL_2",
                 "commit_row": false
             }, {
-                "reset_row": true,
+                "reset_row": true
+            }, {
                 "row_key": "RK",
                 "family_name": "A",
                 "qualifier": "C",

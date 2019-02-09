@@ -22,14 +22,9 @@ defmodule GoogleAcceptanceTest do
     File.read!(json)
     |> Poison.decode!(keys: :atoms)
     |> Map.get(:tests)
-    |> Enum.take(36)
+    |> Enum.take(60)
     |> Enum.map(fn t ->
       quote do
-        if unquote(t.name) == "simple reset" do
-          IO.puts("WIP")
-          @tag :wip
-        end
-
         test(unquote(t.name)) do
           %{chunks: chunks, results: expected} = unquote(Macro.escape(t))
 
