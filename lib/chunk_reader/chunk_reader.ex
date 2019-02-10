@@ -3,10 +3,11 @@ defmodule Bigtable.ChunkReader do
 
   use Agent, restart: :temporary
 
-  defmodule ReadItem do
+  defmodule ReadCell do
     defstruct [
       :label,
       :row_key,
+      :family_name,
       :qualifier,
       :timestamp,
       :value
@@ -239,16 +240,17 @@ defmodule Bigtable.ChunkReader do
           label
       end
 
-    ri = %ReadItem{
+    ri = %ReadCell{
       label: label,
       qualifier: cr.cur_qual,
       row_key: cr.cur_key,
+      family_name: cr.cur_fam,
       timestamp: cr.cur_ts,
       value: cr.cur_val
     }
 
     next_row =
-      Map.update(cr.cur_row, cr.cur_fam, [ri], fn prev ->
+      Map.update(cr.cur_row, cr.cur_key, [ri], fn prev ->
         [ri | prev]
       end)
 

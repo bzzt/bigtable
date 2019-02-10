@@ -20,7 +20,7 @@ defmodule ReadRowsTest do
 
   describe "ReadRows.read()" do
     setup do
-      assert ReadRows.read() == []
+      assert ReadRows.read() == {:ok, []}
 
       row_keys = ["Test#123", "Test#234"]
 
@@ -46,7 +46,7 @@ defmodule ReadRowsTest do
     end
 
     test "should read from an empty table" do
-      assert ReadRows.read() == []
+      assert ReadRows.read() == {:ok, []}
     end
 
     test "should read from a table with a single record", context do
@@ -58,9 +58,7 @@ defmodule ReadRowsTest do
       |> Mutations.set_cell(context.column_family, context.column_qualifier, context.value, 0)
       |> MutateRow.mutate()
 
-      expected = [
-        ok: expected_response(key, context)
-      ]
+      expected = {:ok, expected_response([key], context)}
 
       assert ReadRows.read() == expected
     end
@@ -77,31 +75,26 @@ defmodule ReadRowsTest do
       entries
       |> MutateRows.mutate()
 
-      expected = [
-        ok: expected_response("Test#123", context),
-        ok: expected_response("Test#234", context)
-      ]
+      expected = {:ok, expected_response(["Test#123", "Test#234"], context)}
 
       assert ReadRows.read() == expected
     end
   end
 
-  defp expected_response(row_key, context) do
-    %Google.Bigtable.V2.ReadRowsResponse{
-      chunks: [
-        %Google.Bigtable.V2.ReadRowsResponse.CellChunk{
-          family_name: %Google.Protobuf.StringValue{value: context.column_family},
-          labels: [],
-          qualifier: %Google.Protobuf.BytesValue{value: context.column_qualifier},
-          row_key: row_key,
-          row_status: {:commit_row, true},
-          timestamp_micros: 0,
-          value: context.value,
-          value_size: 0
-        }
-      ],
-      last_scanned_row_key: ""
-    }
+  defp expected_response(row_keys, context) do
+    for row_key <- row_keys, into: %{} do
+      {row_key,
+       [
+         %Bigtable.ChunkReader.ReadCell{
+           family_name: %Google.Protobuf.StringValue{value: context.column_family},
+           label: "",
+           qualifier: %Google.Protobuf.BytesValue{value: context.column_qualifier},
+           row_key: row_key,
+           timestamp: 0,
+           value: context.value
+         }
+       ]}
+    end
   end
 
   defp expected_request(table_name \\ Bigtable.Utils.configured_table_name()) do

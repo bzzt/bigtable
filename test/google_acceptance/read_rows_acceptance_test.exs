@@ -1,11 +1,11 @@
 defmodule TestResult do
-  alias Bigtable.ChunkReader.ReadItem
+  alias Bigtable.ChunkReader.ReadCell
   alias Google.Bigtable.V2.ReadRowsResponse.CellChunk
 
-  def from_chunk(family_name, %ReadItem{} = ri) do
+  def from_chunk(row_key, %ReadCell{} = ri) do
     %{
-      rk: ri.row_key,
-      fm: family_name,
+      rk: row_key,
+      fm: ri.family_name,
       qual: ri.qualifier,
       ts: ri.timestamp,
       value: ri.value,
@@ -36,9 +36,9 @@ defmodule GoogleAcceptanceTest do
           else
             converted =
               processed_result
-              |> Enum.flat_map(fn {family_name, read_items} ->
+              |> Enum.flat_map(fn {row_key, read_items} ->
                 read_items
-                |> Enum.map(&TestResult.from_chunk(family_name, &1))
+                |> Enum.map(&TestResult.from_chunk(row_key, &1))
                 |> Enum.reverse()
               end)
 
