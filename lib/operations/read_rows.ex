@@ -3,7 +3,7 @@ defmodule Bigtable.ReadRows do
   Provides functions to build `Google.Bigtable.V2.ReadRowsRequest` and submit them to Bigtable.
   """
 
-  alias Bigtable.Connection
+  alias Bigtable.{Connection, ChunkReader}
   alias Bigtable.Operations.Utils
   alias Google.Bigtable.V2
 
@@ -57,6 +57,8 @@ defmodule Bigtable.ReadRows do
   def read(%V2.ReadRowsRequest{} = request) do
     metadata = Connection.get_metadata()
 
+    {:ok, cr} = ChunkReader.open()
+
     {:ok, stream, _} =
       Connection.get_connection()
       |> Bigtable.Stub.read_rows(request, metadata)
@@ -64,6 +66,14 @@ defmodule Bigtable.ReadRows do
     stream
     |> Utils.process_stream()
     |> Enum.filter(&contains_chunks?/1)
+    |> Enum.flat_map(fn {:ok, resp} -> resp.chunks end)
+    |> Enum.reduce({:ok, []}, fn chunk, accum ->
+      if match?({:error, _}, accum) do
+        accum
+      else
+        ChunkReader.process(cr, chunk)
+      end
+    end)
   end
 
   @spec read(binary()) ::

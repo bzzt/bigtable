@@ -1,13 +1,15 @@
 defmodule RowFilterIntegration do
   @moduledoc false
-  alias Bigtable.{MutateRow, MutateRows, Mutations, ReadRows, RowFilter}
+  alias Bigtable.{ChunkReader, MutateRow, MutateRows, Mutations, ReadRows, RowFilter}
+  alias ChunkReader.ReadCell
+  alias Google.Protobuf.{BytesValue, StringValue}
 
   use ExUnit.Case
 
   setup do
-    assert ReadRows.read() == []
+    assert ReadRows.read() == {:ok, []}
 
-    row_keys = ["Test#1", "Test#2", "Test#3", "Other#1", "Other#2"]
+    row_keys = ["Test#1", "Test#2", "Other#1"]
 
     on_exit(fn ->
       mutations =
@@ -29,21 +31,27 @@ defmodule RowFilterIntegration do
 
   describe "RowFilter.cells_per_column" do
     test "should properly limit the number of cells returned" do
-      seed_multiple_values()
+      seed_multiple_values(3)
 
-      [ok: raw] = ReadRows.read()
+      expected = %{
+        "Test#1" => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column"},
+            row_key: "Test#1",
+            timestamp: 3000,
+            value: "3"
+          }
+        ]
+      }
 
-      assert length(raw.chunks) == 3
-
-      [ok: filtered] =
+      {:ok, filtered} =
         ReadRows.build()
         |> RowFilter.cells_per_column(1)
         |> ReadRows.read()
 
-      filtered_value = List.first(filtered.chunks) |> Map.get(:value)
-
-      assert length(filtered.chunks) == 1
-      assert filtered_value == "3"
+      assert filtered == expected
     end
   end
 
@@ -51,24 +59,56 @@ defmodule RowFilterIntegration do
     test "should properly filter rows based on row key", context do
       seed_values(context)
 
-      rows = ReadRows.read()
+      expected_test = %{
+        "Test#1" => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "value"
+          }
+        ],
+        "Test#2" => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column"},
+            row_key: "Test#2",
+            timestamp: 0,
+            value: "value"
+          }
+        ]
+      }
 
-      assert length(rows) == length(context.row_keys)
+      expected_other = %{
+        "Other#1" => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column"},
+            row_key: "Other#1",
+            timestamp: 0,
+            value: "value"
+          }
+        ]
+      }
 
       request = ReadRows.build()
 
-      test_filtered =
+      {:ok, test_filtered} =
         request
         |> RowFilter.row_key_regex("^Test#\\w+")
         |> ReadRows.read()
 
-      other_filtered =
+      {:ok, other_filtered} =
         request
         |> RowFilter.row_key_regex("^Other#\\w+")
         |> ReadRows.read()
 
-      assert length(test_filtered) == 3
-      assert length(other_filtered) == 2
+      assert test_filtered == expected_test
+      assert other_filtered == expected_other
     end
   end
 
@@ -76,52 +116,110 @@ defmodule RowFilterIntegration do
     test "should properly filter a single row based on value" do
       mutation =
         Mutations.build("Test#1")
-        |> Mutations.set_cell("cf1", "column1", "foo")
-        |> Mutations.set_cell("cf1", "column2", "bar")
-        |> Mutations.set_cell("cf2", "column1", "foo")
-        |> Mutations.set_cell("cf2", "column2", "bar")
+        |> Mutations.set_cell("cf1", "column1", "foo", 0)
+        |> Mutations.set_cell("cf1", "column2", "bar", 0)
+        |> Mutations.set_cell("cf2", "column1", "bar", 0)
+        |> Mutations.set_cell("cf2", "column2", "foo", 0)
+
+      expected = %{
+        "Test#1" => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf2"},
+            label: "",
+            qualifier: %BytesValue{value: "column2"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "foo"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column1"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "foo"
+          }
+        ]
+      }
 
       {:ok, _} =
         mutation
         |> MutateRow.build()
         |> MutateRow.mutate()
 
-      [ok: result] =
+      {:ok, result} =
         ReadRows.build()
         |> RowFilter.value_regex("foo")
         |> ReadRows.read()
 
-      assert length(result.chunks) == 2
+      assert result == expected
     end
 
     test "should properly filter multiple rows based on value" do
       first_mutation =
         Mutations.build("Test#1")
-        |> Mutations.set_cell("cf1", "column1", "foo")
-        |> Mutations.set_cell("cf1", "column2", "bar")
-        |> Mutations.set_cell("cf2", "column1", "foo")
-        |> Mutations.set_cell("cf2", "column2", "bar")
+        |> Mutations.set_cell("cf1", "column1", "foo", 0)
+        |> Mutations.set_cell("cf1", "column2", "bar", 0)
+        |> Mutations.set_cell("cf2", "column1", "bar", 0)
+        |> Mutations.set_cell("cf2", "column2", "foo", 0)
 
       second_mutation =
         Mutations.build("Test#2")
-        |> Mutations.set_cell("cf1", "column1", "foo")
-        |> Mutations.set_cell("cf1", "column2", "bar")
-        |> Mutations.set_cell("cf2", "column1", "foo")
-        |> Mutations.set_cell("cf2", "column2", "bar")
+        |> Mutations.set_cell("cf1", "column1", "foo", 0)
+        |> Mutations.set_cell("cf1", "column2", "bar", 0)
+        |> Mutations.set_cell("cf2", "column1", "bar", 0)
+        |> Mutations.set_cell("cf2", "column2", "foo", 0)
+
+      expected = %{
+        "Test#1" => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf2"},
+            label: "",
+            qualifier: %BytesValue{value: "column2"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "foo"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column1"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "foo"
+          }
+        ],
+        "Test#2" => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf2"},
+            label: "",
+            qualifier: %BytesValue{value: "column2"},
+            row_key: "Test#2",
+            timestamp: 0,
+            value: "foo"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column1"},
+            row_key: "Test#2",
+            timestamp: 0,
+            value: "foo"
+          }
+        ]
+      }
 
       {:ok, _} =
         [first_mutation, second_mutation]
         |> MutateRows.build()
         |> MutateRows.mutate()
 
-      result =
+      {:ok, result} =
         ReadRows.build()
         |> RowFilter.value_regex("foo")
         |> ReadRows.read()
 
-      assert length(result) == 2
-      chunks = chunks_from_rows(result)
-      assert length(chunks) == 4
+      assert result == expected
     end
   end
 
@@ -129,64 +227,146 @@ defmodule RowFilterIntegration do
     test "should properly filter a single row based on family name" do
       mutation =
         Mutations.build("Test#1")
-        |> Mutations.set_cell("cf2", "cf2-column", "cf2-value")
-        |> Mutations.set_cell("cf1", "cf1-column", "cf1-value")
-        |> Mutations.set_cell("otherFamily", "other-column", "other-value")
+        |> Mutations.set_cell("cf1", "column", "value", 0)
+        |> Mutations.set_cell("cf2", "column", "value", 0)
+        |> Mutations.set_cell("otherFamily", "column", "value", 0)
+
+      cf_expected = %{
+        "Test#1" => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf2"},
+            label: "",
+            qualifier: %BytesValue{value: "column"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "value"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "value"
+          }
+        ]
+      }
+
+      other_expected = %{
+        "Test#1" => [
+          %ReadCell{
+            family_name: %StringValue{value: "otherFamily"},
+            label: "",
+            qualifier: %BytesValue{value: "column"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "value"
+          }
+        ]
+      }
 
       {:ok, _} =
         mutation
         |> MutateRow.build()
         |> MutateRow.mutate()
 
-      [ok: cf_result] =
+      {:ok, cf_result} =
         ReadRows.build()
         |> RowFilter.family_name_regex("cf")
         |> ReadRows.read()
 
-      [ok: other_result] =
+      {:ok, other_result} =
         ReadRows.build()
         |> RowFilter.family_name_regex("other")
         |> ReadRows.read()
 
-      assert length(cf_result.chunks) == 2
-      assert length(other_result.chunks) == 1
+      assert cf_result == cf_expected
+      assert other_result == other_expected
     end
 
     test "should properly filter a multiple rows based on family name" do
       first_mutation =
         Mutations.build("Test#1")
-        |> Mutations.set_cell("cf2", "cf2-column", "cf2-value")
-        |> Mutations.set_cell("cf1", "cf1-column", "cf1-value")
-        |> Mutations.set_cell("otherFamily", "other-column", "other-value")
+        |> Mutations.set_cell("cf1", "column", "value", 0)
+        |> Mutations.set_cell("cf2", "column", "value", 0)
+        |> Mutations.set_cell("otherFamily", "column", "value", 0)
 
       second_mutation =
         Mutations.build("Test#2")
-        |> Mutations.set_cell("cf2", "cf2-column", "cf2-value")
-        |> Mutations.set_cell("cf1", "cf1-column", "cf1-value")
-        |> Mutations.set_cell("otherFamily", "other-column", "other-value")
+        |> Mutations.set_cell("cf1", "column", "value", 0)
+        |> Mutations.set_cell("otherFamily", "column", "value", 0)
+
+      cf_expected = %{
+        "Test#1" => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf2"},
+            label: "",
+            qualifier: %BytesValue{value: "column"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "value"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "value"
+          }
+        ],
+        "Test#2" => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column"},
+            row_key: "Test#2",
+            timestamp: 0,
+            value: "value"
+          }
+        ]
+      }
+
+      other_expected = %{
+        "Test#1" => [
+          %ReadCell{
+            family_name: %StringValue{value: "otherFamily"},
+            label: "",
+            qualifier: %BytesValue{value: "column"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "value"
+          }
+        ],
+        "Test#2" => [
+          %ReadCell{
+            family_name: %StringValue{value: "otherFamily"},
+            label: "",
+            qualifier: %BytesValue{value: "column"},
+            row_key: "Test#2",
+            timestamp: 0,
+            value: "value"
+          }
+        ]
+      }
 
       {:ok, _} =
         [first_mutation, second_mutation]
         |> MutateRows.build()
         |> MutateRows.mutate()
 
-      cf_result =
+      {:ok, cf_result} =
         ReadRows.build()
         |> RowFilter.family_name_regex("cf")
         |> ReadRows.read()
 
-      assert length(cf_result) == 2
-      cf_chunks = cf_result |> chunks_from_rows()
-      assert length(cf_chunks) == 4
-
-      other_result =
+      {:ok, other_result} =
         ReadRows.build()
         |> RowFilter.family_name_regex("other")
         |> ReadRows.read()
 
-      assert length(other_result) == 2
-      other_chunks = other_result |> chunks_from_rows()
-      assert length(other_chunks) == 2
+      assert cf_result == cf_expected
+      assert other_result == other_expected
     end
   end
 
@@ -194,70 +374,173 @@ defmodule RowFilterIntegration do
     test "should properly filter a single row based on column qualifier" do
       mutation =
         Mutations.build("Test#1")
-        |> Mutations.set_cell("cf2", "foo-column", "bar-value")
-        |> Mutations.set_cell("cf2", "bar-column", "bar-value")
-        |> Mutations.set_cell("cf1", "foo-column", "foo-value")
-        |> Mutations.set_cell("cf1", "bar-column", "baz-value")
-        |> Mutations.set_cell("otherFamily", "bar-column", "other-value")
+        |> Mutations.set_cell("cf1", "foo-cf1", "bar-value", 0)
+        |> Mutations.set_cell("cf1", "bar-cf1", "baz-value", 0)
+        |> Mutations.set_cell("cf2", "foo-cf2", "baz-value", 0)
+        |> Mutations.set_cell("cf2", "bar-cf2", "foo-value", 0)
+        |> Mutations.set_cell("otherFamily", "bar-other", "other-value", 0)
+
+      foo_expected = %{
+        "Test#1" => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf2"},
+            label: "",
+            qualifier: %BytesValue{value: "foo-cf2"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "baz-value"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "foo-cf1"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "bar-value"
+          }
+        ]
+      }
+
+      bar_expected = %{
+        "Test#1" => [
+          %ReadCell{
+            family_name: %StringValue{value: "otherFamily"},
+            label: "",
+            qualifier: %BytesValue{value: "bar-other"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "other-value"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf2"},
+            label: "",
+            qualifier: %BytesValue{value: "bar-cf2"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "foo-value"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "bar-cf1"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "baz-value"
+          }
+        ]
+      }
 
       {:ok, _} =
         mutation
         |> MutateRow.build()
         |> MutateRow.mutate()
 
-      [ok: foo_result] =
+      {:ok, foo_result} =
         ReadRows.build()
         |> RowFilter.column_qualifier_regex("foo")
         |> ReadRows.read()
 
-      [ok: bar_result] =
+      {:ok, bar_result} =
         ReadRows.build()
         |> RowFilter.column_qualifier_regex("bar")
         |> ReadRows.read()
 
-      assert length(foo_result.chunks) == 2
-      assert length(bar_result.chunks) == 3
+      assert foo_result == foo_expected
+      assert bar_result == bar_expected
     end
 
     test "should properly filter a multiple rows based on column qualifier" do
       first_mutation =
         Mutations.build("Test#1")
-        |> Mutations.set_cell("cf2", "foo-column", "bar-value")
-        |> Mutations.set_cell("cf2", "bar-column", "bar-value")
-        |> Mutations.set_cell("cf1", "foo-column", "foo-value")
-        |> Mutations.set_cell("cf1", "bar-column", "baz-value")
-        |> Mutations.set_cell("otherFamily", "bar-column", "other-value")
+        |> Mutations.set_cell("cf1", "bar-column", "foo-value", 0)
+        |> Mutations.set_cell("cf2", "foo-column", "bar-value", 0)
+        |> Mutations.set_cell("otherFamily", "bar-column", "other-value", 0)
 
       second_mutation =
         Mutations.build("Test#2")
-        |> Mutations.set_cell("cf2", "foo-column", "bar-value")
-        |> Mutations.set_cell("cf2", "bar-column", "bar-value")
-        |> Mutations.set_cell("cf1", "foo-column", "foo-value")
-        |> Mutations.set_cell("cf1", "bar-column", "baz-value")
-        |> Mutations.set_cell("otherFamily", "bar-column", "other-value")
+        |> Mutations.set_cell("cf1", "foo-column", "bar-value", 0)
+        |> Mutations.set_cell("cf2", "bar-column", "foo-value", 0)
+        |> Mutations.set_cell("otherFamily", "foo-column", "other-value", 0)
+
+      foo_expected = %{
+        "Test#1" => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf2"},
+            label: "",
+            qualifier: %BytesValue{value: "foo-column"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "bar-value"
+          }
+        ],
+        "Test#2" => [
+          %ReadCell{
+            family_name: %StringValue{value: "otherFamily"},
+            label: "",
+            qualifier: %BytesValue{value: "foo-column"},
+            row_key: "Test#2",
+            timestamp: 0,
+            value: "other-value"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "foo-column"},
+            row_key: "Test#2",
+            timestamp: 0,
+            value: "bar-value"
+          }
+        ]
+      }
+
+      bar_expected = %{
+        "Test#1" => [
+          %ReadCell{
+            family_name: %StringValue{value: "otherFamily"},
+            label: "",
+            qualifier: %BytesValue{value: "bar-column"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "other-value"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "bar-column"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "foo-value"
+          }
+        ],
+        "Test#2" => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf2"},
+            label: "",
+            qualifier: %BytesValue{value: "bar-column"},
+            row_key: "Test#2",
+            timestamp: 0,
+            value: "foo-value"
+          }
+        ]
+      }
 
       {:ok, _} =
         [first_mutation, second_mutation]
         |> MutateRows.build()
         |> MutateRows.mutate()
 
-      foo_result =
+      {:ok, foo_result} =
         ReadRows.build()
         |> RowFilter.column_qualifier_regex("foo")
         |> ReadRows.read()
 
-      assert length(foo_result) == 2
-      foo_chunks = foo_result |> chunks_from_rows()
-      assert length(foo_chunks) == 4
-
-      bar_result =
+      {:ok, bar_result} =
         ReadRows.build()
         |> RowFilter.column_qualifier_regex("bar")
         |> ReadRows.read()
 
-      assert length(bar_result) == 2
-      bar_chunks = bar_result |> chunks_from_rows()
-      assert length(bar_chunks) == 6
+      assert foo_result == foo_expected
+      assert bar_result == bar_expected
     end
   end
 
@@ -269,12 +552,41 @@ defmodule RowFilterIntegration do
     test "should properly filter inclusive range in single row" do
       range = {"column2", "column4"}
 
-      [ok: result] =
+      expected = %{
+        "Test#1" => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column4"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "value4"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column3"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "value3"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column2"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "value2"
+          }
+        ]
+      }
+
+      {:ok, result} =
         ReadRows.build()
         |> RowFilter.column_range("cf1", range)
         |> ReadRows.read()
 
-      assert length(result.chunks) == 3
+      assert result == expected
     end
 
     test "should properly filter inclusive range in multiple rows" do
@@ -282,25 +594,91 @@ defmodule RowFilterIntegration do
 
       range = {"column2", "column4"}
 
-      result =
+      expected = %{
+        "Test#1" => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column4"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "value4"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column3"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "value3"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column2"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "value2"
+          }
+        ],
+        "Test#2" => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column4"},
+            row_key: "Test#2",
+            timestamp: 0,
+            value: "value4"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column3"},
+            row_key: "Test#2",
+            timestamp: 0,
+            value: "value3"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column2"},
+            row_key: "Test#2",
+            timestamp: 0,
+            value: "value2"
+          }
+        ]
+      }
+
+      {:ok, result} =
         ReadRows.build()
         |> RowFilter.column_range("cf1", range)
         |> ReadRows.read()
 
-      assert length(result) == 2
-      chunks = chunks_from_rows(result)
-      assert length(chunks) == 6
+      assert result == expected
     end
 
     test "should properly filter exclusive range in single row" do
       range = {"column2", "column4", false}
 
-      [ok: result] =
+      expected = %{
+        "Test#1" => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column3"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "value3"
+          }
+        ]
+      }
+
+      {:ok, result} =
         ReadRows.build()
         |> RowFilter.column_range("cf1", range)
         |> ReadRows.read()
 
-      assert length(result.chunks) == 1
+      assert result == expected
     end
 
     test "should properly filter exclusive range in multiple rows" do
@@ -308,14 +686,35 @@ defmodule RowFilterIntegration do
 
       range = {"column2", "column4", false}
 
-      result =
+      expected = %{
+        "Test#1" => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column3"},
+            row_key: "Test#1",
+            timestamp: 0,
+            value: "value3"
+          }
+        ],
+        "Test#2" => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column3"},
+            row_key: "Test#2",
+            timestamp: 0,
+            value: "value3"
+          }
+        ]
+      }
+
+      {:ok, result} =
         ReadRows.build()
         |> RowFilter.column_range("cf1", range)
         |> ReadRows.read()
 
-      assert length(result) == 2
-      chunks = chunks_from_rows(result)
-      assert length(chunks) == 2
+      assert result == expected
     end
   end
 
@@ -327,41 +726,145 @@ defmodule RowFilterIntegration do
     test "should properly filter start timestamp in single row" do
       range = [start_timestamp: 2000]
 
-      [ok: result] =
+      expected = %{
+        "Test#1" => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf2"},
+            label: "",
+            qualifier: %BytesValue{value: "column1"},
+            row_key: "Test#1",
+            timestamp: 2000,
+            value: "value2"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf2"},
+            label: "",
+            qualifier: %BytesValue{value: "column1"},
+            row_key: "Test#1",
+            timestamp: 3000,
+            value: "value3"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf2"},
+            label: "",
+            qualifier: %BytesValue{value: "column1"},
+            row_key: "Test#1",
+            timestamp: 4000,
+            value: "value4"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column1"},
+            row_key: "Test#1",
+            timestamp: 2000,
+            value: "value2"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column1"},
+            row_key: "Test#1",
+            timestamp: 3000,
+            value: "value3"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column1"},
+            row_key: "Test#1",
+            timestamp: 4000,
+            value: "value4"
+          }
+        ]
+      }
+
+      {:ok, result} =
         ReadRows.build()
         |> RowFilter.timestamp_range(range)
         |> ReadRows.read()
 
-      assert length(result.chunks) == 6
-      assert Enum.all?(result.chunks, fn c -> c.timestamp_micros >= 2000 end)
+      assert result == expected
     end
 
     test "should properly filter end timestamp in single row" do
       range = [end_timestamp: 2000]
 
-      [ok: result] =
+      expected = %{
+        "Test#1" => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf2"},
+            label: "",
+            qualifier: %BytesValue{value: "column1"},
+            row_key: "Test#1",
+            timestamp: 1000,
+            value: "value1"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column1"},
+            row_key: "Test#1",
+            timestamp: 1000,
+            value: "value1"
+          }
+        ]
+      }
+
+      {:ok, result} =
         ReadRows.build()
         |> RowFilter.timestamp_range(range)
         |> ReadRows.read()
 
-      assert length(result.chunks) == 2
-      assert Enum.all?(result.chunks, fn c -> c.timestamp_micros < 2000 end)
+      assert result == expected
     end
 
     test "should properly filter timestamp range in single row" do
       range = [start_timestamp: 2000, end_timestamp: 4000]
 
-      [ok: result] =
+      expected = %{
+        "Test#1" => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf2"},
+            label: "",
+            qualifier: %BytesValue{value: "column1"},
+            row_key: "Test#1",
+            timestamp: 2000,
+            value: "value2"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf2"},
+            label: "",
+            qualifier: %BytesValue{value: "column1"},
+            row_key: "Test#1",
+            timestamp: 3000,
+            value: "value3"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column1"},
+            row_key: "Test#1",
+            timestamp: 2000,
+            value: "value2"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column1"},
+            row_key: "Test#1",
+            timestamp: 3000,
+            value: "value3"
+          }
+        ]
+      }
+
+      {:ok, result} =
         ReadRows.build()
         |> RowFilter.timestamp_range(range)
         |> ReadRows.read()
 
-      assert length(result.chunks) == 4
-
-      assert Enum.all?(result.chunks, fn c ->
-               timestamp = c.timestamp_micros
-               timestamp < 4000 and timestamp >= 2000
-             end)
+      assert result == expected
     end
 
     test "should properly filter start timestamp in multiple rows" do
@@ -369,15 +872,67 @@ defmodule RowFilterIntegration do
 
       range = [start_timestamp: 2000]
 
-      result =
+      expected =
+        ["Test#1", "Test#2"]
+        |> Enum.reduce(%{}, fn row_key, accum ->
+          Map.put(accum, row_key, [
+            %ReadCell{
+              family_name: %StringValue{value: "cf2"},
+              label: "",
+              qualifier: %BytesValue{value: "column1"},
+              row_key: row_key,
+              timestamp: 2000,
+              value: "value2"
+            },
+            %ReadCell{
+              family_name: %StringValue{value: "cf2"},
+              label: "",
+              qualifier: %BytesValue{value: "column1"},
+              row_key: row_key,
+              timestamp: 3000,
+              value: "value3"
+            },
+            %ReadCell{
+              family_name: %StringValue{value: "cf2"},
+              label: "",
+              qualifier: %BytesValue{value: "column1"},
+              row_key: row_key,
+              timestamp: 4000,
+              value: "value4"
+            },
+            %ReadCell{
+              family_name: %StringValue{value: "cf1"},
+              label: "",
+              qualifier: %BytesValue{value: "column1"},
+              row_key: row_key,
+              timestamp: 2000,
+              value: "value2"
+            },
+            %ReadCell{
+              family_name: %StringValue{value: "cf1"},
+              label: "",
+              qualifier: %BytesValue{value: "column1"},
+              row_key: row_key,
+              timestamp: 3000,
+              value: "value3"
+            },
+            %ReadCell{
+              family_name: %StringValue{value: "cf1"},
+              label: "",
+              qualifier: %BytesValue{value: "column1"},
+              row_key: row_key,
+              timestamp: 4000,
+              value: "value4"
+            }
+          ])
+        end)
+
+      {:ok, result} =
         ReadRows.build()
         |> RowFilter.timestamp_range(range)
         |> ReadRows.read()
 
-      assert length(result) == 2
-      chunks = chunks_from_rows(result)
-      assert length(chunks) == 12
-      assert Enum.all?(chunks, fn c -> c.timestamp_micros >= 2000 end)
+      assert result == expected
     end
 
     test "should properly filter end timestamp in multiple rows" do
@@ -385,15 +940,35 @@ defmodule RowFilterIntegration do
 
       range = [end_timestamp: 2000]
 
-      result =
+      expected =
+        ["Test#1", "Test#2"]
+        |> Enum.reduce(%{}, fn row_key, accum ->
+          Map.put(accum, row_key, [
+            %ReadCell{
+              family_name: %StringValue{value: "cf2"},
+              label: "",
+              qualifier: %BytesValue{value: "column1"},
+              row_key: row_key,
+              timestamp: 1000,
+              value: "value1"
+            },
+            %ReadCell{
+              family_name: %StringValue{value: "cf1"},
+              label: "",
+              qualifier: %BytesValue{value: "column1"},
+              row_key: row_key,
+              timestamp: 1000,
+              value: "value1"
+            }
+          ])
+        end)
+
+      {:ok, result} =
         ReadRows.build()
         |> RowFilter.timestamp_range(range)
         |> ReadRows.read()
 
-      assert length(result) == 2
-      chunks = chunks_from_rows(result)
-      assert length(chunks) == 4
-      assert Enum.all?(chunks, fn c -> c.timestamp_micros < 2000 end)
+      assert result == expected
     end
 
     test "should properly filter timestamp range in multiple rows" do
@@ -401,19 +976,51 @@ defmodule RowFilterIntegration do
 
       range = [start_timestamp: 2000, end_timestamp: 4000]
 
-      result =
+      expected =
+        ["Test#1", "Test#2"]
+        |> Enum.reduce(%{}, fn row_key, accum ->
+          Map.put(accum, row_key, [
+            %ReadCell{
+              family_name: %StringValue{value: "cf2"},
+              label: "",
+              qualifier: %BytesValue{value: "column1"},
+              row_key: row_key,
+              timestamp: 2000,
+              value: "value2"
+            },
+            %ReadCell{
+              family_name: %StringValue{value: "cf2"},
+              label: "",
+              qualifier: %BytesValue{value: "column1"},
+              row_key: row_key,
+              timestamp: 3000,
+              value: "value3"
+            },
+            %ReadCell{
+              family_name: %StringValue{value: "cf1"},
+              label: "",
+              qualifier: %BytesValue{value: "column1"},
+              row_key: row_key,
+              timestamp: 2000,
+              value: "value2"
+            },
+            %ReadCell{
+              family_name: %StringValue{value: "cf1"},
+              label: "",
+              qualifier: %BytesValue{value: "column1"},
+              row_key: row_key,
+              timestamp: 3000,
+              value: "value3"
+            }
+          ])
+        end)
+
+      {:ok, result} =
         ReadRows.build()
         |> RowFilter.timestamp_range(range)
         |> ReadRows.read()
 
-      assert length(result) == 2
-      chunks = chunks_from_rows(result)
-      assert length(chunks) == 8
-
-      assert Enum.all?(chunks, fn c ->
-               timestamp = c.timestamp_micros
-               timestamp < 4000 and timestamp >= 2000
-             end)
+      assert result == expected
     end
   end
 
@@ -421,26 +1028,38 @@ defmodule RowFilterIntegration do
     test "should properly apply a chain of filters", context do
       seed_values(context)
 
-      seed_multiple_values()
+      seed_multiple_values(3)
 
       filters = [
         RowFilter.row_key_regex("^Test#1"),
         RowFilter.cells_per_column(1)
       ]
 
-      [ok: result] =
+      expected = %{
+        "Test#1" => [
+          %Bigtable.ChunkReader.ReadCell{
+            family_name: %Google.Protobuf.StringValue{value: "cf1"},
+            label: "",
+            qualifier: %Google.Protobuf.BytesValue{value: "column"},
+            row_key: "Test#1",
+            timestamp: 3000,
+            value: "3"
+          }
+        ]
+      }
+
+      {:ok, result} =
         ReadRows.build()
         |> RowFilter.chain(filters)
         |> ReadRows.read()
 
-      assert length(result.chunks) == 1
-      assert List.first(result.chunks) |> Map.get(:row_key) == "Test#1"
+      assert result == expected
     end
   end
 
-  defp seed_multiple_values do
+  defp seed_multiple_values(num) do
     mutations =
-      Enum.map(1..3, fn i ->
+      Enum.map(1..num, fn i ->
         Mutations.build("Test#1")
         |> Mutations.set_cell("cf1", "column", to_string(i), 1000 * i)
       end)
@@ -460,7 +1079,7 @@ defmodule RowFilterIntegration do
       |> Mutations.set_cell("cf2", "column1", "value1", 1000)
       |> Mutations.set_cell("cf2", "column1", "value2", 2000)
       |> Mutations.set_cell("cf2", "column1", "value3", 3000)
-      |> Mutations.set_cell("cf2", "column1", "value3", 4000)
+      |> Mutations.set_cell("cf2", "column1", "value4", 4000)
       |> MutateRow.build()
       |> MutateRow.mutate()
 
@@ -470,11 +1089,11 @@ defmodule RowFilterIntegration do
   defp seed_range(row_key) do
     {:ok, _} =
       Mutations.build(row_key)
-      |> Mutations.set_cell("cf1", "column1", "value1")
-      |> Mutations.set_cell("cf1", "column2", "value2")
-      |> Mutations.set_cell("cf1", "column3", "value3")
-      |> Mutations.set_cell("cf1", "column4", "value4")
-      |> Mutations.set_cell("cf1", "column5", "value5")
+      |> Mutations.set_cell("cf1", "column1", "value1", 0)
+      |> Mutations.set_cell("cf1", "column2", "value2", 0)
+      |> Mutations.set_cell("cf1", "column3", "value3", 0)
+      |> Mutations.set_cell("cf1", "column4", "value4", 0)
+      |> Mutations.set_cell("cf1", "column5", "value5", 0)
       |> MutateRow.build()
       |> MutateRow.mutate()
 
@@ -485,7 +1104,7 @@ defmodule RowFilterIntegration do
     Enum.each(context.row_keys, fn key ->
       {:ok, _} =
         Mutations.build(key)
-        |> Mutations.set_cell("cf1", "column", "value")
+        |> Mutations.set_cell("cf1", "column", "value", 0)
         |> MutateRow.build()
         |> MutateRow.mutate()
 
@@ -493,5 +1112,7 @@ defmodule RowFilterIntegration do
     end)
   end
 
-  defp chunks_from_rows(rows), do: Enum.flat_map(rows, fn {:ok, r} -> r.chunks end)
+  defp cell_count(rows), do: cells_from_rows(rows) |> length()
+
+  defp cells_from_rows(rows), do: Map.values(rows) |> List.flatten()
 end
