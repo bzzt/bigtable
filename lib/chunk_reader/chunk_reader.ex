@@ -1,9 +1,14 @@
 defmodule Bigtable.ChunkReader do
-  alias Google.Bigtable.V2.ReadRowsResponse.CellChunk
+  @moduledoc """
+  Reads chunks from `Google.Bigtable.V2.ReadRowsResponse` and parses them into complete cells grouped by rowkey.
+  """
 
   use Agent, restart: :temporary
 
   defmodule ReadCell do
+    @moduledoc """
+    A finished cell produced by `Bigtable.ChunkReader`.
+    """
     defstruct [
       :label,
       :row_key,
@@ -15,6 +20,7 @@ defmodule Bigtable.ChunkReader do
   end
 
   defmodule ReaderState do
+    @moduledoc false
     defstruct [
       :cur_key,
       :cur_label,
@@ -28,34 +34,55 @@ defmodule Bigtable.ChunkReader do
     ]
   end
 
+  @typedoc """
+  A map containging lists of `Bigtable.ChunkReader.ReadCell` keyed by row key.
+  """
+  @type chunk_reader_result :: %{optional(binary()) => [Bigtable.ChunkReader.ReadCell.t()]}
+
   def start_link(_) do
     GenServer.start_link(__MODULE__, %ReaderState{}, [])
   end
 
+  @doc """
+  Opens a `Bigtable.ChunkReader`.
+  """
+  @spec open() :: :ignore | {:error, any()} | {:ok, pid()} | {:ok, pid(), any()}
   def open() do
     DynamicSupervisor.start_child(__MODULE__.Supervisor, __MODULE__)
   end
 
+  @doc """
+  Closes a `Bigtable.ChunkReader` when provided its pid and returns the chunk_reader_result.
+  """
+  @spec close(pid()) :: {:ok, chunk_reader_result} | {:error, binary()}
   def close(pid) do
     GenServer.call(pid, :close)
   end
 
+  @doc """
+  Processes a `Google.Bigtable.V2.ReadRowsResponse.CellChunk` given a `Bigtable.ChunkReader` pid.
+  """
+  @spec process(pid(), Google.Bigtable.V2.ReadRowsResponse.CellChunk.t()) ::
+          {:ok, chunk_reader_result} | {:error, binary()}
   def process(pid, cc) do
     GenServer.call(pid, {:process, cc})
   end
 
+  @doc false
   def init(state) do
     {:ok, state}
   end
 
+  @doc false
   def handle_call(:close, _from, cr) do
     if cr.state == :new_row do
-      {:reply, {:ok, cr}, cr}
+      {:reply, {:ok, cr.cur_row}, cr}
     else
       {:reply, {:error, "invalid state for end of stream #{cr.state}"}, cr}
     end
   end
 
+  @doc false
   def handle_call({:process, cc}, _from, cr) do
     case handle_state(cr.state, cr, cc) do
       {:error, _msg} = result ->
