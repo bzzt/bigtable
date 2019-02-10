@@ -27,18 +27,45 @@ defmodule Bigtable.Typed.Mutations do
     Enum.reduce(map, entry, fn {k, v}, accum ->
       column_qualifier = column_qualifier(parent_key, k)
 
-      if Map.get(type_spec, k) == nil do
-        accum
-      else
-        case is_map(v) do
-          true ->
-            child_spec = Map.get(type_spec, k)
-            apply_mutations(child_spec, v, accum, family_name, column_qualifier)
+      case Map.get(type_spec, k) do
+        nil ->
+          accum
 
-          false ->
-            accum
-            |> Bigtable.Mutations.set_cell(family_name, column_qualifier, v)
-        end
+        type when is_map(type) ->
+          nested_map(type, v, accum, family_name, column_qualifier)
+
+        _ ->
+          accum
+          |> add_cell_mutation(family_name, column_qualifier, v)
+      end
+    end)
+  end
+
+  defp add_cell_mutation(accum, family_name, column_qualifier, nil) do
+    accum
+    |> Bigtable.Mutations.delete_from_column(family_name, column_qualifier)
+  end
+
+  defp add_cell_mutation(accum, family_name, column_qualifier, value) do
+    accum
+    |> Bigtable.Mutations.set_cell(family_name, column_qualifier, value)
+  end
+
+  defp nested_map(type, value, accum, family_name, column_qualifier) do
+    if value == nil or value == "" do
+      niled_map = nil_values(type)
+      apply_mutations(type, niled_map, accum, family_name, column_qualifier)
+    else
+      apply_mutations(type, value, accum, family_name, column_qualifier)
+    end
+  end
+
+  defp nil_values(type_spec) do
+    Enum.reduce(type_spec, %{}, fn {k, v}, accum ->
+      if is_map(v) do
+        Map.put(accum, k, nil_values(v))
+      else
+        Map.put(accum, k, nil)
       end
     end)
   end

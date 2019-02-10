@@ -2,7 +2,11 @@ version: "3"
 services:
   bigtable-emulator:
     image: shopify/bigtable-emulator
-    command: ["-cf", "dev.test.cf1,dev.test.cf2,dev.test.otherFamily"]
+    command:
+      [
+        "-cf",
+        "dev.test.cf1,dev.test.cf2,dev.test.otherFamily,dev.dev.cf1,dev.dev.cf2,dev.dev.otherFamily",
+      ]
     ports:
       - "9035:9035"
     expose:
