@@ -9,6 +9,7 @@ defmodule Bigtable.Service do
   rpc(:MutateRows, V2.MutateRowsRequest, stream(V2.MutateRowsResponse))
   rpc(:CheckAndMutateRow, V2.CheckAndMutateRowRequest, stream(V2.CheckAndMutateRowResponse))
   rpc(:SampleRowKeys, V2.SampleRowKeysRequest, stream(V2.SampleRowKeysResponse))
+  rpc(:ReadModifyWriteRow, V2.ReadModifyWriteRowRequest, stream(V2.ReadModifyWriteRowResponse))
 end
 
 defmodule Bigtable.Stub do
