@@ -1111,8 +1111,4 @@ defmodule RowFilterIntegration do
       :ok
     end)
   end
-
-  defp cell_count(rows), do: cells_from_rows(rows) |> length()
-
-  defp cells_from_rows(rows), do: Map.values(rows) |> List.flatten()
 end

@@ -73,7 +73,7 @@ defmodule ReadRowsAcceptanceTest do
         end
       end)
 
-    k_status = ChunkReader.close(cr)
+    close_status = ChunkReader.close(cr)
     GenServer.stop(cr)
     %{close_error: close_status != :ok, processed: processed}
   end

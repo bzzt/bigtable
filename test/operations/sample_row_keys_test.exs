@@ -1,6 +1,6 @@
 defmodule SampleRowKeysTest do
   @moduledoc false
-  alias Bigtable.{MutateRow, MutateRows, Mutations, ReadRows, SampleRowKeys}
+  alias Bigtable.SampleRowKeys
 
   use ExUnit.Case
 

@@ -37,22 +37,31 @@ defmodule Bigtable.SampleRowKeys do
   @doc """
   Submits a `Google.Bigtable.V2.SampleRowKeysRequest` to Bigtable.
   """
-  @spec read(V2.SampleRowKeysRequest.t()) :: {:ok, V2.SampleRowKeysResponse}
+  @spec read(V2.SampleRowKeysRequest.t()) ::
+          [{:ok, V2.SampleRowKeysResponse} | {:error, any()}] | {:error, binary()}
   def read(%V2.SampleRowKeysRequest{} = request) do
     metadata = Connection.get_metadata()
 
-    {:ok, stream, _} =
-      Connection.get_connection()
-      |> Bigtable.Stub.sample_row_keys(request, metadata)
+    connection = Connection.get_connection()
 
     result =
-      stream
-      |> Utils.process_stream()
+      connection
+      |> Bigtable.Stub.sample_row_keys(request, metadata)
 
-    {:ok, result}
+    case result do
+      {:ok, stream, _} ->
+        stream
+        |> Utils.process_stream()
+
+      {:error, error} when is_map(error) ->
+        {:error, Map.get(error, :message, "unknown error")}
+
+      _ ->
+        {:error, "unknown error"}
+    end
   end
 
-  @spec read() :: {:ok, V2.SampleRowKeysResponse}
+  @spec read() :: [{:ok, V2.SampleRowKeysResponse} | {:error, any()}] | {:error, binary()}
   def read() do
     build()
     |> read()

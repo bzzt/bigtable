@@ -51,7 +51,7 @@ defmodule Bigtable.CheckAndMutateRow do
   @spec if_true(V2.CheckAndMutateRowRequest.t(), [V2.Mutation.t()]) ::
           V2.CheckAndMutateRowRequest.t()
   def if_true(%V2.CheckAndMutateRowRequest{} = request, mutations) when is_list(mutations) do
-    %{request | true_mutations: mutations}
+    %{request | true_mutations: extract_mutations(mutations)}
   end
 
   @spec if_true(V2.CheckAndMutateRowRequest.t(), V2.Mutation.t()) ::
@@ -63,7 +63,7 @@ defmodule Bigtable.CheckAndMutateRow do
   @spec if_false(V2.CheckAndMutateRowRequest.t(), [V2.Mutation.t()]) ::
           V2.CheckAndMutateRowRequest.t()
   def if_false(%V2.CheckAndMutateRowRequest{} = request, mutations) when is_list(mutations) do
-    %{request | false_mutations: mutations}
+    %{request | false_mutations: extract_mutations(mutations)}
   end
 
   @spec if_false(V2.CheckAndMutateRowRequest.t(), V2.Mutation.t()) ::
@@ -75,18 +75,33 @@ defmodule Bigtable.CheckAndMutateRow do
   @doc """
   Submits a `Google.Bigtable.V2.CheckAndMutateRowRequest` to Bigtable.
   """
-  @spec mutate(V2.CheckAndMutateRowRequest.t()) :: {:ok, [V2.CheckAndMutateRowResponse]}
+  @spec mutate(V2.CheckAndMutateRowRequest.t()) ::
+          {:ok, [V2.CheckAndMutateRowResponse]} | {:error, binary()}
   def mutate(%V2.CheckAndMutateRowRequest{} = request) do
     metadata = Connection.get_metadata()
 
-    {:ok, stream, _} =
-      Connection.get_connection()
-      |> Bigtable.Stub.check_and_mutate_row(request, metadata)
+    connection = Connection.get_connection()
 
     result =
-      stream
-      |> Utils.process_stream()
+      connection
+      |> Bigtable.Stub.check_and_mutate_row(request, metadata)
 
-    {:ok, result}
+    case result do
+      {:ok, stream, _} ->
+        stream
+        |> Utils.process_stream()
+        |> List.first()
+
+      {:error, error} when is_map(error) ->
+        {:error, Map.get(error, :message, "unknown error")}
+
+      _ ->
+        {:error, "unknown error"}
+    end
+  end
+
+  defp extract_mutations(mutations) do
+    mutations
+    |> Enum.flat_map(&Map.get(&1, :mutations))
   end
 end
