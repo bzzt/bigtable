@@ -1,56 +1,378 @@
-# defmodule CheckAndMutateRowTest do
-#   @moduledoc false
-#   alias Bigtable.{Mutations, MutateRow, CheckAndMutateRow}
+defmodule CheckAndMutateRowTest do
+  @moduledoc false
+  alias Bigtable.{CheckAndMutateRow, ChunkReader, MutateRow, Mutations, ReadRows, RowFilter}
+  alias ChunkReader.ReadCell
 
-#   use ExUnit.Case
+  use ExUnit.Case
 
-#   doctest CheckAndMutateRow
+  doctest CheckAndMutateRow
 
-#   setup do
-#     assert ReadRows.read() = []
+  setup do
+    assert ReadRows.read() == {:ok, %{}}
 
-#     row_key = "Test#123"
-#     column_family = "cf1"
-#     column_qualifier = "column"
+    row_key = "Test#123"
+    qualifier = "column"
 
-#     true_entry =
-#       Mutations.build(row_key) |> Mutations.set_cell(column_family, column_qualifier, "true")
+    {:ok, _} =
+      Mutations.build(row_key)
+      |> Mutations.set_cell("cf1", qualifier, "value", 0)
+      |> MutateRow.build()
+      |> MutateRow.mutate()
 
-#     false_entry =
-#       Mutations.build(row_key) |> Mutations.set_cell(column_family, column_qualifier, "false")
+    on_exit(fn ->
+      mutation = Mutations.build(row_key) |> Mutations.delete_from_row()
 
-#     initial_value =
-#       Mutations.build(row_key) |> Mutations.set_cell(column_family, column_qualifier, 10)
+      mutation |> MutateRow.mutate()
+    end)
 
-#     initial_value
-#     |> MutateRow.mutate()
+    [
+      qualifier: qualifier,
+      row_key: row_key
+    ]
+  end
 
-#     on_exit(fn ->
-#       mutation = Mutations.build(row_key) |> Mutations.delete_from_row()
+  describe "CheckAndMutateRow.mutate/2" do
+    test "should apply a single true mutation when no predicate set and row exists", context do
+      mutation =
+        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "truthy", "true", 0)
 
-#       mutation |> MutateRow.mutate()
-#     end)
+      {:ok, _result} =
+        CheckAndMutateRow.build(context.row_key)
+        |> CheckAndMutateRow.if_true(mutation)
+        |> CheckAndMutateRow.mutate()
 
-#     [
-#       initial_entry: Mutations.build("Test#123"),
-#       true_entry: true_entry,
-#       false_entry: false_entry
-#     ]
-#   end
+      expected =
+        {:ok,
+         %{
+           context.row_key => [
+             %ReadCell{
+               family_name: %Google.Protobuf.StringValue{value: "cf1"},
+               label: "",
+               qualifier: %Google.Protobuf.BytesValue{value: "truthy"},
+               row_key: context.row_key,
+               timestamp: 0,
+               value: "true"
+             },
+             %ReadCell{
+               family_name: %Google.Protobuf.StringValue{value: "cf1"},
+               label: "",
+               qualifier: %Google.Protobuf.BytesValue{value: context.qualifier},
+               row_key: context.row_key,
+               timestamp: 0,
+               value: "value"
+             }
+           ]
+         }}
 
-#   describe "CheckAndMutateRow.build()" do
-#     test "should build a CheckAndMutateRowRequest with configured table", context do
-#     end
+      assert ReadRows.read() == expected
+    end
 
-#     test "should build a CheckAndMutateRowRequest with custom table", context
-#   end
+    test "should apply a multiple true mutation when no predicate set and row exists", context do
+      mutation1 =
+        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "truthy", "true", 0)
 
-#   defp expected_request(table_name \\ Bigtable.Utils.configured_table_name()) do
-#     %Google.Bigtable.V2.MutateRowRequest{
-#       app_profile_id: "",
-#       true_mutations: [],
-#       row_key: "Test#123",
-#       table_name: table_name
-#     }
-#   end
-# end
+      mutation2 =
+        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "alsoTruthy", "true", 0)
+
+      {:ok, _result} =
+        CheckAndMutateRow.build(context.row_key)
+        |> CheckAndMutateRow.if_true([mutation1, mutation2])
+        |> CheckAndMutateRow.mutate()
+
+      expected =
+        {:ok,
+         %{
+           context.row_key => [
+             %ReadCell{
+               family_name: %Google.Protobuf.StringValue{value: "cf1"},
+               label: "",
+               qualifier: %Google.Protobuf.BytesValue{value: "truthy"},
+               row_key: context.row_key,
+               timestamp: 0,
+               value: "true"
+             },
+             %ReadCell{
+               family_name: %Google.Protobuf.StringValue{value: "cf1"},
+               label: "",
+               qualifier: %Google.Protobuf.BytesValue{value: context.qualifier},
+               row_key: context.row_key,
+               timestamp: 0,
+               value: "value"
+             },
+             %ReadCell{
+               family_name: %Google.Protobuf.StringValue{value: "cf1"},
+               label: "",
+               qualifier: %Google.Protobuf.BytesValue{value: "alsoTruthy"},
+               row_key: context.row_key,
+               timestamp: 0,
+               value: "true"
+             }
+           ]
+         }}
+
+      assert ReadRows.read() == expected
+    end
+
+    test "should not apply a true mutation when no predicate set and row does not exist",
+         context do
+      mutation =
+        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "truthy", "true", 0)
+
+      {:ok, _result} =
+        CheckAndMutateRow.build("Doesnt#Exist")
+        |> CheckAndMutateRow.if_true(mutation)
+        |> CheckAndMutateRow.mutate()
+
+      expected =
+        {:ok,
+         %{
+           context.row_key => [
+             %ReadCell{
+               family_name: %Google.Protobuf.StringValue{value: "cf1"},
+               label: "",
+               qualifier: %Google.Protobuf.BytesValue{value: context.qualifier},
+               row_key: context.row_key,
+               timestamp: 0,
+               value: "value"
+             }
+           ]
+         }}
+
+      assert ReadRows.read() == expected
+    end
+
+    test "should apply a single true mutation when predicate true", context do
+      filter = RowFilter.column_qualifier_regex(context.qualifier)
+
+      mutation =
+        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "truthy", "true", 0)
+
+      {:ok, _result} =
+        CheckAndMutateRow.build(context.row_key)
+        |> CheckAndMutateRow.predicate(filter)
+        |> CheckAndMutateRow.if_true(mutation)
+        |> CheckAndMutateRow.mutate()
+
+      expected =
+        {:ok,
+         %{
+           context.row_key => [
+             %ReadCell{
+               family_name: %Google.Protobuf.StringValue{value: "cf1"},
+               label: "",
+               qualifier: %Google.Protobuf.BytesValue{value: "truthy"},
+               row_key: context.row_key,
+               timestamp: 0,
+               value: "true"
+             },
+             %ReadCell{
+               family_name: %Google.Protobuf.StringValue{value: "cf1"},
+               label: "",
+               qualifier: %Google.Protobuf.BytesValue{value: context.qualifier},
+               row_key: context.row_key,
+               timestamp: 0,
+               value: "value"
+             }
+           ]
+         }}
+
+      assert ReadRows.read() == expected
+    end
+
+    test "should apply a multiple true mutation when predicate true", context do
+      filter = RowFilter.column_qualifier_regex(context.qualifier)
+
+      mutation1 =
+        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "truthy", "true", 0)
+
+      mutation2 =
+        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "alsoTruthy", "true", 0)
+
+      {:ok, _result} =
+        CheckAndMutateRow.build(context.row_key)
+        |> CheckAndMutateRow.predicate(filter)
+        |> CheckAndMutateRow.if_true([mutation1, mutation2])
+        |> CheckAndMutateRow.mutate()
+
+      expected =
+        {:ok,
+         %{
+           context.row_key => [
+             %ReadCell{
+               family_name: %Google.Protobuf.StringValue{value: "cf1"},
+               label: "",
+               qualifier: %Google.Protobuf.BytesValue{value: "truthy"},
+               row_key: context.row_key,
+               timestamp: 0,
+               value: "true"
+             },
+             %ReadCell{
+               family_name: %Google.Protobuf.StringValue{value: "cf1"},
+               label: "",
+               qualifier: %Google.Protobuf.BytesValue{value: context.qualifier},
+               row_key: context.row_key,
+               timestamp: 0,
+               value: "value"
+             },
+             %ReadCell{
+               family_name: %Google.Protobuf.StringValue{value: "cf1"},
+               label: "",
+               qualifier: %Google.Protobuf.BytesValue{value: "alsoTruthy"},
+               row_key: context.row_key,
+               timestamp: 0,
+               value: "true"
+             }
+           ]
+         }}
+
+      assert ReadRows.read() == expected
+    end
+
+    test "should not apply a true mutation when predicate is false", context do
+      filter = RowFilter.column_qualifier_regex("doesntexist")
+
+      mutation =
+        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "truthy", "true", 0)
+
+      {:ok, _result} =
+        CheckAndMutateRow.build(context.row_key)
+        |> CheckAndMutateRow.predicate(filter)
+        |> CheckAndMutateRow.if_true(mutation)
+        |> CheckAndMutateRow.mutate()
+
+      expected =
+        {:ok,
+         %{
+           context.row_key => [
+             %ReadCell{
+               family_name: %Google.Protobuf.StringValue{value: "cf1"},
+               label: "",
+               qualifier: %Google.Protobuf.BytesValue{value: context.qualifier},
+               row_key: context.row_key,
+               timestamp: 0,
+               value: "value"
+             }
+           ]
+         }}
+
+      assert ReadRows.read() == expected
+    end
+
+    test "should apply a single false mutation when predicate false", context do
+      filter = RowFilter.column_qualifier_regex("doesntexist")
+
+      mutation =
+        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "false", "false", 0)
+
+      {:ok, _result} =
+        CheckAndMutateRow.build(context.row_key)
+        |> CheckAndMutateRow.predicate(filter)
+        |> CheckAndMutateRow.if_false(mutation)
+        |> CheckAndMutateRow.mutate()
+
+      expected =
+        {:ok,
+         %{
+           context.row_key => [
+             %ReadCell{
+               family_name: %Google.Protobuf.StringValue{value: "cf1"},
+               label: "",
+               qualifier: %Google.Protobuf.BytesValue{value: "false"},
+               row_key: context.row_key,
+               timestamp: 0,
+               value: "false"
+             },
+             %ReadCell{
+               family_name: %Google.Protobuf.StringValue{value: "cf1"},
+               label: "",
+               qualifier: %Google.Protobuf.BytesValue{value: context.qualifier},
+               row_key: context.row_key,
+               timestamp: 0,
+               value: "value"
+             }
+           ]
+         }}
+
+      assert ReadRows.read() == expected
+    end
+
+    test "should apply multiple false mutations when predicate false", context do
+      filter = RowFilter.column_qualifier_regex("doesntexist")
+
+      mutation1 =
+        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "false", "false", 0)
+
+      mutation2 =
+        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "false2", "false2", 0)
+
+      {:ok, _result} =
+        CheckAndMutateRow.build(context.row_key)
+        |> CheckAndMutateRow.predicate(filter)
+        |> CheckAndMutateRow.if_false([mutation1, mutation2])
+        |> CheckAndMutateRow.mutate()
+
+      expected =
+        {:ok,
+         %{
+           context.row_key => [
+             %ReadCell{
+               family_name: %Google.Protobuf.StringValue{value: "cf1"},
+               label: "",
+               qualifier: %Google.Protobuf.BytesValue{value: "false2"},
+               row_key: context.row_key,
+               timestamp: 0,
+               value: "false2"
+             },
+             %ReadCell{
+               family_name: %Google.Protobuf.StringValue{value: "cf1"},
+               label: "",
+               qualifier: %Google.Protobuf.BytesValue{value: "false"},
+               row_key: context.row_key,
+               timestamp: 0,
+               value: "false"
+             },
+             %ReadCell{
+               family_name: %Google.Protobuf.StringValue{value: "cf1"},
+               label: "",
+               qualifier: %Google.Protobuf.BytesValue{value: context.qualifier},
+               row_key: context.row_key,
+               timestamp: 0,
+               value: "value"
+             }
+           ]
+         }}
+
+      assert ReadRows.read() == expected
+    end
+
+    test "should not apply a false mutation when predicate is true", context do
+      filter = RowFilter.column_qualifier_regex(context.qualifier)
+
+      mutation =
+        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "false", "false", 0)
+
+      {:ok, _result} =
+        CheckAndMutateRow.build(context.row_key)
+        |> CheckAndMutateRow.predicate(filter)
+        |> CheckAndMutateRow.if_false(mutation)
+        |> CheckAndMutateRow.mutate()
+
+      expected =
+        {:ok,
+         %{
+           context.row_key => [
+             %ReadCell{
+               family_name: %Google.Protobuf.StringValue{value: "cf1"},
+               label: "",
+               qualifier: %Google.Protobuf.BytesValue{value: context.qualifier},
+               row_key: context.row_key,
+               timestamp: 0,
+               value: "value"
+             }
+           ]
+         }}
+
+      assert ReadRows.read() == expected
+    end
+  end
+end

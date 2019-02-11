@@ -7,7 +7,7 @@ defmodule RowFilterIntegration do
   use ExUnit.Case
 
   setup do
-    assert ReadRows.read() == {:ok, []}
+    assert ReadRows.read() == {:ok, %{}}
 
     row_keys = ["Test#1", "Test#2", "Other#1"]
 
@@ -1111,8 +1111,4 @@ defmodule RowFilterIntegration do
       :ok
     end)
   end
-
-  defp cell_count(rows), do: cells_from_rows(rows) |> length()
-
-  defp cells_from_rows(rows), do: Map.values(rows) |> List.flatten()
 end

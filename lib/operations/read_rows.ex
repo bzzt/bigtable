@@ -3,8 +3,7 @@ defmodule Bigtable.ReadRows do
   Provides functions to build `Google.Bigtable.V2.ReadRowsRequest` and submit them to Bigtable.
   """
 
-  alias Bigtable.{Connection, ChunkReader}
-  alias Bigtable.Operations.Utils
+  alias Bigtable.{ChunkReader, Operations, Stub}
   alias Google.Bigtable.V2
 
   @doc """
@@ -52,33 +51,25 @@ defmodule Bigtable.ReadRows do
   Returns a list of `{:ok, %Google.Bigtable.V2.ReadRowsResponse{}}`.
   """
   @spec read(V2.ReadRowsRequest.t()) ::
-          {:error, GRPC.RPCError.t()}
-          | [ok: V2.ReadRowsResponse.t()]
+          {:error, any()}
+          | {:ok, ChunkReader.chunk_reader_result()}
   def read(%V2.ReadRowsRequest{} = request) do
-    metadata = Connection.get_metadata()
+    result =
+      request
+      |> Operations.process_request(&Stub.read_rows/3)
 
-    {:ok, cr} = ChunkReader.open()
+    case result do
+      {:error, _} ->
+        result
 
-    {:ok, stream, _} =
-      Connection.get_connection()
-      |> Bigtable.Stub.read_rows(request, metadata)
-
-    stream
-    |> Utils.process_stream()
-    |> Enum.filter(&contains_chunks?/1)
-    |> Enum.flat_map(fn {:ok, resp} -> resp.chunks end)
-    |> Enum.reduce({:ok, []}, fn chunk, accum ->
-      if match?({:error, _}, accum) do
-        accum
-      else
-        ChunkReader.process(cr, chunk)
-      end
-    end)
+      response ->
+        process_response(response)
+    end
   end
 
   @spec read(binary()) ::
-          {:error, GRPC.RPCError.t()}
-          | [ok: V2.ReadRowsResponse.t()]
+          {:error, any()}
+          | {:ok, ChunkReader.chunk_reader_result()}
   def read(table_name) when is_binary(table_name) do
     request = build(table_name)
 
@@ -101,6 +92,23 @@ defmodule Bigtable.ReadRows do
 
     request
     |> read
+  end
+
+  defp process_response(response) do
+    {:ok, cr} = ChunkReader.open()
+
+    response
+    |> Enum.filter(&contains_chunks?/1)
+    |> Enum.flat_map(fn {:ok, resp} -> resp.chunks end)
+    |> Enum.reduce({:ok, %{}}, fn chunk, accum ->
+      if match?({:error, _}, accum) do
+        accum
+      else
+        ChunkReader.process(cr, chunk)
+      end
+    end)
+
+    ChunkReader.close(cr)
   end
 
   defp contains_chunks?({:ok, response}), do: !Enum.empty?(response.chunks)
