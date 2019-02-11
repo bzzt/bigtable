@@ -2,8 +2,7 @@ defmodule Bigtable.SampleRowKeys do
   @moduledoc """
   Provides functions to build `Google.Bigtable.V2.SampleRowKeysRequest` and submit them to Bigtable.
   """
-  alias Bigtable.Connection
-  alias Bigtable.Operations.Utils
+  alias Bigtable.{Operations, Stub}
   alias Google.Bigtable.V2
 
   @doc """
@@ -37,31 +36,13 @@ defmodule Bigtable.SampleRowKeys do
   @doc """
   Submits a `Google.Bigtable.V2.SampleRowKeysRequest` to Bigtable.
   """
-  @spec read(V2.SampleRowKeysRequest.t()) ::
-          [{:ok, V2.SampleRowKeysResponse} | {:error, any()}] | {:error, binary()}
+  @spec read(V2.SampleRowKeysRequest.t()) :: {:ok, V2.SampleRowKeysResponse} | {:error, any()}
   def read(%V2.SampleRowKeysRequest{} = request) do
-    metadata = Connection.get_metadata()
-
-    connection = Connection.get_connection()
-
-    result =
-      connection
-      |> Bigtable.Stub.sample_row_keys(request, metadata)
-
-    case result do
-      {:ok, stream, _} ->
-        stream
-        |> Utils.process_stream()
-
-      {:error, error} when is_map(error) ->
-        {:error, Map.get(error, :message, "unknown error")}
-
-      _ ->
-        {:error, "unknown error"}
-    end
+    request
+    |> Operations.process_request(&Stub.sample_row_keys/3, single: true)
   end
 
-  @spec read() :: [{:ok, V2.SampleRowKeysResponse} | {:error, any()}] | {:error, binary()}
+  @spec read() :: {:ok, V2.SampleRowKeysResponse} | {:error, any()}
   def read() do
     build()
     |> read()

@@ -30,12 +30,12 @@ end
 
 ### Operations:
 
-- [x] Read Rows
+- [x] Check And Mutate Row
 - [x] Mutate Row
 - [x] Mutate Rows
-- [ ] Check And Mutate Row
+- [x] Read Rows
+- [x] Sample Row Keys
 - [ ] Read Modify Write Row
-- [ ] Sample Row Keys
 
 ### Mutations:
 

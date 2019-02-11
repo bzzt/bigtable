@@ -8,7 +8,7 @@ defmodule CheckAndMutateRowTest do
   doctest CheckAndMutateRow
 
   setup do
-    assert ReadRows.read() == {:ok, []}
+    assert ReadRows.read() == {:ok, %{}}
 
     row_key = "Test#123"
     qualifier = "column"

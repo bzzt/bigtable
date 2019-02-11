@@ -20,7 +20,7 @@ defmodule ReadRowsTest do
 
   describe "ReadRows.read()" do
     setup do
-      assert ReadRows.read() == {:ok, []}
+      assert ReadRows.read() == {:ok, %{}}
 
       row_keys = ["Test#123", "Test#234"]
 
@@ -46,7 +46,7 @@ defmodule ReadRowsTest do
     end
 
     test "should read from an empty table" do
-      assert ReadRows.read() == {:ok, []}
+      assert ReadRows.read() == {:ok, %{}}
     end
 
     test "should read from a table with a single record", context do

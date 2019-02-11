@@ -7,7 +7,7 @@ defmodule RowFilterIntegration do
   use ExUnit.Case
 
   setup do
-    assert ReadRows.read() == {:ok, []}
+    assert ReadRows.read() == {:ok, %{}}
 
     row_keys = ["Test#1", "Test#2", "Other#1"]
 

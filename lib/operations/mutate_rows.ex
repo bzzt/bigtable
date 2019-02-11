@@ -3,8 +3,7 @@ defmodule Bigtable.MutateRows do
   Provides functions to build `Google.Bigtable.V2.MutateRowsRequest` and submit them to Bigtable.
   """
 
-  alias Bigtable.Connection
-  alias Bigtable.Operations.Utils
+  alias Bigtable.{Operations, Stub}
   alias Google.Bigtable.V2
 
   @doc """
@@ -35,31 +34,14 @@ defmodule Bigtable.MutateRows do
 
   Returns a `Google.Bigtable.V2.MutateRowsResponse`
   """
-  @spec mutate(V2.MutateRowsRequest.t()) :: {:ok, [V2.MutateRowsResponse.t()]}
+  @spec mutate(V2.MutateRowsRequest.t()) :: {:ok, V2.MutateRowsResponse.t()} | {:error, binary()}
   def mutate(%V2.MutateRowsRequest{} = request) do
-    connection = Connection.get_connection()
-
-    metadata = Connection.get_metadata()
-
-    result =
-      connection
-      |> Bigtable.Stub.mutate_rows(request, metadata)
-
-    case result do
-      {:ok, stream, _} ->
-        stream
-        |> Utils.process_stream()
-        |> List.first()
-
-      {:error, error} when is_map(error) ->
-        {:error, Map.get(error, :message, "unknown error")}
-
-      _ ->
-        {:error, "unknown error"}
-    end
+    request
+    |> Operations.process_request(&Stub.mutate_rows/3, single: true)
   end
 
-  @spec mutate([V2.MutateRowsRequest.Entry.t()]) :: {:ok, [V2.MutateRowsResponse.t()]}
+  @spec mutate([V2.MutateRowsRequest.Entry.t()]) ::
+          {:ok, V2.MutateRowsResponse.t()} | {:error, binary()}
   def mutate(entries) when is_list(entries) do
     request = build(entries)
 
