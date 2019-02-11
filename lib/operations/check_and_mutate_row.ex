@@ -1,4 +1,4 @@
-defmodule Bigtable.CheckAndMutate do
+defmodule Bigtable.CheckAndMutateRow do
   @moduledoc """
   Provides functions to build `Google.Bigtable.V2.ReadRowsRequest` and submit them to Bigtable.
   """
@@ -14,7 +14,7 @@ defmodule Bigtable.CheckAndMutate do
   ## Examples
 
   ### Default Table
-      iex> Bigtable.CheckAndMutate.build("Test#123")
+      iex> Bigtable.CheckAndMutateRow.build("Test#123")
       %Google.Bigtable.V2.CheckAndMutateRowRequest{
         app_profile_id: "",
         false_mutations: [],
@@ -26,7 +26,7 @@ defmodule Bigtable.CheckAndMutate do
 
   ### Custom Table
       iex> table_name = "projects/[project_id]/instances/[instnace_id]/tables/[table_name]"
-      iex> Bigtable.CheckAndMutate.build(table_name, "Test#123")
+      iex> Bigtable.CheckAndMutateRow.build(table_name, "Test#123")
       %Google.Bigtable.V2.CheckAndMutateRowRequest{
         app_profile_id: "",
         false_mutations: [],
@@ -50,21 +50,33 @@ defmodule Bigtable.CheckAndMutate do
 
   @spec if_true(V2.CheckAndMutateRowRequest.t(), [V2.Mutation.t()]) ::
           V2.CheckAndMutateRowRequest.t()
-  def if_true(%V2.CheckAndMutateRowRequest{} = request, mutations) do
+  def if_true(%V2.CheckAndMutateRowRequest{} = request, mutations) when is_list(mutations) do
     %{request | true_mutations: mutations}
+  end
+
+  @spec if_true(V2.CheckAndMutateRowRequest.t(), V2.Mutation.t()) ::
+          V2.CheckAndMutateRowRequest.t()
+  def if_true(%V2.CheckAndMutateRowRequest{} = request, mutation) do
+    if_true(request, [mutation])
   end
 
   @spec if_false(V2.CheckAndMutateRowRequest.t(), [V2.Mutation.t()]) ::
           V2.CheckAndMutateRowRequest.t()
-  def if_false(%V2.CheckAndMutateRowRequest{} = request, mutations) do
+  def if_false(%V2.CheckAndMutateRowRequest{} = request, mutations) when is_list(mutations) do
     %{request | false_mutations: mutations}
+  end
+
+  @spec if_false(V2.CheckAndMutateRowRequest.t(), V2.Mutation.t()) ::
+          V2.CheckAndMutateRowRequest.t()
+  def if_false(%V2.CheckAndMutateRowRequest{} = request, mutation) do
+    if_false(request, [mutation])
   end
 
   @doc """
   Submits a `Google.Bigtable.V2.CheckAndMutateRowRequest` to Bigtable.
   """
-  @spec check_and_mutate(V2.CheckAndMutateRowRequest.t()) :: {:ok, [V2.CheckAndMutateRowResponse]}
-  def check_and_mutate(%V2.CheckAndMutateRowRequest{} = request) do
+  @spec mutate(V2.CheckAndMutateRowRequest.t()) :: {:ok, [V2.CheckAndMutateRowResponse]}
+  def mutate(%V2.CheckAndMutateRowRequest{} = request) do
     metadata = Connection.get_metadata()
 
     {:ok, stream, _} =

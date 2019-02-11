@@ -1,67 +1,47 @@
 defmodule CheckAndMutateRowTest do
   @moduledoc false
-  alias Bigtable.{Mutations, MutateRow, CheckAndMutate}
+  alias Bigtable.{CheckAndMutateRow, Mutations, MutateRow, ReadRows, RowFilter}
 
   use ExUnit.Case
 
-  doctest CheckAndMutate
+  doctest CheckAndMutateRow
 
-  # setup do
-  #   assert ReadRows.read() = []
+  setup do
+    assert ReadRows.read() == {:ok, []}
 
-  #   row_key = "Test#123"
-  #   column_family = "cf1"
-  #   column_qualifier = "column"
+    row_key = "Test#123"
+    qualifier = "column"
 
-  #   true_entry =
-  #     Mutations.build(row_key) |> Mutations.set_cell(column_family, column_qualifier, "true")
+    {:ok, _} =
+      Mutations.build(row_key)
+      |> Mutations.set_cell("cf1", qualifier, "value", 0)
+      |> MutateRow.build()
+      |> MutateRow.mutate()
 
-  #   false_entry =
-  #     Mutations.build(row_key) |> Mutations.set_cell(column_family, column_qualifier, "false")
+    on_exit(fn ->
+      mutation = Mutations.build(row_key) |> Mutations.delete_from_row()
 
-  #   initial_value =
-  #     Mutations.build(row_key) |> Mutations.set_cell(column_family, column_qualifier, 10)
+      mutation |> MutateRow.mutate()
+    end)
 
-  #   initial_value
-  #   |> MutateRow.mutate()
-
-  #   on_exit(fn ->
-  #     mutation = Mutations.build(row_key) |> Mutations.delete_from_row()
-
-  #     mutation |> MutateRow.mutate()
-  #   end)
-
-  #   [
-  #     initial_entry: Mutations.build("Test#123"),
-  #     true_entry: true_entry,
-  #     false_entry: false_entry
-  #   ]
-  # end
-
-  describe "CheckAndMutateRow.build()" do
-    test "should build a CheckAndMutateRowRequest with configured table", context do
-      expected = expected_request()
-
-      assert CheckAndMutate.build("Test#123") == expected
-    end
-
-    test "should build a CheckAndMutateRowRequest with custom table", context do
-      table = "custom_table"
-
-      expected = expected_request(table)
-
-      assert CheckAndMutate.build(table, "Test#123") == expected
-    end
+    [
+      qualifier: qualifier,
+      row_key: row_key
+    ]
   end
 
-  defp expected_request(table_name \\ Bigtable.Utils.configured_table_name()) do
-    %Google.Bigtable.V2.CheckAndMutateRowRequest{
-      app_profile_id: "",
-      predicate_filter: nil,
-      true_mutations: [],
-      false_mutations: [],
-      row_key: "Test#123",
-      table_name: table_name
-    }
+  describe "CheckAndMutateRow.mutate/2" do
+    test "should apply a single truthy mutation", context do
+      filter = RowFilter.column_qualifier_regex(context.qualifier)
+
+      mutation =
+        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "truthy", "true", 0)
+
+      CheckAndMutateRow.build(context.row_key)
+      |> CheckAndMutateRow.predicate(filter)
+      |> CheckAndMutateRow.if_true(mutation)
+      |> IO.inspect()
+      |> CheckAndMutateRow.mutate()
+    end
   end
 end
