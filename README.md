@@ -33,9 +33,9 @@ end
 - [x] Check And Mutate Row
 - [x] Mutate Row
 - [x] Mutate Rows
+- [x] Read Modify Write Row
 - [x] Read Rows
 - [x] Sample Row Keys
-- [ ] Read Modify Write Row
 
 ### Mutations:
 
@@ -66,10 +66,3 @@ end
 - [ ] Cells Per Row Limit
 - [ ] Strip Value Transfformer
 - [ ] Apply Label Transformer
-
-### Read Modify Write Rule:
-
-- [ ] Family Name
-- [ ] Column Qualifier
-- [ ] Append Value
-- [ ] Increment Amount
