@@ -1024,6 +1024,37 @@ defmodule RowFilterIntegration do
     end
   end
 
+  describe "RowFilter.pass_all()" do
+    test "should let all values from a row pass through", context do
+      [row_key | _rest] = context.row_keys
+
+      {:ok, _} =
+        Mutations.build(row_key)
+        |> Mutations.set_cell("cf1", "column", "value", 0)
+        |> MutateRow.mutate()
+
+      expected = %{
+        row_key => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column"},
+            row_key: row_key,
+            timestamp: 0,
+            value: "value"
+          }
+        ]
+      }
+
+      {:ok, result} =
+        ReadRows.build()
+        |> RowFilter.pass_all()
+        |> ReadRows.read()
+
+      assert result == expected
+    end
+  end
+
   describe "RowFilter.chain" do
     test "should properly apply a chain of filters", context do
       seed_values(context)

@@ -329,10 +329,82 @@ defmodule Bigtable.RowFilter do
     |> build_filter()
   end
 
+  @doc """
+  Adds a pass all `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
+
+
+  ## Examples
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.pass_all()
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:pass_all_filter, true}
+      }
+  """
+  @spec pass_all(ReadRowsRequest.t()) :: ReadRowsRequest.t()
+  def pass_all(%ReadRowsRequest{} = request) do
+    filter = pass_all()
+
+    filter
+    |> apply_filter(request)
+  end
+
+  @doc """
+  Creates a pass all `Google.Bigtable.V2.RowFilter`.
+
+  Matches all cells, regardless of input. Functionally equivalent to leaving filter unset, but included for completeness.
+
+  ## Examples
+      iex> Bigtable.RowFilter.pass_all()
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:pass_all_filter, true}
+      }
+  """
+  @spec pass_all() :: RowFilter.t()
+  def pass_all() do
+    {:pass_all_filter, true}
+    |> build_filter()
+  end
+
+  @doc """
+  Adds a block all `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
+
+
+  ## Examples
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.block_all()
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:block_all_filter, true}
+      }
+  """
+  @spec block_all(ReadRowsRequest.t()) :: ReadRowsRequest.t()
+  def block_all(%ReadRowsRequest{} = request) do
+    filter = block_all()
+
+    filter
+    |> apply_filter(request)
+  end
+
+  @doc """
+  Creates a block all `Google.Bigtable.V2.RowFilter`.
+
+  Does not match any cells, regardless of input. Useful for temporarily disabling just part of a filter.
+
+  ## Examples
+      iex> Bigtable.RowFilter.block_all()
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:block_all_filter, true}
+      }
+  """
+  @spec block_all() :: RowFilter.t()
+  def block_all() do
+    {:block_all_filter, true}
+    |> build_filter()
+  end
+
   # Creates a Bigtable.V2.RowFilter given a type and value
   @doc false
   @spec build_filter({atom(), any()}) :: RowFilter.t()
-  def build_filter({type, value}) when is_atom(type) do
+  defp build_filter({type, value}) when is_atom(type) do
     RowFilter.new(filter: {type, value})
   end
 
