@@ -3,7 +3,6 @@ defmodule Bigtable.Mutations do
   Provides functions to build Bigtable mutations that are used when forming
   row mutation requests.
   """
-  alias Bigtable.ByteString
   alias Google.Bigtable.V2.{MutateRowsRequest, Mutation, TimestampRange}
   alias MutateRowsRequest.Entry
   alias Mutation.{DeleteFromColumn, DeleteFromFamily, DeleteFromRow, SetCell}
@@ -51,9 +50,9 @@ defmodule Bigtable.Mutations do
       when is_binary(family) and is_binary(column) and is_integer(timestamp) do
     set_mutation =
       SetCell.new(
-        family_name: ByteString.to_byte_string(family),
+        family_name: family,
         column_qualifier: column,
-        value: ByteString.to_byte_string(value),
+        value: value,
         timestamp_micros: timestamp
       )
 
