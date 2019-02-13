@@ -1055,6 +1055,55 @@ defmodule RowFilterIntegration do
     end
   end
 
+  describe "RowFilter.strip_value_transformer()" do
+    test "should replace values with empty strings", context do
+      [row_key | _rest] = context.row_keys
+
+      {:ok, _} =
+        Mutations.build(row_key)
+        |> Mutations.set_cell("cf1", "column1", "value", 0)
+        |> Mutations.set_cell("cf1", "column2", "value", 0)
+        |> Mutations.set_cell("cf1", "column3", "value", 0)
+        |> MutateRow.mutate()
+
+      expected = %{
+        row_key => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column3"},
+            row_key: row_key,
+            timestamp: 0,
+            value: ""
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column2"},
+            row_key: row_key,
+            timestamp: 0,
+            value: ""
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column1"},
+            row_key: row_key,
+            timestamp: 0,
+            value: ""
+          }
+        ]
+      }
+
+      {:ok, result} =
+        ReadRows.build()
+        |> RowFilter.strip_value_transformer()
+        |> ReadRows.read()
+
+      assert result == expected
+    end
+  end
+
   describe "RowFilter.chain" do
     test "should properly apply a chain of filters", context do
       seed_values(context)

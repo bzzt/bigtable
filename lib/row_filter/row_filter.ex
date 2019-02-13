@@ -467,6 +467,41 @@ defmodule Bigtable.RowFilter do
     |> build_filter()
   end
 
+  @doc """
+  Adds a strip value transformer Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
+
+
+  ## Examples
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.strip_value_transformer()
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:strip_value_transformer, true}
+      }
+  """
+  @spec strip_value_transformer(ReadRowsRequest.t()) :: ReadRowsRequest.t()
+  def strip_value_transformer(%ReadRowsRequest{} = request) do
+    filter = strip_value_transformer()
+
+    filter
+    |> apply_filter(request)
+  end
+
+  @doc """
+  Creates a strip value transformer `Google.Bigtable.V2.RowFilter`.
+
+
+  ## Examples
+      iex> Bigtable.RowFilter.strip_value_transformer()
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:strip_value_transformer, true}
+      }
+  """
+  @spec strip_value_transformer() :: RowFilter.t()
+  def strip_value_transformer() do
+    {:strip_value_transformer, true}
+    |> build_filter()
+  end
+
   # Creates a Bigtable.V2.RowFilter given a type and value
   @doc false
   @spec build_filter({atom(), any()}) :: RowFilter.t()

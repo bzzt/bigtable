@@ -61,11 +61,11 @@ end
 - [x] Family Name Regex
 - [x] Pass All
 - [x] Row Key Regex
+- [x] Strip Value Transformer
 - [x] Timestamp Range
 - [x] Value Regex
 - [ ] Apply Label Transformer
 - [ ] Condition
 - [ ] Interleave
 - [ ] Row Sample
-- [ ] Strip Value Transformer
 - [ ] Value Range
