@@ -1058,7 +1058,6 @@ defmodule RowFilterIntegration do
   describe "RowFilter.chain" do
     test "should properly apply a chain of filters", context do
       seed_values(context)
-
       seed_multiple_values(3)
 
       filters = [

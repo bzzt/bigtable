@@ -69,6 +69,72 @@ defmodule Bigtable.RowFilter do
   end
 
   @doc """
+  Adds a cells per row `Google.Bigtable.V2.RowFilter` to a `Google.Bigtable.V2.ReadRowsRequest`.
+
+  ## Examples
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.cells_per_row(2)
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
+      %Google.Bigtable.V2.RowFilter{
+        filter:  {:cells_per_row_limit_filter, 2}
+      }
+  """
+  @spec cells_per_row(ReadRowsRequest.t(), integer()) :: ReadRowsRequest.t()
+  def cells_per_row(%ReadRowsRequest{} = request, limit) when is_integer(limit) do
+    filter = cells_per_row(limit)
+
+    filter
+    |> apply_filter(request)
+  end
+
+  @doc """
+  Creates a cells per row `Google.Bigtable.V2.RowFilter`.
+
+  ## Examples
+      iex> Bigtable.RowFilter.cells_per_row(2)
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:cells_per_row_limit_filter, 2}
+      }
+  """
+  @spec cells_per_row(integer()) :: RowFilter.t()
+  def cells_per_row(limit) when is_integer(limit) do
+    {:cells_per_row_limit_filter, limit}
+    |> build_filter()
+  end
+
+  @doc """
+  Adds a cells per row offset `Google.Bigtable.V2.RowFilter` to a `Google.Bigtable.V2.ReadRowsRequest`.
+
+  ## Examples
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.cells_per_row_offset(2)
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
+      %Google.Bigtable.V2.RowFilter{
+        filter:  {:cells_per_row_offset_filter, 2}
+      }
+  """
+  @spec cells_per_row_offset(ReadRowsRequest.t(), integer()) :: ReadRowsRequest.t()
+  def cells_per_row_offset(%ReadRowsRequest{} = request, offset) when is_integer(offset) do
+    filter = cells_per_row_offset(offset)
+
+    filter
+    |> apply_filter(request)
+  end
+
+  @doc """
+  Creates a cells per row offset `Google.Bigtable.V2.RowFilter`.
+
+  ## Examples
+      iex> Bigtable.RowFilter.cells_per_row_offset(2)
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:cells_per_row_offset_filter, 2}
+      }
+  """
+  @spec cells_per_row_offset(integer()) :: RowFilter.t()
+  def cells_per_row_offset(offset) when is_integer(offset) do
+    {:cells_per_row_offset_filter, offset}
+    |> build_filter()
+  end
+
+  @doc """
   Adds a row key regex `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
 
   ## Examples

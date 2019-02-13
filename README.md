@@ -53,6 +53,8 @@ end
 
 - [x] Block All
 - [x] Cells Per Column Limit
+- [x] Cells Per Row Limit
+- [x] Cells Per Row Offset
 - [x] Chain
 - [x] Column Qualifier Regex
 - [x] Column Range
@@ -62,10 +64,8 @@ end
 - [x] Timestamp Range
 - [x] Value Regex
 - [ ] Apply Label Transformer
-- [ ] Cells Per Row Limit
-- [ ] Cells Per Row Offset
 - [ ] Condition
 - [ ] Interleave
 - [ ] Row Sample
-- [ ] Strip Value Transfformer
+- [ ] Strip Value Transformer
 - [ ] Value Range
