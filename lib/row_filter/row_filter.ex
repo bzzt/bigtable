@@ -502,6 +502,41 @@ defmodule Bigtable.RowFilter do
     |> build_filter()
   end
 
+  @doc """
+  Adds an apply label transformer Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
+
+
+  ## Examples
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.apply_label_transformer("label")
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:apply_label_transformer, "label"}
+      }
+  """
+  @spec apply_label_transformer(ReadRowsRequest.t(), binary()) :: ReadRowsRequest.t()
+  def apply_label_transformer(%ReadRowsRequest{} = request, label) do
+    filter = apply_label_transformer(label)
+
+    filter
+    |> apply_filter(request)
+  end
+
+  @doc """
+  Creates an apply label transformer `Google.Bigtable.V2.RowFilter`.
+
+
+  ## Examples
+      iex> Bigtable.RowFilter.apply_label_transformer("label")
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:apply_label_transformer, "label"}
+      }
+  """
+  @spec apply_label_transformer(binary()) :: RowFilter.t()
+  def apply_label_transformer(label) do
+    {:apply_label_transformer, label}
+    |> build_filter()
+  end
+
   # Creates a Bigtable.V2.RowFilter given a type and value
   @doc false
   @spec build_filter({atom(), any()}) :: RowFilter.t()
