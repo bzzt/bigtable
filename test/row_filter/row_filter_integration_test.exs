@@ -1105,6 +1105,33 @@ defmodule RowFilterIntegration do
     end
   end
 
+  describe "RowFilter.cells_per_row()" do
+    test "should limit the number of cells in a returned row", context do
+      [row_key | _rest] = context.row_keys
+
+      {:ok, _} =
+        Mutations.build(row_key)
+        |> Mutations.set_cell("cf1", "column1", "value", 4000)
+        |> Mutations.set_cell("cf2", "column2", "value", 1000)
+        |> Mutations.set_cell("cf1", "column2", "value", 1000)
+        |> Mutations.set_cell("cf2", "column3", "value", 2000)
+        |> MutateRow.mutate()
+
+      {:ok, result} =
+        ReadRows.build()
+        |> RowFilter.cells_per_row(2)
+        |> ReadRows.read()
+
+      result_size =
+        result
+        |> Map.values()
+        |> List.flatten()
+        |> length()
+
+      assert result_size == 2
+    end
+  end
+
   describe "RowFilter.apply_label_transformer()" do
     test "should apply label to cells", context do
       [row_key | _rest] = context.row_keys
