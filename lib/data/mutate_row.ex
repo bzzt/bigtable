@@ -2,8 +2,9 @@ defmodule Bigtable.MutateRow do
   @moduledoc """
   Provides functions to build `Google.Bigtable.V2.MutateRowRequest` and submit them to Bigtable.
   """
-  alias Bigtable.{Operations, Stub}
+  alias Bigtable.Utils
   alias Google.Bigtable.V2
+  alias V2.Bigtable.Stub
   alias V2.MutateRowsRequest.Entry
 
   @doc """
@@ -34,7 +35,7 @@ defmodule Bigtable.MutateRow do
   @spec mutate(V2.MutateRowRequest.t()) :: {:ok, V2.MutateRowResponse.t()} | {:error, binary()}
   def mutate(%V2.MutateRowRequest{} = request) do
     request
-    |> Operations.process_request(&Stub.mutate_row/3, single: true)
+    |> Utils.process_request(&Stub.mutate_row/3, single: true)
   end
 
   @spec mutate(V2.MutateRowsRequest.Entry.t()) ::

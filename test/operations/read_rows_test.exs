@@ -49,6 +49,7 @@ defmodule ReadRowsTest do
       assert ReadRows.read() == {:ok, %{}}
     end
 
+    @tag :wip
     test "should read from a table with a single record", context do
       [key | _] = context.row_keys
 

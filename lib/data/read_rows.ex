@@ -2,9 +2,9 @@ defmodule Bigtable.ReadRows do
   @moduledoc """
   Provides functions to build `Google.Bigtable.V2.ReadRowsRequest` and submit them to Bigtable.
   """
-
-  alias Bigtable.{ChunkReader, Operations, Stub}
+  alias Bigtable.{ChunkReader, Utils}
   alias Google.Bigtable.V2
+  alias V2.Bigtable.Stub
 
   @doc """
   Builds a `Google.Bigtable.V2.ReadRowsRequest` with a provided table name.
@@ -56,13 +56,13 @@ defmodule Bigtable.ReadRows do
   def read(%V2.ReadRowsRequest{} = request) do
     result =
       request
-      |> Operations.process_request(&Stub.read_rows/3)
+      |> Utils.process_request(&Stub.read_rows/3, stream: true)
 
     case result do
       {:error, _} ->
         result
 
-      response ->
+      {:ok, response} ->
         process_response(response)
     end
   end
