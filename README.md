@@ -39,10 +39,10 @@ end
 
 ### Mutations:
 
-- [x] Set Cell
 - [x] Delete From Column
 - [x] Delete From Family
 - [x] Delete From Row
+- [x] Set Cell
 
 ### Row Sets:
 
@@ -51,18 +51,21 @@ end
 
 ### Row Filters:
 
-- [x] Chain
+- [x] Block All
 - [x] Cells Per Column Limit
-- [x] Row Key Regex
-- [x] Value Regex
-- [x] Family Name Regex
+- [x] Cells Per Row Limit
+- [x] Cells Per Row Offset
+- [x] Chain
 - [x] Column Qualifier Regex
 - [x] Column Range
+- [x] Family Name Regex
+- [x] Pass All
+- [x] Row Key Regex
+- [x] Strip Value Transformer
 - [x] Timestamp Range
+- [x] Value Regex
+- [ ] Apply Label Transformer
 - [ ] Condition
+- [ ] Interleave
 - [ ] Row Sample
 - [ ] Value Range
-- [ ] Cells Per Row Offset
-- [ ] Cells Per Row Limit
-- [ ] Strip Value Transfformer
-- [ ] Apply Label Transformer

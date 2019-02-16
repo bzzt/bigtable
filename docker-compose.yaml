@@ -1,7 +1,7 @@
 version: "3"
 services:
   bigtable-emulator:
-    image: shopify/bigtable-emulator
+    image: jscott22/bigtable-emulator
     command:
       [
         "-cf",

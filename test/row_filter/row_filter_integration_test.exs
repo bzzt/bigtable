@@ -224,6 +224,7 @@ defmodule RowFilterIntegration do
   end
 
   describe "RowFilter.family_name_regex" do
+    @tag :wip
     test "should properly filter a single row based on family name" do
       mutation =
         Mutations.build("Test#1")
@@ -272,12 +273,12 @@ defmodule RowFilterIntegration do
 
       {:ok, cf_result} =
         ReadRows.build()
-        |> RowFilter.family_name_regex("cf")
+        |> RowFilter.family_name_regex("^cf\\w")
         |> ReadRows.read()
 
       {:ok, other_result} =
         ReadRows.build()
-        |> RowFilter.family_name_regex("other")
+        |> RowFilter.family_name_regex("^other?\\w{0,}")
         |> ReadRows.read()
 
       assert cf_result == cf_expected
@@ -357,12 +358,12 @@ defmodule RowFilterIntegration do
 
       {:ok, cf_result} =
         ReadRows.build()
-        |> RowFilter.family_name_regex("cf")
+        |> RowFilter.family_name_regex("cf\\w{0,}")
         |> ReadRows.read()
 
       {:ok, other_result} =
         ReadRows.build()
-        |> RowFilter.family_name_regex("other")
+        |> RowFilter.family_name_regex("other\\w{0,}")
         |> ReadRows.read()
 
       assert cf_result == cf_expected
@@ -437,12 +438,12 @@ defmodule RowFilterIntegration do
 
       {:ok, foo_result} =
         ReadRows.build()
-        |> RowFilter.column_qualifier_regex("foo")
+        |> RowFilter.column_qualifier_regex("foo-?\\w{0,}")
         |> ReadRows.read()
 
       {:ok, bar_result} =
         ReadRows.build()
-        |> RowFilter.column_qualifier_regex("bar")
+        |> RowFilter.column_qualifier_regex("bar-?\\w{0,}")
         |> ReadRows.read()
 
       assert foo_result == foo_expected
@@ -531,12 +532,12 @@ defmodule RowFilterIntegration do
 
       {:ok, foo_result} =
         ReadRows.build()
-        |> RowFilter.column_qualifier_regex("foo")
+        |> RowFilter.column_qualifier_regex("foo-?\\w{0,}")
         |> ReadRows.read()
 
       {:ok, bar_result} =
         ReadRows.build()
-        |> RowFilter.column_qualifier_regex("bar")
+        |> RowFilter.column_qualifier_regex("bar-?\\w{0,}")
         |> ReadRows.read()
 
       assert foo_result == foo_expected
@@ -1024,10 +1025,165 @@ defmodule RowFilterIntegration do
     end
   end
 
+  describe "RowFilter.pass_all()" do
+    test "should let all values from a row pass through", context do
+      [row_key | _rest] = context.row_keys
+
+      {:ok, _} =
+        Mutations.build(row_key)
+        |> Mutations.set_cell("cf1", "column", "value", 0)
+        |> MutateRow.mutate()
+
+      expected = %{
+        row_key => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column"},
+            row_key: row_key,
+            timestamp: 0,
+            value: "value"
+          }
+        ]
+      }
+
+      {:ok, result} =
+        ReadRows.build()
+        |> RowFilter.pass_all()
+        |> ReadRows.read()
+
+      assert result == expected
+    end
+  end
+
+  describe "RowFilter.strip_value_transformer()" do
+    test "should replace values with empty strings", context do
+      [row_key | _rest] = context.row_keys
+
+      {:ok, _} =
+        Mutations.build(row_key)
+        |> Mutations.set_cell("cf1", "column1", "value", 0)
+        |> Mutations.set_cell("cf1", "column2", "value", 0)
+        |> Mutations.set_cell("cf1", "column3", "value", 0)
+        |> MutateRow.mutate()
+
+      expected = %{
+        row_key => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column3"},
+            row_key: row_key,
+            timestamp: 0,
+            value: ""
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column2"},
+            row_key: row_key,
+            timestamp: 0,
+            value: ""
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "",
+            qualifier: %BytesValue{value: "column1"},
+            row_key: row_key,
+            timestamp: 0,
+            value: ""
+          }
+        ]
+      }
+
+      {:ok, result} =
+        ReadRows.build()
+        |> RowFilter.strip_value_transformer()
+        |> ReadRows.read()
+
+      assert result == expected
+    end
+  end
+
+  describe "RowFilter.cells_per_row()" do
+    test "should limit the number of cells in a returned row", context do
+      [row_key | _rest] = context.row_keys
+
+      {:ok, _} =
+        Mutations.build(row_key)
+        |> Mutations.set_cell("cf1", "column1", "value", 4000)
+        |> Mutations.set_cell("cf2", "column2", "value", 1000)
+        |> Mutations.set_cell("cf1", "column2", "value", 1000)
+        |> Mutations.set_cell("cf2", "column3", "value", 2000)
+        |> MutateRow.mutate()
+
+      {:ok, result} =
+        ReadRows.build()
+        |> RowFilter.cells_per_row(2)
+        |> ReadRows.read()
+
+      result_size =
+        result
+        |> Map.values()
+        |> List.flatten()
+        |> length()
+
+      assert result_size == 2
+    end
+  end
+
+  describe "RowFilter.apply_label_transformer()" do
+    test "should apply label to cells", context do
+      [row_key | _rest] = context.row_keys
+
+      {:ok, _} =
+        Mutations.build(row_key)
+        |> Mutations.set_cell("cf1", "column1", "value", 0)
+        |> Mutations.set_cell("cf1", "column2", "value", 0)
+        |> Mutations.set_cell("cf1", "column3", "value", 0)
+        |> MutateRow.mutate()
+
+      expected = %{
+        row_key => [
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "label",
+            qualifier: %BytesValue{value: "column3"},
+            row_key: row_key,
+            timestamp: 0,
+            value: "value"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "label",
+            qualifier: %BytesValue{value: "column2"},
+            row_key: row_key,
+            timestamp: 0,
+            value: "value"
+          },
+          %ReadCell{
+            family_name: %StringValue{value: "cf1"},
+            label: "label",
+            qualifier: %BytesValue{value: "column1"},
+            row_key: row_key,
+            timestamp: 0,
+            value: "value"
+          }
+        ]
+      }
+
+      {:ok, result} =
+        ReadRows.build()
+        |> RowFilter.apply_label_transformer("label")
+        |> ReadRows.read()
+
+      assert result == expected
+    end
+  end
+
   describe "RowFilter.chain" do
     test "should properly apply a chain of filters", context do
       seed_values(context)
-
       seed_multiple_values(3)
 
       filters = [

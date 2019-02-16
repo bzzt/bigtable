@@ -69,6 +69,72 @@ defmodule Bigtable.RowFilter do
   end
 
   @doc """
+  Adds a cells per row `Google.Bigtable.V2.RowFilter` to a `Google.Bigtable.V2.ReadRowsRequest`.
+
+  ## Examples
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.cells_per_row(2)
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
+      %Google.Bigtable.V2.RowFilter{
+        filter:  {:cells_per_row_limit_filter, 2}
+      }
+  """
+  @spec cells_per_row(ReadRowsRequest.t(), integer()) :: ReadRowsRequest.t()
+  def cells_per_row(%ReadRowsRequest{} = request, limit) when is_integer(limit) do
+    filter = cells_per_row(limit)
+
+    filter
+    |> apply_filter(request)
+  end
+
+  @doc """
+  Creates a cells per row `Google.Bigtable.V2.RowFilter`.
+
+  ## Examples
+      iex> Bigtable.RowFilter.cells_per_row(2)
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:cells_per_row_limit_filter, 2}
+      }
+  """
+  @spec cells_per_row(integer()) :: RowFilter.t()
+  def cells_per_row(limit) when is_integer(limit) do
+    {:cells_per_row_limit_filter, limit}
+    |> build_filter()
+  end
+
+  @doc """
+  Adds a cells per row offset `Google.Bigtable.V2.RowFilter` to a `Google.Bigtable.V2.ReadRowsRequest`.
+
+  ## Examples
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.cells_per_row_offset(2)
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
+      %Google.Bigtable.V2.RowFilter{
+        filter:  {:cells_per_row_offset_filter, 2}
+      }
+  """
+  @spec cells_per_row_offset(ReadRowsRequest.t(), integer()) :: ReadRowsRequest.t()
+  def cells_per_row_offset(%ReadRowsRequest{} = request, offset) when is_integer(offset) do
+    filter = cells_per_row_offset(offset)
+
+    filter
+    |> apply_filter(request)
+  end
+
+  @doc """
+  Creates a cells per row offset `Google.Bigtable.V2.RowFilter`.
+
+  ## Examples
+      iex> Bigtable.RowFilter.cells_per_row_offset(2)
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:cells_per_row_offset_filter, 2}
+      }
+  """
+  @spec cells_per_row_offset(integer()) :: RowFilter.t()
+  def cells_per_row_offset(offset) when is_integer(offset) do
+    {:cells_per_row_offset_filter, offset}
+    |> build_filter()
+  end
+
+  @doc """
   Adds a row key regex `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
 
   ## Examples
@@ -329,10 +395,152 @@ defmodule Bigtable.RowFilter do
     |> build_filter()
   end
 
+  @doc """
+  Adds a pass all `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
+
+
+  ## Examples
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.pass_all()
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:pass_all_filter, true}
+      }
+  """
+  @spec pass_all(ReadRowsRequest.t()) :: ReadRowsRequest.t()
+  def pass_all(%ReadRowsRequest{} = request) do
+    filter = pass_all()
+
+    filter
+    |> apply_filter(request)
+  end
+
+  @doc """
+  Creates a pass all `Google.Bigtable.V2.RowFilter`.
+
+  Matches all cells, regardless of input. Functionally equivalent to leaving filter unset, but included for completeness.
+
+  ## Examples
+      iex> Bigtable.RowFilter.pass_all()
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:pass_all_filter, true}
+      }
+  """
+  @spec pass_all() :: RowFilter.t()
+  def pass_all() do
+    {:pass_all_filter, true}
+    |> build_filter()
+  end
+
+  @doc """
+  Adds a block all `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
+
+
+  ## Examples
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.block_all()
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:block_all_filter, true}
+      }
+  """
+  @spec block_all(ReadRowsRequest.t()) :: ReadRowsRequest.t()
+  def block_all(%ReadRowsRequest{} = request) do
+    filter = block_all()
+
+    filter
+    |> apply_filter(request)
+  end
+
+  @doc """
+  Creates a block all `Google.Bigtable.V2.RowFilter`.
+
+  Does not match any cells, regardless of input. Useful for temporarily disabling just part of a filter.
+
+  ## Examples
+      iex> Bigtable.RowFilter.block_all()
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:block_all_filter, true}
+      }
+  """
+  @spec block_all() :: RowFilter.t()
+  def block_all() do
+    {:block_all_filter, true}
+    |> build_filter()
+  end
+
+  @doc """
+  Adds a strip value transformer Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
+
+
+  ## Examples
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.strip_value_transformer()
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:strip_value_transformer, true}
+      }
+  """
+  @spec strip_value_transformer(ReadRowsRequest.t()) :: ReadRowsRequest.t()
+  def strip_value_transformer(%ReadRowsRequest{} = request) do
+    filter = strip_value_transformer()
+
+    filter
+    |> apply_filter(request)
+  end
+
+  @doc """
+  Creates a strip value transformer `Google.Bigtable.V2.RowFilter`.
+
+
+  ## Examples
+      iex> Bigtable.RowFilter.strip_value_transformer()
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:strip_value_transformer, true}
+      }
+  """
+  @spec strip_value_transformer() :: RowFilter.t()
+  def strip_value_transformer() do
+    {:strip_value_transformer, true}
+    |> build_filter()
+  end
+
+  @doc """
+  Adds an apply label transformer Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
+
+
+  ## Examples
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.apply_label_transformer("label")
+      iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:apply_label_transformer, "label"}
+      }
+  """
+  @spec apply_label_transformer(ReadRowsRequest.t(), binary()) :: ReadRowsRequest.t()
+  def apply_label_transformer(%ReadRowsRequest{} = request, label) do
+    filter = apply_label_transformer(label)
+
+    filter
+    |> apply_filter(request)
+  end
+
+  @doc """
+  Creates an apply label transformer `Google.Bigtable.V2.RowFilter`.
+
+
+  ## Examples
+      iex> Bigtable.RowFilter.apply_label_transformer("label")
+      %Google.Bigtable.V2.RowFilter{
+        filter: {:apply_label_transformer, "label"}
+      }
+  """
+  @spec apply_label_transformer(binary()) :: RowFilter.t()
+  def apply_label_transformer(label) do
+    {:apply_label_transformer, label}
+    |> build_filter()
+  end
+
   # Creates a Bigtable.V2.RowFilter given a type and value
   @doc false
   @spec build_filter({atom(), any()}) :: RowFilter.t()
-  def build_filter({type, value}) when is_atom(type) do
+  defp build_filter({type, value}) when is_atom(type) do
     RowFilter.new(filter: {type, value})
   end
 
