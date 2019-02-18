@@ -12,14 +12,10 @@ defmodule Bigtable.Admin.TableAdmin do
     |> Utils.process_request(&Stub.list_tables/3)
   end
 
-  def create_table(table, opts) do
-    opts = Keyword.put(opts, :parent, Utils.configured_instance_name())
-
-    IO.inspect(Keyword.fetch!(opts, :parent))
-
+  def create_table(table, table_id, opts \\ []) do
     V2.CreateTableRequest.new(
-      parent: Keyword.fetch!(opts, :parent),
-      table_id: Keyword.fetch!(opts, :table_id),
+      parent: Keyword.get(opts, :parent, Utils.configured_instance_name()),
+      table_id: table_id,
       table: table,
       initial_splits: Keyword.get(opts, :initial_splits, [])
     )
@@ -29,5 +25,10 @@ defmodule Bigtable.Admin.TableAdmin do
   def delete_table(name) do
     V2.DeleteTableRequest.new(name: name)
     |> Utils.process_request(&Stub.delete_table/3)
+  end
+
+  def get_table(name) do
+    V2.GetTableRequest.new(name: name)
+    |> Utils.process_request(&Stub.get_table/3)
   end
 end

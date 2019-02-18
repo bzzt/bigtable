@@ -1,5 +1,5 @@
 defmodule TableAdminTest do
-  alias Bigtable.Admin.TableAdmin
+  alias Bigtable.Admin.{GcRule, Table, TableAdmin}
   alias Google.Bigtable.Admin.V2
 
   use ExUnit.Case
@@ -31,4 +31,37 @@ defmodule TableAdminTest do
       assert response == expected
     end
   end
+
+  describe("Bigtagble.Admin.TableAdmin.create_table") do
+    setup do
+      table_name = "projects/dev/instances/dev/tables/created"
+
+      on_exit(fn ->
+        {:ok, _} = TableAdmin.delete_table(table_name)
+      end)
+
+      [table_name: table_name]
+    end
+
+    test "should create a table", context do
+      {:ok, initial} = TableAdmin.list_tables()
+
+      refute matching_table?(
+               initial.tables,
+               context.table_name
+             )
+
+      Table.build(%{
+        "cf1" => GcRule.max_age(30000)
+      })
+      |> TableAdmin.create_table("created")
+
+      {:ok, after_insert} = TableAdmin.list_tables()
+
+      assert matching_table?(after_insert.tables, context.table_name)
+    end
+  end
+
+  defp matching_table?(tables, table_name),
+    do: Enum.any?(tables, &(Map.get(&1, :name) == table_name))
 end
