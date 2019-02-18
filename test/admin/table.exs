@@ -10,25 +10,24 @@ defmodule TableAdminTest do
     test("should list existing tables") do
       {:ok, response} = TableAdmin.list_tables()
 
-      expected = %V2.ListTablesResponse{
-        next_page_token: "",
-        tables: [
-          %V2.Table{
-            cluster_states: %{},
-            column_families: %{},
-            granularity: 0,
-            name: "projects/dev/instances/dev/tables/test"
-          },
-          %V2.Table{
-            cluster_states: %{},
-            column_families: %{},
-            granularity: 0,
-            name: "projects/dev/instances/dev/tables/dev"
-          }
-        ]
-      }
+      expected = [
+        %V2.Table{
+          cluster_states: %{},
+          column_families: %{},
+          granularity: 0,
+          name: "projects/dev/instances/dev/tables/dev"
+        },
+        %V2.Table{
+          cluster_states: %{},
+          column_families: %{},
+          granularity: 0,
+          name: "projects/dev/instances/dev/tables/test"
+        }
+      ]
 
-      assert response == expected
+      sorted = Enum.sort(response.tables, fn t1, t2 -> t1.name < t2.name end)
+
+      assert sorted == expected
     end
   end
 
