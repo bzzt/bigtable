@@ -1,14 +1,14 @@
-defmodule ListTablesTest do
-  alias Bigtable.Admin.ListTables
+defmodule TableAdminTest do
+  alias Bigtable.Admin.TableAdmin
   alias Google.Bigtable.Admin.V2
 
   use ExUnit.Case
 
-  doctest ListTables
+  doctest TableAdmin
 
-  describe("Bigtable.Admin.ListTables/2") do
+  describe("Bigtable.Admin.TableAdmin.list_tables/2") do
     test("should list existing tables") do
-      {:ok, response} = ListTables.list()
+      {:ok, response} = TableAdmin.list_tables()
 
       expected = %V2.ListTablesResponse{
         next_page_token: "",

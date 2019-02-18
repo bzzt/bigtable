@@ -1,0 +1,2 @@
+defmodule GcRuleTest do
+end
