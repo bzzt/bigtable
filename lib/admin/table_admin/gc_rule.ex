@@ -1,18 +1,3 @@
-# defmodule Google.Bigtable.Admin.V2.GcRule do
-#   @moduledoc false
-#   use Protobuf, syntax: :proto3
-
-#   @type t :: %__MODULE__{
-#           rule: {atom, any}
-#         }
-#   defstruct [:rule]
-
-#   oneof :rule, 0
-#   field :max_num_versions, 1, type: :int32, oneof: 0
-#   field :max_age, 2, type: Google.Protobuf.Duration, oneof: 0
-#   field :intersection, 3, type: Google.Bigtable.Admin.V2.GcRule.Intersection, oneof: 0
-#   field :union, 4, type: Google.Bigtable.Admin.V2.GcRule.Union, oneof: 0
-# end
 defmodule Bigtable.Admin.GcRule do
   alias Google.Bigtable.Admin.V2
   alias Google.Protobuf.Duration
