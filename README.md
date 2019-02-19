@@ -28,7 +28,10 @@ end
 
 ## Feature List
 
-### Operations:
+
+### Data API
+
+#### Operations:
 
 - [x] Check And Mutate Row
 - [x] Mutate Row
@@ -37,19 +40,19 @@ end
 - [x] Read Rows
 - [x] Sample Row Keys
 
-### Mutations:
+#### Mutations:
 
 - [x] Delete From Column
 - [x] Delete From Family
 - [x] Delete From Row
 - [x] Set Cell
 
-### Row Sets:
+#### Row Sets:
 
 - [x] Row Keys
 - [x] Row Ranges
 
-### Row Filters:
+#### Row Filters:
 
 - [x] Block All
 - [x] Cells Per Column Limit
@@ -69,3 +72,15 @@ end
 - [ ] Interleave
 - [ ] Row Sample
 - [ ] Value Range
+
+### Admin API
+
+#### Table Admin
+- [x] Create Table
+- [x] Delete Table
+- [x] Get Table
+- [x] List Tables
+- [ ] Check Consistency
+- [ ] Drop Row Range
+- [ ] Generate Consistency Token
+- [ ] Modify Column Families
