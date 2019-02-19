@@ -224,7 +224,6 @@ defmodule RowFilterIntegration do
   end
 
   describe "RowFilter.family_name_regex" do
-    @tag :wip
     test "should properly filter a single row based on family name" do
       mutation =
         Mutations.build("Test#1")

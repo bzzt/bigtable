@@ -248,3 +248,41 @@ defmodule Google.Bigtable.V2.ReadModifyWriteRowResponse do
 
   field(:row, 1, type: Google.Bigtable.V2.Row)
 end
+
+defmodule Google.Bigtable.V2.Bigtable.Service do
+  @moduledoc false
+  use GRPC.Service, name: "google.bigtable.v2.Bigtable"
+
+  rpc(:ReadRows, Google.Bigtable.V2.ReadRowsRequest, stream(Google.Bigtable.V2.ReadRowsResponse))
+
+  rpc(
+    :SampleRowKeys,
+    Google.Bigtable.V2.SampleRowKeysRequest,
+    stream(Google.Bigtable.V2.SampleRowKeysResponse)
+  )
+
+  rpc(:MutateRow, Google.Bigtable.V2.MutateRowRequest, Google.Bigtable.V2.MutateRowResponse)
+
+  rpc(
+    :MutateRows,
+    Google.Bigtable.V2.MutateRowsRequest,
+    stream(Google.Bigtable.V2.MutateRowsResponse)
+  )
+
+  rpc(
+    :CheckAndMutateRow,
+    Google.Bigtable.V2.CheckAndMutateRowRequest,
+    Google.Bigtable.V2.CheckAndMutateRowResponse
+  )
+
+  rpc(
+    :ReadModifyWriteRow,
+    Google.Bigtable.V2.ReadModifyWriteRowRequest,
+    Google.Bigtable.V2.ReadModifyWriteRowResponse
+  )
+end
+
+defmodule Google.Bigtable.V2.Bigtable.Stub do
+  @moduledoc false
+  use GRPC.Stub, service: Google.Bigtable.V2.Bigtable.Service
+end

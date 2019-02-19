@@ -523,8 +523,6 @@ defmodule Bigtable.RowFilter do
 
   @doc """
   Creates an apply label transformer `Google.Bigtable.V2.RowFilter`.
-
-
   ## Examples
       iex> Bigtable.RowFilter.apply_label_transformer("label")
       %Google.Bigtable.V2.RowFilter{
