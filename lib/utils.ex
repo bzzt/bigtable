@@ -53,7 +53,7 @@ defmodule Bigtable.Utils do
     Application.get_env(:bigtable, :instance)
   end
 
-  @spec process_stream(Enumerable.t({atom(), resp})) :: [{atom(), resp}] when resp: var
+  @spec process_stream(Enumerable.t()) :: [{atom(), any}]
   defp process_stream(stream) do
     stream
     |> Stream.take_while(&remaining_resp?/1)
