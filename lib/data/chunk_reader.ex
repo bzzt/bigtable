@@ -9,6 +9,15 @@ defmodule Bigtable.ChunkReader do
     @moduledoc """
     A finished cell produced by `Bigtable.ChunkReader`.
     """
+    @type t :: %__MODULE__{
+            label: binary(),
+            row_key: binary(),
+            family_name: Google.Protobuf.StringValue.t(),
+            qualifier: Google.Protobuf.BytesValue.t(),
+            timestamp: non_neg_integer,
+            value: binary()
+          }
+
     defstruct [
       :label,
       :row_key,
