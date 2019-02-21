@@ -107,8 +107,8 @@ defmodule Bigtable.RowSet do
           V2.ReadRowsRequest.t(),
           [{binary(), binary(), binary()}]
           | [{binary(), binary()}]
-          | [{binary(), binary(), binary()}]
           | {binary(), binary(), binary()}
+          | {binary(), binary()}
         ) :: V2.ReadRowsRequest.t()
   def row_ranges(%V2.ReadRowsRequest{} = request, ranges) do
     ranges = List.flatten([ranges])
