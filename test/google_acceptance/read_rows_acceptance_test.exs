@@ -19,7 +19,8 @@ defmodule GoogleAcceptanceTest do
   alias Bigtable.ChunkReader
 
   defmacro __using__(json: json) do
-    File.read!(json)
+    json
+    |> File.read!()
     |> Poison.decode!(keys: :atoms)
     |> Map.get(:tests)
     |> Enum.take(60)
@@ -31,18 +32,23 @@ defmodule GoogleAcceptanceTest do
           result = process_chunks(chunks)
           {processed_status, processed_result} = result.processed
 
-          if null_result?(chunks, expected) or results_error?(expected) do
-            assert result.close_error == true or processed_status == :error
-          else
-            converted =
-              processed_result
-              |> Enum.flat_map(fn {row_key, read_items} ->
-                read_items
-                |> Enum.map(&TestResult.from_chunk(row_key, &1))
-                |> Enum.reverse()
-              end)
+          cond do
+            expected == nil ->
+              assert processed_result == %{}
 
-            assert converted == expected
+            results_error?(expected) ->
+              assert result.close_error == true or processed_status == :error
+
+            true ->
+              converted =
+                processed_result
+                |> Enum.flat_map(fn {row_key, read_items} ->
+                  read_items
+                  |> Enum.map(&TestResult.from_chunk(row_key, &1))
+                  |> Enum.reverse()
+                end)
+
+              assert converted == expected
           end
         end
       end
@@ -73,13 +79,13 @@ defmodule ReadRowsAcceptanceTest do
         end
       end)
 
-    close_status = ChunkReader.close(cr)
-    GenServer.stop(cr)
+    {close_status, _} = ChunkReader.close(cr)
     %{close_error: close_status != :ok, processed: processed}
   end
 
   defp build_chunk(cc) do
-    Map.put(cc, :row_status, chunk_status(cc))
+    cc
+    |> Map.put(:row_status, chunk_status(cc))
     |> Map.drop([:commit_row, :reset_row])
     |> Map.to_list()
     |> CellChunk.new()
@@ -98,6 +104,5 @@ defmodule ReadRowsAcceptanceTest do
     end
   end
 
-  defp null_result?(chunks, results), do: length(chunks) > 0 and results == nil
   defp results_error?(results), do: Enum.any?(results, &Map.get(&1, :error, false))
 end

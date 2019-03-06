@@ -65,7 +65,9 @@ defmodule Bigtable.ChunkReader do
   """
   @spec close(pid()) :: {:ok, chunk_reader_result} | {:error, binary()}
   def close(pid) do
-    GenServer.call(pid, :close)
+    result = GenServer.call(pid, :close)
+    DynamicSupervisor.terminate_child(__MODULE__.Supervisor, pid)
+    result
   end
 
   @doc """
