@@ -9,6 +9,8 @@ defmodule Bigtable.Supervisor do
   def init(:ok) do
     children = [
       Bigtable.Connection,
+      Bigtable.Request.Producer,
+      Bigtable.Request.Consumer,
       {DynamicSupervisor, name: Bigtable.ChunkReader.Supervisor, strategy: :one_for_one}
     ]
 

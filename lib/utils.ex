@@ -5,18 +5,11 @@ defmodule Bigtable.Utils do
   alias Connection.Worker
 
   def process_request(request, request_fn, opts \\ []) do
-    result =
-      :poolboy.transaction(
-        :connection_pool,
-        fn pid ->
-          connection = Worker.get_connection(pid)
-          metadata = Connection.get_metadata()
-
-          connection
-          |> request_fn.(request, metadata)
-        end,
-        10_000
-      )
+    result = GenServer.call(
+      Bigtable.Request.Producer,
+      {:add_request, {request, request_fn}}
+      10_000
+    )
 
     case result do
       {:ok, response, _} ->

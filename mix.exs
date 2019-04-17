@@ -107,7 +107,8 @@ defmodule Bigtable.MixProject do
       {:protobuf, "~> 0.5.3"},
       {:google_protos, "~> 0.1"},
       {:grpc, "~> 0.3.1"},
-      {:poolboy, "~> 1.5"}
+      {:poolboy, "~> 1.5"},
+      {:gen_stage, "~> 0.14"}
     ]
   end
 end
