@@ -39,7 +39,7 @@ defmodule Bigtable.MixProject do
   def application do
     [
       mod: {Bigtable, []},
-      extra_applications: [:logger, :grpc]
+      extra_applications: [:logger, :grpc, :poolboy]
     ]
   end
 
@@ -106,7 +106,8 @@ defmodule Bigtable.MixProject do
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
       {:protobuf, "~> 0.5.3"},
       {:google_protos, "~> 0.1"},
-      {:grpc, "~> 0.3.1"}
+      {:grpc, "~> 0.3.1"},
+      {:poolboy, "~> 1.5"}
     ]
   end
 end

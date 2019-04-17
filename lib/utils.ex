@@ -1,15 +1,22 @@
 defmodule Bigtable.Utils do
   @moduledoc false
+
   alias Bigtable.Connection
+  alias Connection.Worker
 
   def process_request(request, request_fn, opts \\ []) do
-    metadata = Connection.get_metadata()
-
-    connection = Connection.get_connection()
-
     result =
-      connection
-      |> request_fn.(request, metadata)
+      :poolboy.transaction(
+        :connection_pool,
+        fn pid ->
+          connection = Worker.get_connection(pid)
+          metadata = Connection.get_metadata()
+
+          connection
+          |> request_fn.(request, metadata)
+        end,
+        10_000
+      )
 
     case result do
       {:ok, response, _} ->
@@ -23,11 +30,11 @@ defmodule Bigtable.Utils do
           {:ok, response}
         end
 
-      {:error, error} when is_map(error) ->
-        {:error, Map.get(error, :message, "unknown error")}
+      {:error, error} ->
+        {:error, inspect(error)}
 
-      _ ->
-        {:error, "unknown error"}
+      error ->
+        {:error, inspect(error)}
     end
   end
 

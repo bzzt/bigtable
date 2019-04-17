@@ -19,7 +19,7 @@ defmodule ConnectionTest do
         scheme: "http"
       }
 
-      connection = Connection.get_connection()
+      connection = Connection.connect()
 
       result = %{
         connection
