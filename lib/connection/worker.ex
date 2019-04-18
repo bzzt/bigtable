@@ -33,7 +33,7 @@ defmodule Bigtable.Connection.Worker do
     state
   end
 
-  defp disconnect(%{connection: connection}) do
+  defp disconnect(connection) do
     Connection.disconnect(connection)
   end
 end
