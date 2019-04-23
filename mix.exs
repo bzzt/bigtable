@@ -74,16 +74,7 @@ defmodule Bigtable.MixProject do
   end
 
   defp groups_for_modules do
-    [
-      "Typed Bigtable": [
-        Bigtable.Schema
-      ],
-      Operations: [
-        Bigtable.ReadRows,
-        Bigtable.MutateRow,
-        Bigtable.MutateRows
-      ]
-    ]
+    []
   end
 
   defp aliases do
