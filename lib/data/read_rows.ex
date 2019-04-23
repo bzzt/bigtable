@@ -86,7 +86,7 @@ defmodule Bigtable.Data.ReadRows do
   Returns a list of `{:ok, %Google.Bigtable.V2.ReadRowsResponse{}}`.
   """
   @spec read() ::
-          {:error, GRPC.RPCError.t()}
+          {:error, any()}
           | [ok: V2.ReadRowsResponse.t()]
   def read do
     request = build()

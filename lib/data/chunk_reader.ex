@@ -56,7 +56,7 @@ defmodule Bigtable.Data.ChunkReader do
   Opens a `Bigtable.ChunkReader`.
   """
   @spec open() :: :ignore | {:error, any()} | {:ok, pid()} | {:ok, pid(), any()}
-  def open() do
+  def open do
     DynamicSupervisor.start_child(__MODULE__.Supervisor, __MODULE__)
   end
 
@@ -243,7 +243,8 @@ defmodule Bigtable.Data.ChunkReader do
         Map.get(cc, :labels, "")
       end
 
-    Map.put(cr, :cur_val, next_value)
+    cr
+    |> Map.put(:cur_val, next_value)
     |> Map.put(:cur_label, next_label)
     |> Map.put(:state, :cell_in_progress)
   end
@@ -263,7 +264,8 @@ defmodule Bigtable.Data.ChunkReader do
         Map.get(cc, :labels, "")
       end
 
-    Map.put(cr, :cur_val, next_value)
+    cr
+    |> Map.put(:cur_val, next_value)
     |> Map.put(:cur_label, next_label)
     |> finish_cell(cc)
   end

@@ -7,7 +7,8 @@ defmodule Bigtable.Admin.TableAdmin do
   alias V2.BigtableTableAdmin.Stub
 
   def list_tables(opts \\ []) do
-    Keyword.put_new(opts, :parent, Utils.configured_instance_name())
+    opts
+    |> Keyword.put_new(:parent, Utils.configured_instance_name())
     |> V2.ListTablesRequest.new()
     |> Utils.process_request(&Stub.list_tables/3)
   end

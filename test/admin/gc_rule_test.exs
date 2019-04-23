@@ -16,9 +16,12 @@ defmodule GcRuleTest do
 
   describe("Bigtagble.Admin.GcRule.max_age/1") do
     test "should create a table with a max age gc rule", context do
-      Table.build(%{
+      cf = %{
         "cf1" => GcRule.max_age(2_592_000_500)
-      })
+      }
+
+      cf
+      |> Table.build()
       |> TableAdmin.create_table("gc_rule")
 
       expected = %{
@@ -37,9 +40,12 @@ defmodule GcRuleTest do
 
   describe("Bigtable.Admin.GcRule.max_num_versions/1") do
     test "should create a table with a max version gc rule", context do
-      Table.build(%{
+      cf = %{
         "cf1" => GcRule.max_num_versions(1)
-      })
+      }
+
+      cf
+      |> Table.build()
       |> TableAdmin.create_table("gc_rule")
 
       expected = %{
@@ -62,9 +68,12 @@ defmodule GcRuleTest do
         GcRule.max_age(3000)
       ]
 
-      Table.build(%{
+      cf = %{
         "cf1" => GcRule.union(rules)
-      })
+      }
+
+      cf
+      |> Table.build()
       |> TableAdmin.create_table("gc_rule")
 
       expected = %{
@@ -91,9 +100,12 @@ defmodule GcRuleTest do
         GcRule.max_age(3000)
       ]
 
-      Table.build(%{
+      cf = %{
         "cf1" => GcRule.intersection(rules)
-      })
+      }
+
+      cf
+      |> Table.build()
       |> TableAdmin.create_table("gc_rule")
 
       expected = %{

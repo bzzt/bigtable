@@ -44,7 +44,7 @@ defmodule Bigtable.Data.SampleRowKeys do
   end
 
   @spec read() :: {:ok, V2.SampleRowKeysResponse} | {:error, any()}
-  def read() do
+  def read do
     build()
     |> read()
   end

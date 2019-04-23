@@ -14,13 +14,14 @@ defmodule CheckAndMutateRowTest do
     qualifier = "column"
 
     {:ok, _} =
-      Mutations.build(row_key)
+      row_key
+      |> Mutations.build()
       |> Mutations.set_cell("cf1", qualifier, "value", 0)
       |> MutateRow.build()
       |> MutateRow.mutate()
 
     on_exit(fn ->
-      mutation = Mutations.build(row_key) |> Mutations.delete_from_row()
+      mutation = row_key |> Mutations.build() |> Mutations.delete_from_row()
 
       mutation |> MutateRow.mutate()
     end)
@@ -34,10 +35,11 @@ defmodule CheckAndMutateRowTest do
   describe "CheckAndMutateRow.mutate/2" do
     test "should apply a single true mutation when no predicate set and row exists", context do
       mutation =
-        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "truthy", "true", 0)
+        context.row_key |> Mutations.build() |> Mutations.set_cell("cf1", "truthy", "true", 0)
 
       {:ok, _result} =
-        CheckAndMutateRow.build(context.row_key)
+        context.row_key
+        |> CheckAndMutateRow.build()
         |> CheckAndMutateRow.if_true(mutation)
         |> CheckAndMutateRow.mutate()
 
@@ -69,13 +71,14 @@ defmodule CheckAndMutateRowTest do
 
     test "should apply a multiple true mutation when no predicate set and row exists", context do
       mutation1 =
-        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "truthy", "true", 0)
+        context.row_key |> Mutations.build() |> Mutations.set_cell("cf1", "truthy", "true", 0)
 
       mutation2 =
-        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "alsoTruthy", "true", 0)
+        context.row_key |> Mutations.build() |> Mutations.set_cell("cf1", "alsoTruthy", "true", 0)
 
       {:ok, _result} =
-        CheckAndMutateRow.build(context.row_key)
+        context.row_key
+        |> CheckAndMutateRow.build()
         |> CheckAndMutateRow.if_true([mutation1, mutation2])
         |> CheckAndMutateRow.mutate()
 
@@ -116,7 +119,7 @@ defmodule CheckAndMutateRowTest do
     test "should not apply a true mutation when no predicate set and row does not exist",
          context do
       mutation =
-        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "truthy", "true", 0)
+        context.row_key |> Mutations.build() |> Mutations.set_cell("cf1", "truthy", "true", 0)
 
       {:ok, _result} =
         CheckAndMutateRow.build("Doesnt#Exist")
@@ -145,10 +148,11 @@ defmodule CheckAndMutateRowTest do
       filter = RowFilter.column_qualifier_regex(context.qualifier)
 
       mutation =
-        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "truthy", "true", 0)
+        context.row_key |> Mutations.build() |> Mutations.set_cell("cf1", "truthy", "true", 0)
 
       {:ok, _result} =
-        CheckAndMutateRow.build(context.row_key)
+        context.row_key
+        |> CheckAndMutateRow.build()
         |> CheckAndMutateRow.predicate(filter)
         |> CheckAndMutateRow.if_true(mutation)
         |> CheckAndMutateRow.mutate()
@@ -183,13 +187,14 @@ defmodule CheckAndMutateRowTest do
       filter = RowFilter.column_qualifier_regex(context.qualifier)
 
       mutation1 =
-        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "truthy", "true", 0)
+        context.row_key |> Mutations.build() |> Mutations.set_cell("cf1", "truthy", "true", 0)
 
       mutation2 =
-        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "alsoTruthy", "true", 0)
+        context.row_key |> Mutations.build() |> Mutations.set_cell("cf1", "alsoTruthy", "true", 0)
 
       {:ok, _result} =
-        CheckAndMutateRow.build(context.row_key)
+        context.row_key
+        |> CheckAndMutateRow.build()
         |> CheckAndMutateRow.predicate(filter)
         |> CheckAndMutateRow.if_true([mutation1, mutation2])
         |> CheckAndMutateRow.mutate()
@@ -232,10 +237,11 @@ defmodule CheckAndMutateRowTest do
       filter = RowFilter.column_qualifier_regex("doesntexist")
 
       mutation =
-        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "truthy", "true", 0)
+        context.row_key |> Mutations.build() |> Mutations.set_cell("cf1", "truthy", "true", 0)
 
       {:ok, _result} =
-        CheckAndMutateRow.build(context.row_key)
+        context.row_key
+        |> CheckAndMutateRow.build()
         |> CheckAndMutateRow.predicate(filter)
         |> CheckAndMutateRow.if_true(mutation)
         |> CheckAndMutateRow.mutate()
@@ -262,10 +268,11 @@ defmodule CheckAndMutateRowTest do
       filter = RowFilter.column_qualifier_regex("doesntexist")
 
       mutation =
-        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "false", "false", 0)
+        context.row_key |> Mutations.build() |> Mutations.set_cell("cf1", "false", "false", 0)
 
       {:ok, _result} =
-        CheckAndMutateRow.build(context.row_key)
+        context.row_key
+        |> CheckAndMutateRow.build()
         |> CheckAndMutateRow.predicate(filter)
         |> CheckAndMutateRow.if_false(mutation)
         |> CheckAndMutateRow.mutate()
@@ -300,13 +307,14 @@ defmodule CheckAndMutateRowTest do
       filter = RowFilter.column_qualifier_regex("doesntexist")
 
       mutation1 =
-        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "false", "false", 0)
+        context.row_key |> Mutations.build() |> Mutations.set_cell("cf1", "false", "false", 0)
 
       mutation2 =
-        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "false2", "false2", 0)
+        context.row_key |> Mutations.build() |> Mutations.set_cell("cf1", "false2", "false2", 0)
 
       {:ok, _result} =
-        CheckAndMutateRow.build(context.row_key)
+        context.row_key
+        |> CheckAndMutateRow.build()
         |> CheckAndMutateRow.predicate(filter)
         |> CheckAndMutateRow.if_false([mutation1, mutation2])
         |> CheckAndMutateRow.mutate()
@@ -349,10 +357,11 @@ defmodule CheckAndMutateRowTest do
       filter = RowFilter.column_qualifier_regex(context.qualifier)
 
       mutation =
-        Mutations.build(context.row_key) |> Mutations.set_cell("cf1", "false", "false", 0)
+        context.row_key |> Mutations.build() |> Mutations.set_cell("cf1", "false", "false", 0)
 
       {:ok, _result} =
-        CheckAndMutateRow.build(context.row_key)
+        context.row_key
+        |> CheckAndMutateRow.build()
         |> CheckAndMutateRow.predicate(filter)
         |> CheckAndMutateRow.if_false(mutation)
         |> CheckAndMutateRow.mutate()

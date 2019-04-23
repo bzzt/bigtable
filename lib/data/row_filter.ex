@@ -399,7 +399,6 @@ defmodule Bigtable.Data.RowFilter do
   @doc """
   Adds a pass all `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
 
-
   ## Examples
       iex> request = Bigtable.Data.ReadRows.build() |> Bigtable.Data.RowFilter.pass_all()
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
@@ -427,14 +426,13 @@ defmodule Bigtable.Data.RowFilter do
       }
   """
   @spec pass_all() :: RowFilter.t()
-  def pass_all() do
+  def pass_all do
     {:pass_all_filter, true}
     |> build_filter()
   end
 
   @doc """
   Adds a block all `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
-
 
   ## Examples
       iex> request = Bigtable.Data.ReadRows.build() |> Bigtable.Data.RowFilter.block_all()
@@ -463,14 +461,13 @@ defmodule Bigtable.Data.RowFilter do
       }
   """
   @spec block_all() :: RowFilter.t()
-  def block_all() do
+  def block_all do
     {:block_all_filter, true}
     |> build_filter()
   end
 
   @doc """
   Adds a strip value transformer `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
-
 
   ## Examples
       iex> request = Bigtable.Data.ReadRows.build() |> Bigtable.Data.RowFilter.strip_value_transformer()
@@ -490,7 +487,6 @@ defmodule Bigtable.Data.RowFilter do
   @doc """
   Creates a strip value transformer `Google.Bigtable.V2.RowFilter`.
 
-
   ## Examples
       iex> Bigtable.Data.RowFilter.strip_value_transformer()
       %Google.Bigtable.V2.RowFilter{
@@ -498,14 +494,13 @@ defmodule Bigtable.Data.RowFilter do
       }
   """
   @spec strip_value_transformer() :: RowFilter.t()
-  def strip_value_transformer() do
+  def strip_value_transformer do
     {:strip_value_transformer, true}
     |> build_filter()
   end
 
   @doc """
   Adds an apply label transformer `Google.Bigtable.V2.RowFilter` to a `Google.Bigtable.V2.ReadRowsRequest`.
-
 
   ## Examples
       iex> request = Bigtable.Data.ReadRows.build() |> Bigtable.Data.RowFilter.apply_label_transformer("label")

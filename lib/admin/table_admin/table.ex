@@ -1,4 +1,8 @@
 defmodule Bigtable.Admin.Table do
+  @moduledoc """
+  Provides functionality for building `Google.Bigtable.Admin.V2.Table`.
+  """
+
   alias Google.Bigtable.Admin.V2
 
   def build(column_families) when is_map(column_families) do

@@ -52,11 +52,11 @@ defmodule Bigtable.Utils do
     "projects/#{project}/instances/#{instance}"
   end
 
-  defp get_project() do
+  defp get_project do
     Application.get_env(:bigtable, :project)
   end
 
-  defp get_instance() do
+  defp get_instance do
     Application.get_env(:bigtable, :instance)
   end
 

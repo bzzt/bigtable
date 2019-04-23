@@ -157,14 +157,16 @@ defmodule RowFilterIntegration do
 
     test "should properly filter multiple rows based on value" do
       first_mutation =
-        Mutations.build("Test#1")
+        "Test#1"
+        |> Mutations.build()
         |> Mutations.set_cell("cf1", "column1", "foo", 0)
         |> Mutations.set_cell("cf1", "column2", "bar", 0)
         |> Mutations.set_cell("cf2", "column1", "bar", 0)
         |> Mutations.set_cell("cf2", "column2", "foo", 0)
 
       second_mutation =
-        Mutations.build("Test#2")
+        "Test#2"
+        |> Mutations.build()
         |> Mutations.set_cell("cf1", "column1", "foo", 0)
         |> Mutations.set_cell("cf1", "column2", "bar", 0)
         |> Mutations.set_cell("cf2", "column1", "bar", 0)
@@ -1029,7 +1031,8 @@ defmodule RowFilterIntegration do
       [row_key | _rest] = context.row_keys
 
       {:ok, _} =
-        Mutations.build(row_key)
+        row_key
+        |> Mutations.build()
         |> Mutations.set_cell("cf1", "column", "value", 0)
         |> MutateRow.mutate()
 
@@ -1060,7 +1063,8 @@ defmodule RowFilterIntegration do
       [row_key | _rest] = context.row_keys
 
       {:ok, _} =
-        Mutations.build(row_key)
+        row_key
+        |> Mutations.build()
         |> Mutations.set_cell("cf1", "column1", "value", 0)
         |> Mutations.set_cell("cf1", "column2", "value", 0)
         |> Mutations.set_cell("cf1", "column3", "value", 0)
@@ -1109,7 +1113,8 @@ defmodule RowFilterIntegration do
       [row_key | _rest] = context.row_keys
 
       {:ok, _} =
-        Mutations.build(row_key)
+        row_key
+        |> Mutations.build()
         |> Mutations.set_cell("cf1", "column1", "value", 4000)
         |> Mutations.set_cell("cf2", "column2", "value", 1000)
         |> Mutations.set_cell("cf1", "column2", "value", 1000)
@@ -1136,7 +1141,8 @@ defmodule RowFilterIntegration do
       [row_key | _rest] = context.row_keys
 
       {:ok, _} =
-        Mutations.build(row_key)
+        row_key
+        |> Mutations.build()
         |> Mutations.set_cell("cf1", "column1", "value", 0)
         |> Mutations.set_cell("cf1", "column2", "value", 0)
         |> Mutations.set_cell("cf1", "column3", "value", 0)
@@ -1226,7 +1232,8 @@ defmodule RowFilterIntegration do
 
   defp seed_timestamp_range(row_key) do
     {:ok, _} =
-      Mutations.build(row_key)
+      row_key
+      |> Mutations.build()
       |> Mutations.set_cell("cf1", "column1", "value1", 1000)
       |> Mutations.set_cell("cf1", "column1", "value2", 2000)
       |> Mutations.set_cell("cf1", "column1", "value3", 3000)
@@ -1243,7 +1250,8 @@ defmodule RowFilterIntegration do
 
   defp seed_range(row_key) do
     {:ok, _} =
-      Mutations.build(row_key)
+      row_key
+      |> Mutations.build()
       |> Mutations.set_cell("cf1", "column1", "value1", 0)
       |> Mutations.set_cell("cf1", "column2", "value2", 0)
       |> Mutations.set_cell("cf1", "column3", "value3", 0)
@@ -1258,7 +1266,8 @@ defmodule RowFilterIntegration do
   defp seed_values(context) do
     Enum.each(context.row_keys, fn key ->
       {:ok, _} =
-        Mutations.build(key)
+        key
+        |> Mutations.build()
         |> Mutations.set_cell("cf1", "column", "value", 0)
         |> MutateRow.build()
         |> MutateRow.mutate()

@@ -36,7 +36,7 @@ defmodule RowFilterTest do
         }
       ]
 
-      expected = expected_chain(filters) |> expected_request()
+      expected = filters |> expected_chain() |> expected_request()
 
       assert RowFilter.chain(context.request, filters) == expected
     end

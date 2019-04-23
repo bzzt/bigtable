@@ -1,5 +1,4 @@
 defmodule ReadRowsTest do
-  # TODO: Integration tests including errors
   alias Bigtable.Data.{ChunkReader, MutateRow, MutateRows, Mutations, ReadRows}
   use ExUnit.Case
 
