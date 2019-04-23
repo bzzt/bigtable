@@ -2,7 +2,7 @@ defmodule Bigtable.Data.CheckAndMutateRow do
   @moduledoc """
   Provides functions to build `Google.Bigtable.V2.ReadRowsRequest` and submit them to Bigtable.
   """
-  alias Bigtable.Utils
+  alias Bigtable.{Request, Utils}
   alias Google.Bigtable.V2
   alias V2.Bigtable.Stub
 
@@ -79,7 +79,7 @@ defmodule Bigtable.Data.CheckAndMutateRow do
           {:ok, [V2.CheckAndMutateRowResponse]} | {:error, binary()}
   def mutate(%V2.CheckAndMutateRowRequest{} = request) do
     request
-    |> Utils.process_request(&Stub.check_and_mutate_row/3, single: true)
+    |> Request.process_request(&Stub.check_and_mutate_row/3, single: true)
   end
 
   defp extract_mutations(mutations) do

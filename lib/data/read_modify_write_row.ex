@@ -2,7 +2,7 @@ defmodule Bigtable.Data.ReadModifyWriteRow do
   @moduledoc """
   Provides functions to build `Google.Bigtable.V2.ReadModifyWriteRowRequest` and submit them to Bigtable.
   """
-  alias Bigtable.Utils
+  alias Bigtable.{Request, Utils}
   alias Google.Bigtable.V2
   alias V2.Bigtable.Stub
 
@@ -62,7 +62,7 @@ defmodule Bigtable.Data.ReadModifyWriteRow do
           {:ok, ReadModifyWriteRowResponse.t()} | {:error, binary()}
   def mutate(%ReadModifyWriteRowRequest{} = request) do
     request
-    |> Utils.process_request(&Stub.read_modify_write_row/3, single: true)
+    |> Request.process_request(&Stub.read_modify_write_row/3, single: true)
   end
 
   @spec add_rule(ReadModifyWriteRule.t(), ReadModifyWriteRowRequest.t()) ::

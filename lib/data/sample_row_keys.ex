@@ -2,7 +2,7 @@ defmodule Bigtable.Data.SampleRowKeys do
   @moduledoc """
   Provides functions to build `Google.Bigtable.V2.SampleRowKeysRequest` and submit them to Bigtable.
   """
-  alias Bigtable.Utils
+  alias Bigtable.{Request, Utils}
   alias Google.Bigtable.V2
   alias V2.Bigtable.Stub
 
@@ -40,7 +40,7 @@ defmodule Bigtable.Data.SampleRowKeys do
   @spec read(V2.SampleRowKeysRequest.t()) :: {:ok, V2.SampleRowKeysResponse} | {:error, any()}
   def read(%V2.SampleRowKeysRequest{} = request) do
     request
-    |> Utils.process_request(&Stub.sample_row_keys/3, stream: true)
+    |> Request.process_request(&Stub.sample_row_keys/3, stream: true)
   end
 
   @spec read() :: {:ok, V2.SampleRowKeysResponse} | {:error, any()}

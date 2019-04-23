@@ -2,7 +2,7 @@ defmodule Bigtable.Admin.TableAdmin do
   @moduledoc """
   Provides functions to build `Google.Bigtable.Admin.V2.ListTablesRequest` and submit them to Bigtable.
   """
-  alias Bigtable.Utils
+  alias Bigtable.{Request, Utils}
   alias Google.Bigtable.Admin.V2
   alias V2.BigtableTableAdmin.Stub
 
@@ -10,7 +10,7 @@ defmodule Bigtable.Admin.TableAdmin do
     opts
     |> Keyword.put_new(:parent, Utils.configured_instance_name())
     |> V2.ListTablesRequest.new()
-    |> Utils.process_request(&Stub.list_tables/3)
+    |> Request.process_request(&Stub.list_tables/3)
   end
 
   def create_table(table, table_id, opts \\ []) do
@@ -20,16 +20,16 @@ defmodule Bigtable.Admin.TableAdmin do
       table: table,
       initial_splits: Keyword.get(opts, :initial_splits, [])
     )
-    |> Utils.process_request(&Stub.create_table/3)
+    |> Request.process_request(&Stub.create_table/3)
   end
 
   def delete_table(name) do
     V2.DeleteTableRequest.new(name: name)
-    |> Utils.process_request(&Stub.delete_table/3)
+    |> Request.process_request(&Stub.delete_table/3)
   end
 
   def get_table(name) do
     V2.GetTableRequest.new(name: name)
-    |> Utils.process_request(&Stub.get_table/3)
+    |> Request.process_request(&Stub.get_table/3)
   end
 end
