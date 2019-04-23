@@ -42,11 +42,7 @@ defmodule GoogleAcceptanceTest do
             true ->
               converted =
                 processed_result
-                |> Enum.flat_map(fn {row_key, read_items} ->
-                  read_items
-                  |> Enum.map(&TestResult.from_chunk(row_key, &1))
-                  |> Enum.reverse()
-                end)
+                |> convert_result()
 
               assert converted == expected
           end
@@ -105,4 +101,13 @@ defmodule ReadRowsAcceptanceTest do
   end
 
   defp results_error?(results), do: Enum.any?(results, &Map.get(&1, :error, false))
+
+  defp convert_result(result) do
+    result
+    |> Enum.flat_map(fn {row_key, read_items} ->
+      read_items
+      |> Enum.map(&TestResult.from_chunk(row_key, &1))
+      |> Enum.reverse()
+    end)
+  end
 end

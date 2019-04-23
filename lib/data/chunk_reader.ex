@@ -46,7 +46,7 @@ defmodule Bigtable.Data.ChunkReader do
   @typedoc """
   A map containging lists of `Bigtable.ChunkReader.ReadCell` keyed by row key.
   """
-  @type chunk_reader_result :: %{optional(binary()) => [Bigtable.ChunkReader.ReadCell.t()]}
+  @type chunk_reader_result :: %{optional(binary()) => [ReadCell.t()]}
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, %ReaderState{}, [])
