@@ -101,15 +101,23 @@ defmodule Bigtable.Data.ReadRows do
     response
     |> Enum.filter(&contains_chunks?/1)
     |> Enum.flat_map(fn {:ok, resp} -> resp.chunks end)
-    |> Enum.reduce({:ok, %{}}, fn chunk, accum ->
-      if match?({:error, _}, accum) do
-        accum
-      else
-        ChunkReader.process(cr, chunk)
-      end
-    end)
+    |> process_response(nil, cr)
+  end
 
-    ChunkReader.close(cr)
+  defp process_response([], _result, chunk_reader) do
+    ChunkReader.close(chunk_reader)
+  end
+
+  defp process_response(_chunks, {:error, _}, chunk_reader) do
+    ChunkReader.close(chunk_reader)
+  end
+
+  defp process_response([h | t], _result, chunk_reader) do
+    result =
+      chunk_reader
+      |> ChunkReader.process(h)
+
+    process_response(t, result, chunk_reader)
   end
 
   defp contains_chunks?({:ok, response}), do: !Enum.empty?(response.chunks)
