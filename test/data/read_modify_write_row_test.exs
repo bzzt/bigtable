@@ -1,7 +1,6 @@
 defmodule ReadModifyWriteRowTest do
   @moduledoc false
-  alias Bigtable.{ReadModifyWriteRow, MutateRow, Mutations, ReadRows}
-
+  alias Bigtable.Data.{ReadModifyWriteRow, MutateRow, Mutations, Row, ReadRows, RowFilter}
   use ExUnit.Case
 
   doctest ReadModifyWriteRow
@@ -42,7 +41,7 @@ defmodule ReadModifyWriteRowTest do
 
       {:ok, result} =
         ReadRows.build()
-        |> Bigtable.RowFilter.cells_per_column(1)
+        |> RowFilter.cells_per_column(1)
         |> ReadRows.read()
 
       new_value = Map.values(result) |> List.flatten() |> List.first() |> Map.get(:value)
@@ -62,7 +61,7 @@ defmodule ReadModifyWriteRowTest do
 
       {:ok, result} =
         ReadRows.build()
-        |> Bigtable.RowFilter.cells_per_column(1)
+        |> RowFilter.cells_per_column(1)
         |> ReadRows.read()
 
       new_value = Map.values(result) |> List.flatten() |> List.first() |> Map.get(:value)
@@ -88,7 +87,7 @@ defmodule ReadModifyWriteRowTest do
 
       {:ok, result} =
         ReadRows.build()
-        |> Bigtable.RowFilter.cells_per_column(1)
+        |> RowFilter.cells_per_column(1)
         |> ReadRows.read()
 
       new_value = Map.values(result) |> List.flatten() |> List.first() |> Map.get(:value)
@@ -108,7 +107,7 @@ defmodule ReadModifyWriteRowTest do
 
       {:ok, result} =
         ReadRows.build()
-        |> Bigtable.RowFilter.cells_per_column(1)
+        |> RowFilter.cells_per_column(1)
         |> ReadRows.read()
 
       new_value = Map.values(result) |> List.flatten() |> List.first() |> Map.get(:value)

@@ -1,6 +1,8 @@
 defmodule Bigtable.MixProject do
   use Mix.Project
 
+  alias Bigtable.{Admin, Connection}
+
   @version "0.6.1"
 
   def project do
@@ -54,7 +56,8 @@ defmodule Bigtable.MixProject do
       formatters: ["html", "epub"],
       groups_for_modules: groups_for_modules(),
       extras: extras(),
-      groups_for_extras: groups_for_extras()
+      groups_for_extras: groups_for_extras(),
+      nest_modules_by_prefix: [Bigtable.Admin, Bigtable.Data]
     ]
   end
 
@@ -74,7 +77,17 @@ defmodule Bigtable.MixProject do
   end
 
   defp groups_for_modules do
-    []
+    [
+      Admin: [
+        Admin.GcRule,
+        Admin.Modification,
+        Admin.Table,
+        Admin.TableAdmin
+      ],
+      Connection: [
+        Connection
+      ]
+    ]
   end
 
   defp aliases do

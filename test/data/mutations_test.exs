@@ -1,5 +1,5 @@
 defmodule MutationsTest do
-  alias Bigtable.Mutations
+  alias Bigtable.Data.Mutations
   alias Google.Bigtable.V2.MutateRowsRequest.Entry
 
   use ExUnit.Case

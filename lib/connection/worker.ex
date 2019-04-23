@@ -1,4 +1,5 @@
 defmodule Bigtable.Connection.Worker do
+  @moduledoc false
   alias Bigtable.Connection
   use GenServer
 

@@ -1,6 +1,6 @@
 defmodule RowFilterIntegration do
   @moduledoc false
-  alias Bigtable.{ChunkReader, MutateRow, MutateRows, Mutations, ReadRows, RowFilter}
+  alias Bigtable.Data.{ChunkReader, MutateRow, MutateRows, Mutations, ReadRows, RowFilter}
   alias ChunkReader.ReadCell
   alias Google.Protobuf.{BytesValue, StringValue}
 
@@ -1192,7 +1192,7 @@ defmodule RowFilterIntegration do
 
       expected = %{
         "Test#1" => [
-          %Bigtable.ChunkReader.ReadCell{
+          %ReadCell{
             family_name: %Google.Protobuf.StringValue{value: "cf1"},
             label: "",
             qualifier: %Google.Protobuf.BytesValue{value: "column"},

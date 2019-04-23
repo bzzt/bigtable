@@ -1,4 +1,4 @@
-defmodule Bigtable.ReadModifyWriteRow do
+defmodule Bigtable.Data.ReadModifyWriteRow do
   @moduledoc """
   Provides functions to build `Google.Bigtable.V2.ReadModifyWriteRowRequest` and submit them to Bigtable.
   """

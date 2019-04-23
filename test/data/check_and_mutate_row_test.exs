@@ -1,6 +1,6 @@
 defmodule CheckAndMutateRowTest do
   @moduledoc false
-  alias Bigtable.{CheckAndMutateRow, ChunkReader, MutateRow, Mutations, ReadRows, RowFilter}
+  alias Bigtable.Data.{CheckAndMutateRow, ChunkReader, MutateRow, Mutations, ReadRows, RowFilter}
   alias ChunkReader.ReadCell
 
   use ExUnit.Case

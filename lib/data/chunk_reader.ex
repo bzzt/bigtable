@@ -1,4 +1,4 @@
-defmodule Bigtable.ChunkReader do
+defmodule Bigtable.Data.ChunkReader do
   @moduledoc """
   Reads chunks from `Google.Bigtable.V2.ReadRowsResponse` and parses them into complete cells grouped by rowkey.
   """

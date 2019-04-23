@@ -1,5 +1,5 @@
 defmodule TestResult do
-  alias Bigtable.ChunkReader.ReadCell
+  alias Bigtable.Data.ChunkReader.ReadCell
   alias Google.Bigtable.V2.ReadRowsResponse.CellChunk
 
   def from_chunk(row_key, %ReadCell{} = ri) do
@@ -16,7 +16,7 @@ defmodule TestResult do
 end
 
 defmodule GoogleAcceptanceTest do
-  alias Bigtable.ChunkReader
+  alias Bigtable.Data.ChunkReader
 
   defmacro __using__(json: json) do
     json
@@ -57,7 +57,7 @@ defmodule GoogleAcceptanceTest do
 end
 
 defmodule ReadRowsAcceptanceTest do
-  alias Bigtable.ChunkReader
+  alias Bigtable.Data.ChunkReader
   alias Google.Bigtable.V2.ReadRowsResponse.CellChunk
 
   use ExUnit.Case
