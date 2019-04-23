@@ -1,6 +1,6 @@
 defmodule Bigtable.Data.ReadModifyWriteRow do
   @moduledoc """
-  Provides functions to build `Google.Bigtable.V2.ReadModifyWriteRowRequest` and submit them to Bigtable.
+  Provides functionality for building and submitting a `Google.Bigtable.V2.ReadModifyWriteRowRequest`.
   """
   alias Bigtable.Request
   alias Google.Bigtable.V2
@@ -15,7 +15,7 @@ defmodule Bigtable.Data.ReadModifyWriteRow do
   @type response :: {:ok, ReadModifyWriteRowResponse.t()} | {:error, binary()}
 
   @doc """
-  Builds a `Google.Bigtable.V2.ReadModifyWriteRowRequest` with a provided table name and row key
+  Builds a `Google.Bigtable.V2.ReadModifyWriteRowRequest` given a row key and optional table name.
   """
   @spec build(binary(), binary()) :: ReadModifyWriteRowRequest.t()
   def build(table_name \\ Bigtable.Utils.configured_table_name(), row_key)

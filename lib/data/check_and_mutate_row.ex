@@ -1,6 +1,6 @@
 defmodule Bigtable.Data.CheckAndMutateRow do
   @moduledoc """
-  Provides functions to build `Google.Bigtable.V2.ReadRowsRequest` and submit them to Bigtable.
+  Provides functionality for building and submitting a `Google.Bigtable.V2.CheckAndMutateRowRequest`.
   """
   alias Bigtable.{Request, Utils}
   alias Google.Bigtable.V2
@@ -9,9 +9,9 @@ defmodule Bigtable.Data.CheckAndMutateRow do
   @type entries() :: V2.MutateRowsRequest.Entry | [V2.MutateRowsRequest.Entry]
 
   @doc """
-  Builds a `Google.Bigtable.V2.CheckAndMutateRowRequest` given a row_key and optional custom table name.
+  Builds a `Google.Bigtable.V2.CheckAndMutateRowRequest` given a row key and optional custom table name.
 
-  Defaults to configured table name.
+  Defaults to the configured table name if none is provided.
 
   ## Examples
 
@@ -27,14 +27,14 @@ defmodule Bigtable.Data.CheckAndMutateRow do
       }
 
   ### Custom Table
-      iex> table_name = "projects/[project_id]/instances/[instance_id]/tables/[table_name]"
+      iex> table_name = "projects/project-id/instances/instance-id/tables/table-name"
       iex> Bigtable.Data.CheckAndMutateRow.build(table_name, "Test#123")
       %Google.Bigtable.V2.CheckAndMutateRowRequest{
         app_profile_id: "",
         false_mutations: [],
         predicate_filter: nil,
         row_key: "Test#123",
-        table_name: "projects/[project_id]/instances/[instance_id]/tables/[table_name]",
+        table_name: "projects/project-id/instances/instance-id/tables/table-name",
         true_mutations: []
       }
   """

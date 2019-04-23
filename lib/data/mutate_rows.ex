@@ -1,32 +1,23 @@
 defmodule Bigtable.Data.MutateRows do
   @moduledoc """
-  Provides functions to build `Google.Bigtable.V2.MutateRowsRequest` and submit them to Bigtable.
+  Provides functionality for building and submitting a `Google.Bigtable.V2.MutateRowsRequest`.
   """
-  alias Bigtable.Request
+  alias Bigtable.{Request, Utils}
   alias Google.Bigtable.V2
   alias V2.Bigtable.Stub
 
   @type response :: {:ok, V2.MutateRowsResponse.t()} | {:error, any()}
 
   @doc """
-  Builds a `Google.Bigtable.V2.MutateRowsRequest` with a provided table name and a list of `Google.Bigtable.V2.MutateRowsRequest.Entry`.
+  Builds a `Google.Bigtable.V2.MutateRowsRequest` given a `Google.Bigtable.V2.MutateRowsRequest.Entry` and optional table name.
   """
   @spec build(list(V2.MutateRowsRequest.Entry.t()), binary()) :: V2.MutateRowsRequest.t()
-  def build(entries, table_name) when is_binary(table_name) and is_list(entries) do
+  def build(entries, table_name \\ Utils.configured_table_name())
+      when is_binary(table_name) and is_list(entries) do
     V2.MutateRowsRequest.new(
       table_name: table_name,
       entries: entries
     )
-  end
-
-  @doc """
-  Builds a `Google.Bigtable.V2.MutateRowsRequest` request with  a list of `Google.Bigtable.V2.MutateRowsRequest.Entry`.
-
-  Uses the configured table name.
-  """
-  @spec build(list(V2.MutateRowsRequest.Entry.t())) :: V2.MutateRowsRequest.t()
-  def build(entries) when is_list(entries) do
-    build(entries, Bigtable.Utils.configured_table_name())
   end
 
   @doc """

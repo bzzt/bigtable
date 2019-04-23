@@ -1,13 +1,13 @@
 defmodule Bigtable.Data.SampleRowKeys do
   @moduledoc """
-  Provides functions to build `Google.Bigtable.V2.SampleRowKeysRequest` and submit them to Bigtable.
+  Provides functionality for building and submitting `Google.Bigtable.V2.SampleRowKeysRequest`.
   """
   alias Bigtable.Request
   alias Google.Bigtable.V2
   alias V2.Bigtable.Stub
 
   @doc """
-  Builds a `Google.Bigtable.V2.SampleRowKeysRequest` given a row_key and optional custom table name.
+  Builds a `Google.Bigtable.V2.SampleRowKeysRequest` given a row_key and optional table name.
 
   Defaults to configured table name.
 
@@ -21,11 +21,11 @@ defmodule Bigtable.Data.SampleRowKeys do
       }
 
   ### Custom Table
-      iex> table_name = "projects/[project_id]/instances/[instance_id]/tables/[table_name]"
+      iex> table_name = "projects/project-id/instances/instance-id/tables/table-name"
       iex> Bigtable.Data.SampleRowKeys.build(table_name)
       %Google.Bigtable.V2.SampleRowKeysRequest{
         app_profile_id: "",
-        table_name: "projects/[project_id]/instances/[instance_id]/tables/[table_name]",
+        table_name: "projects/project-id/instances/instance-id/tables/table-name",
       }
   """
   @spec build(binary()) :: V2.SampleRowKeysRequest.t()

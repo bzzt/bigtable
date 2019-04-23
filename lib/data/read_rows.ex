@@ -1,6 +1,6 @@
 defmodule Bigtable.Data.ReadRows do
   @moduledoc """
-  Provides functions to build `Google.Bigtable.V2.ReadRowsRequest` and submit them to Bigtable.
+  Provides functionality for to building and submitting a `Google.Bigtable.V2.ReadRowsRequest`.
   """
   alias Bigtable.Data.ChunkReader
   alias Bigtable.{Request, Utils}
@@ -10,17 +10,19 @@ defmodule Bigtable.Data.ReadRows do
   @type response :: {:ok, ChunkReader.chunk_reader_result()} | {:error, any()}
 
   @doc """
-  Builds a `Google.Bigtable.V2.ReadRowsRequest` with a provided table name.
+  Builds a `Google.Bigtable.V2.ReadRowsRequest` given an optional table name.
+
+  Defaults to the configured table name if none is provided.
 
   ## Examples
-      iex> table_name = "projects/[project_id]/instances/[instnace_id]/tables/[table_name]"
+      iex> table_name = "projects/project-id/instances/instance-id/tables/table-name"
       iex> Bigtable.Data.ReadRows.build(table_name)
       %Google.Bigtable.V2.ReadRowsRequest{
         app_profile_id: "",
         filter: nil,
         rows: nil,
         rows_limit: 0,
-        table_name: "projects/[project_id]/instances/[instnace_id]/tables/[table_name]"
+        table_name: "projects/project-id/instances/instance-id/tables/table-name"
       }
   """
   @spec build(binary()) :: V2.ReadRowsRequest.t()
@@ -31,9 +33,7 @@ defmodule Bigtable.Data.ReadRows do
   @doc """
   Submits a `Google.Bigtable.V2.ReadRowsRequest` to Bigtable.
 
-  Can be called with either a `Google.Bigtable.V2.ReadRowsRequest` or a table name to read all rows from a non-configured table.
-
-  Returns a list of `{:ok, %Google.Bigtable.V2.ReadRowsResponse{}}`.
+  Can be called with either a `Google.Bigtable.V2.ReadRowsRequest` or an optional table name.
   """
   @spec read(V2.ReadRowsRequest.t() | binary()) :: response()
   def read(table_name \\ Utils.configured_table_name())
