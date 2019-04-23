@@ -469,7 +469,7 @@ defmodule Bigtable.Data.RowFilter do
   end
 
   @doc """
-  Adds a strip value transformer Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
+  Adds a strip value transformer `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
 
 
   ## Examples
@@ -504,7 +504,7 @@ defmodule Bigtable.Data.RowFilter do
   end
 
   @doc """
-  Adds an apply label transformer Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
+  Adds an apply label transformer `Google.Bigtable.V2.RowFilter` to a `Google.Bigtable.V2.ReadRowsRequest`.
 
 
   ## Examples

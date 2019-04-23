@@ -13,7 +13,7 @@ defmodule Bigtable.Data.ReadModifyWriteRow do
   }
 
   @doc """
-  Builds a `Google.Bigtable.V2.ReadModifyWriteRowRequest` with a provided table name and row key`.
+  Builds a `Google.Bigtable.V2.ReadModifyWriteRowRequest` with a provided table name and row key
   """
   @spec build(binary(), binary()) :: ReadModifyWriteRowRequest.t()
   def build(table_name \\ Bigtable.Utils.configured_table_name(), row_key)

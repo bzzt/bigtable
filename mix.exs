@@ -1,7 +1,7 @@
 defmodule Bigtable.MixProject do
   use Mix.Project
 
-  alias Bigtable.{Admin, Connection}
+  alias Bigtable.{Admin, Connection, Data}
 
   @version "0.6.1"
 
@@ -57,7 +57,9 @@ defmodule Bigtable.MixProject do
       groups_for_modules: groups_for_modules(),
       extras: extras(),
       groups_for_extras: groups_for_extras(),
-      nest_modules_by_prefix: [Bigtable.Admin, Bigtable.Data]
+      nest_modules_by_prefix: [
+        Bigtable.Data.ChunkReader
+      ]
     ]
   end
 
@@ -86,6 +88,19 @@ defmodule Bigtable.MixProject do
       ],
       Connection: [
         Connection
+      ],
+      Data: [
+        Data.CheckAndMutateRow,
+        Data.ChunkReader,
+        Data.ChunkReader.ReadCell,
+        Data.MutateRow,
+        Data.MutateRows,
+        Data.Mutations,
+        Data.ReadModifyWriteRow,
+        Data.ReadRows,
+        Data.RowFilter,
+        Data.RowSet,
+        Data.SampleRowKeys
       ]
     ]
   end
@@ -101,17 +116,19 @@ defmodule Bigtable.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:poison, "~> 3.1"},
-      {:lens, "~> 0.8.0"},
+      {:google_protos, "~> 0.1"},
       {:goth, "~> 0.11.0"},
+      {:grpc, "~> 0.3.1"},
+      {:lens, "~> 0.8.0"},
+      {:poison, "~> 3.1"},
+      {:poolboy, "~> 1.5"},
+      {:protobuf, "~> 0.5.3"},
+      # Dev Deps
       {:credo, "~> 1.0.0", only: [:dev, :test, :ci], runtime: false},
+      {:dialyxir, "~> 1.0.0-rc.6", only: [:dev], runtime: false},
       {:excoveralls, "~> 0.10", only: [:dev, :test, :ci]},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
-      {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
-      {:protobuf, "~> 0.5.3"},
-      {:google_protos, "~> 0.1"},
-      {:grpc, "~> 0.3.1"},
-      {:poolboy, "~> 1.5"}
+      {:mix_test_watch, "~> 0.8", only: :dev, runtime: false}
     ]
   end
 end
