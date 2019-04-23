@@ -7,6 +7,8 @@ defmodule Bigtable.Data.ReadRows do
   alias Google.Bigtable.V2
   alias V2.Bigtable.Stub
 
+  @type response :: {:ok, ChunkReader.chunk_reader_result()} | {:error, any()}
+
   @doc """
   Builds a `Google.Bigtable.V2.ReadRowsRequest` with a provided table name.
 
@@ -22,26 +24,8 @@ defmodule Bigtable.Data.ReadRows do
       }
   """
   @spec build(binary()) :: V2.ReadRowsRequest.t()
-  def build(table_name) when is_binary(table_name) do
+  def build(table_name \\ Utils.configured_table_name()) when is_binary(table_name) do
     V2.ReadRowsRequest.new(table_name: table_name, app_profile_id: "")
-  end
-
-  @doc """
-  Builds a `Google.Bigtable.V2.ReadRowsRequest` with the configured table name.
-
-  ## Examples
-      iex> Bigtable.Data.ReadRows.build()
-      %Google.Bigtable.V2.ReadRowsRequest{
-        app_profile_id: "",
-        filter: nil,
-        rows: nil,
-        rows_limit: 0,
-        table_name: "projects/dev/instances/dev/tables/test"
-      }
-  """
-  @spec build() :: V2.ReadRowsRequest.t()
-  def build do
-    build(Bigtable.Utils.configured_table_name())
   end
 
   @doc """
@@ -51,73 +35,51 @@ defmodule Bigtable.Data.ReadRows do
 
   Returns a list of `{:ok, %Google.Bigtable.V2.ReadRowsResponse{}}`.
   """
-  @spec read(V2.ReadRowsRequest.t()) ::
-          {:error, any()}
-          | {:ok, ChunkReader.chunk_reader_result()}
+  @spec read(V2.ReadRowsRequest.t() | binary()) :: response()
+  def read(table_name \\ Utils.configured_table_name())
+
   def read(%V2.ReadRowsRequest{} = request) do
-    result =
-      request
-      |> Request.process_request(&Stub.read_rows/3, stream: true)
-
-    case result do
-      {:error, _} ->
-        result
-
-      {:ok, response} ->
-        process_response(response)
-    end
+    request
+    |> Request.process_request(&Stub.read_rows/3, stream: true)
+    |> handle_response()
   end
 
-  @spec read(binary()) ::
-          {:error, any()}
-          | {:ok, ChunkReader.chunk_reader_result()}
   def read(table_name) when is_binary(table_name) do
-    request = build(table_name)
-
-    request
+    table_name
+    |> build()
     |> read()
   end
 
-  @doc """
-  Submits a `Google.Bigtable.V2.ReadRowsRequest` to Bigtable.
+  defp handle_response({:error, _} = response), do: response
 
-  Without arguments, `Bigtable.ReadRows.read` will read all rows from the configured table.
-
-  Returns a list of `{:ok, %Google.Bigtable.V2.ReadRowsResponse{}}`.
-  """
-  @spec read() ::
-          {:error, any()}
-          | [ok: V2.ReadRowsResponse.t()]
-  def read do
-    request = build()
-
-    request
-    |> read
-  end
-
-  defp process_response(response) do
-    {:ok, cr} = ChunkReader.open()
-
+  defp handle_response({:ok, response}) do
     response
     |> Enum.filter(&contains_chunks?/1)
     |> Enum.flat_map(fn {:ok, resp} -> resp.chunks end)
-    |> process_response(nil, cr)
+    |> process_chunks()
   end
 
-  defp process_response([], _result, chunk_reader) do
+  defp process_chunks(chunks) do
+    {:ok, cr} = ChunkReader.open()
+
+    chunks
+    |> process_chunks(nil, cr)
+  end
+
+  defp process_chunks([], _result, chunk_reader) do
     ChunkReader.close(chunk_reader)
   end
 
-  defp process_response(_chunks, {:error, _}, chunk_reader) do
+  defp process_chunks(_chunks, {:error, _}, chunk_reader) do
     ChunkReader.close(chunk_reader)
   end
 
-  defp process_response([h | t], _result, chunk_reader) do
+  defp process_chunks([h | t], _result, chunk_reader) do
     result =
       chunk_reader
       |> ChunkReader.process(h)
 
-    process_response(t, result, chunk_reader)
+    process_chunks(t, result, chunk_reader)
   end
 
   defp contains_chunks?({:ok, response}), do: !Enum.empty?(response.chunks)

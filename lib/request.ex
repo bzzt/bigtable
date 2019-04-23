@@ -1,16 +1,18 @@
 defmodule Bigtable.Request do
+  @moduledoc false
   alias Bigtable.Connection
   alias Connection.Worker
 
+  @spec process_request(any(), function(), list()) :: {:ok, any()} | {:error, any()}
   def process_request(request, request_fn, opts \\ []) do
     response =
       :poolboy.transaction(
         :connection_pool,
         fn pid ->
-          connection = Worker.get_connection(pid)
           metadata = Connection.get_metadata()
 
-          connection
+          pid
+          |> Worker.get_connection()
           |> request_fn.(request, metadata)
         end,
         10_000
@@ -19,6 +21,7 @@ defmodule Bigtable.Request do
     handle_response(response, opts)
   end
 
+  @spec handle_response(any(), list()) :: {:ok, any()} | {:error, any()}
   defp handle_response({:ok, response, _headers}, opts) do
     if Keyword.get(opts, :stream, false) do
       processed =
@@ -41,12 +44,13 @@ defmodule Bigtable.Request do
     end
   end
 
-  @spec process_stream(Enumerable.t()) :: [{atom(), any}]
+  @spec process_stream(Enumerable.t()) :: [{:ok | :error, any}]
   defp process_stream(stream) do
     stream
     |> Stream.take_while(&remaining_resp?/1)
     |> Enum.to_list()
   end
 
+  @spec remaining_resp?({:ok | :error | :trailers, any()}) :: boolean()
   defp remaining_resp?({status, _}), do: status != :trailers
 end
