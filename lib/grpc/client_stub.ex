@@ -1,4 +1,4 @@
-defmodule Bigtable.Data.Service do
+defmodule Bigtable.Service do
   @moduledoc false
   use GRPC.Service, name: "google.bigtable.v2.Bigtable"
 
@@ -18,7 +18,7 @@ defmodule Bigtable.Data.Service do
   )
 end
 
-defmodule Bigtable.Data.Stub do
+defmodule Bigtable.Stub do
   @moduledoc false
-  use GRPC.Stub, service: Bigtable.Data.Service
+  use GRPC.Stub, service: Bigtable.Service
 end

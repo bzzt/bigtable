@@ -1,9 +1,7 @@
 defmodule MutateRowsTest do
   @moduledoc false
-  # TODO: Integration tests including errors
 
   alias Bigtable.{MutateRows, Mutations}
-
   use ExUnit.Case
 
   setup do

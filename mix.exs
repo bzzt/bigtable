@@ -1,7 +1,9 @@
 defmodule Bigtable.MixProject do
   use Mix.Project
 
-  @version "0.6.1"
+  alias Bigtable.{Admin, Connection}
+
+  @version "0.7.0"
 
   def project do
     [
@@ -39,7 +41,7 @@ defmodule Bigtable.MixProject do
   def application do
     [
       mod: {Bigtable, []},
-      extra_applications: [:logger, :grpc]
+      extra_applications: [:logger, :grpc, :poolboy]
     ]
   end
 
@@ -54,7 +56,10 @@ defmodule Bigtable.MixProject do
       formatters: ["html", "epub"],
       groups_for_modules: groups_for_modules(),
       extras: extras(),
-      groups_for_extras: groups_for_extras()
+      groups_for_extras: groups_for_extras(),
+      nest_modules_by_prefix: [
+        Bigtable.ChunkReader
+      ]
     ]
   end
 
@@ -62,26 +67,38 @@ defmodule Bigtable.MixProject do
     [
       "guides/introduction/overview.md",
       "guides/introduction/installation.md"
-      # "guides/operations/read_rows.md"
     ]
   end
 
   defp groups_for_extras do
     [
       Introduction: ~r/guides\/introduction\/.?/
-      # Operations: ~r/guides\/operations\/.?/
     ]
   end
 
   defp groups_for_modules do
     [
-      "Typed Bigtable": [
-        Bigtable.Schema
+      Admin: [
+        Admin.GcRule,
+        Admin.Modification,
+        Admin.Table,
+        Admin.TableAdmin
       ],
-      Operations: [
-        Bigtable.ReadRows,
+      Connection: [
+        Connection
+      ],
+      Data: [
+        Bigtable.CheckAndMutateRow,
+        Bigtable.ChunkReader,
+        Bigtable.ChunkReader.ReadCell,
         Bigtable.MutateRow,
-        Bigtable.MutateRows
+        Bigtable.MutateRows,
+        Bigtable.Mutations,
+        Bigtable.ReadModifyWriteRow,
+        Bigtable.ReadRows,
+        Bigtable.RowFilter,
+        Bigtable.RowSet,
+        Bigtable.SampleRowKeys
       ]
     ]
   end
@@ -97,16 +114,19 @@ defmodule Bigtable.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:poison, "~> 3.1"},
-      {:lens, "~> 0.8.0"},
+      {:google_protos, "~> 0.1"},
       {:goth, "~> 0.11.0"},
+      {:grpc, "~> 0.3.1"},
+      {:lens, "~> 0.8.0"},
+      {:poison, "~> 3.1"},
+      {:poolboy, "~> 1.5"},
+      {:protobuf, "~> 0.5.3"},
+      # Dev Deps
       {:credo, "~> 1.0.0", only: [:dev, :test, :ci], runtime: false},
+      {:dialyxir, "~> 1.0.0-rc.6", only: [:dev], runtime: false},
       {:excoveralls, "~> 0.10", only: [:dev, :test, :ci]},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
-      {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
-      {:protobuf, "~> 0.5.3"},
-      {:google_protos, "~> 0.1"},
-      {:grpc, "~> 0.3.1"}
+      {:mix_test_watch, "~> 0.8", only: :dev, runtime: false}
     ]
   end
 end

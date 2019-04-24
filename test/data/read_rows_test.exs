@@ -1,7 +1,5 @@
 defmodule ReadRowsTest do
-  # TODO: Integration tests including errors
-  alias Bigtable.{MutateRow, MutateRows, Mutations, ReadRows}
-
+  alias Bigtable.{ChunkReader, MutateRow, MutateRows, Mutations, ReadRows}
   use ExUnit.Case
 
   doctest ReadRows
@@ -86,7 +84,7 @@ defmodule ReadRowsTest do
     for row_key <- row_keys, into: %{} do
       {row_key,
        [
-         %Bigtable.ChunkReader.ReadCell{
+         %ChunkReader.ReadCell{
            family_name: %Google.Protobuf.StringValue{value: context.column_family},
            label: "",
            qualifier: %Google.Protobuf.BytesValue{value: context.column_qualifier},

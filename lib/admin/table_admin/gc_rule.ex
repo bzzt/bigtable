@@ -1,4 +1,7 @@
 defmodule Bigtable.Admin.GcRule do
+  @moduledoc """
+  Provides functions for creating garbage collection rules
+  """
   alias Google.Bigtable.Admin.V2
   alias Google.Protobuf.Duration
   alias V2.GcRule.{Intersection, Union}

@@ -1,8 +1,8 @@
 defmodule Bigtable.ReadModifyWriteRow do
   @moduledoc """
-  Provides functions to build `Google.Bigtable.V2.ReadModifyWriteRowRequest` and submit them to Bigtable.
+  Provides functionality for building and submitting a `Google.Bigtable.V2.ReadModifyWriteRowRequest`.
   """
-  alias Bigtable.Utils
+  alias Bigtable.Request
   alias Google.Bigtable.V2
   alias V2.Bigtable.Stub
 
@@ -12,8 +12,10 @@ defmodule Bigtable.ReadModifyWriteRow do
     ReadModifyWriteRule
   }
 
+  @type response :: {:ok, ReadModifyWriteRowResponse.t()} | {:error, binary()}
+
   @doc """
-  Builds a `Google.Bigtable.V2.ReadModifyWriteRowRequest` with a provided table name and row key`.
+  Builds a `Google.Bigtable.V2.ReadModifyWriteRowRequest` given a row key and optional table name.
   """
   @spec build(binary(), binary()) :: ReadModifyWriteRowRequest.t()
   def build(table_name \\ Bigtable.Utils.configured_table_name(), row_key)
@@ -58,11 +60,10 @@ defmodule Bigtable.ReadModifyWriteRow do
     |> add_rule(request)
   end
 
-  @spec mutate(ReadModifyWriteRowRequest.t()) ::
-          {:ok, ReadModifyWriteRowResponse.t()} | {:error, binary()}
+  @spec mutate(ReadModifyWriteRowRequest.t()) :: response()
   def mutate(%ReadModifyWriteRowRequest{} = request) do
     request
-    |> Utils.process_request(&Stub.read_modify_write_row/3, single: true)
+    |> Request.process_request(&Stub.read_modify_write_row/3, single: true)
   end
 
   @spec add_rule(ReadModifyWriteRule.t(), ReadModifyWriteRowRequest.t()) ::

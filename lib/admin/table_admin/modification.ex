@@ -1,4 +1,5 @@
 defmodule Bigtable.Admin.Modification do
-  def create(id) do
+  @moduledoc false
+  def create(_id) do
   end
 end

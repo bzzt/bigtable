@@ -1,13 +1,13 @@
 defmodule Bigtable.SampleRowKeys do
   @moduledoc """
-  Provides functions to build `Google.Bigtable.V2.SampleRowKeysRequest` and submit them to Bigtable.
+  Provides functionality for building and submitting `Google.Bigtable.V2.SampleRowKeysRequest`.
   """
-  alias Bigtable.Utils
+  alias Bigtable.Request
   alias Google.Bigtable.V2
   alias V2.Bigtable.Stub
 
   @doc """
-  Builds a `Google.Bigtable.V2.SampleRowKeysRequest` given a row_key and optional custom table name.
+  Builds a `Google.Bigtable.V2.SampleRowKeysRequest` given a row_key and optional table name.
 
   Defaults to configured table name.
 
@@ -21,11 +21,11 @@ defmodule Bigtable.SampleRowKeys do
       }
 
   ### Custom Table
-      iex> table_name = "projects/[project_id]/instances/[instance_id]/tables/[table_name]"
+      iex> table_name = "projects/project-id/instances/instance-id/tables/table-name"
       iex> Bigtable.SampleRowKeys.build(table_name)
       %Google.Bigtable.V2.SampleRowKeysRequest{
         app_profile_id: "",
-        table_name: "projects/[project_id]/instances/[instance_id]/tables/[table_name]",
+        table_name: "projects/project-id/instances/instance-id/tables/table-name",
       }
   """
   @spec build(binary()) :: V2.SampleRowKeysRequest.t()
@@ -38,14 +38,8 @@ defmodule Bigtable.SampleRowKeys do
   Submits a `Google.Bigtable.V2.SampleRowKeysRequest` to Bigtable.
   """
   @spec read(V2.SampleRowKeysRequest.t()) :: {:ok, V2.SampleRowKeysResponse} | {:error, any()}
-  def read(%V2.SampleRowKeysRequest{} = request) do
+  def read(%V2.SampleRowKeysRequest{} = request \\ build()) do
     request
-    |> Utils.process_request(&Stub.sample_row_keys/3, stream: true)
-  end
-
-  @spec read() :: {:ok, V2.SampleRowKeysResponse} | {:error, any()}
-  def read() do
-    build()
-    |> read()
+    |> Request.process_request(&Stub.sample_row_keys/3, stream: true)
   end
 end

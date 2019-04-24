@@ -50,9 +50,12 @@ defmodule TableAdminTest do
                context.table_name
              )
 
-      Table.build(%{
-        "cf1" => GcRule.max_age(30000)
-      })
+      cf = %{
+        "cf1" => GcRule.max_age(30_000)
+      }
+
+      cf
+      |> Table.build()
       |> TableAdmin.create_table("created")
 
       {:ok, after_insert} = TableAdmin.list_tables()

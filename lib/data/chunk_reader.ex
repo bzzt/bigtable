@@ -46,7 +46,7 @@ defmodule Bigtable.ChunkReader do
   @typedoc """
   A map containging lists of `Bigtable.ChunkReader.ReadCell` keyed by row key.
   """
-  @type chunk_reader_result :: %{optional(binary()) => [Bigtable.ChunkReader.ReadCell.t()]}
+  @type chunk_reader_result :: %{optional(binary()) => [ReadCell.t()]}
 
   def start_link(_) do
     GenServer.start_link(__MODULE__, %ReaderState{}, [])
@@ -56,7 +56,7 @@ defmodule Bigtable.ChunkReader do
   Opens a `Bigtable.ChunkReader`.
   """
   @spec open() :: :ignore | {:error, any()} | {:ok, pid()} | {:ok, pid(), any()}
-  def open() do
+  def open do
     DynamicSupervisor.start_child(__MODULE__.Supervisor, __MODULE__)
   end
 
@@ -243,7 +243,8 @@ defmodule Bigtable.ChunkReader do
         Map.get(cc, :labels, "")
       end
 
-    Map.put(cr, :cur_val, next_value)
+    cr
+    |> Map.put(:cur_val, next_value)
     |> Map.put(:cur_label, next_label)
     |> Map.put(:state, :cell_in_progress)
   end
@@ -263,7 +264,8 @@ defmodule Bigtable.ChunkReader do
         Map.get(cc, :labels, "")
       end
 
-    Map.put(cr, :cur_val, next_value)
+    cr
+    |> Map.put(:cur_val, next_value)
     |> Map.put(:cur_label, next_label)
     |> finish_cell(cc)
   end

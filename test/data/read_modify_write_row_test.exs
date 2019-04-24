@@ -1,7 +1,6 @@
 defmodule ReadModifyWriteRowTest do
   @moduledoc false
-  alias Bigtable.{ReadModifyWriteRow, MutateRow, Mutations, ReadRows}
-
+  alias Bigtable.{MutateRow, Mutations, ReadModifyWriteRow, ReadRows, RowFilter}
   use ExUnit.Case
 
   doctest ReadModifyWriteRow
@@ -12,7 +11,7 @@ defmodule ReadModifyWriteRowTest do
     row_key = "Test#123"
 
     on_exit(fn ->
-      mutation = Mutations.build(row_key) |> Mutations.delete_from_row()
+      mutation = row_key |> Mutations.build() |> Mutations.delete_from_row()
 
       mutation |> MutateRow.mutate()
     end)
@@ -29,12 +28,14 @@ defmodule ReadModifyWriteRowTest do
       val = <<1::integer-signed-64>>
 
       {:ok, _result} =
-        Mutations.build(context.row_key)
+        context.row_key
+        |> Mutations.build()
         |> Mutations.set_cell(context.family, qual, val, 0)
         |> MutateRow.mutate()
 
       {:ok, _result} =
-        ReadModifyWriteRow.build(context.row_key)
+        context.row_key
+        |> ReadModifyWriteRow.build()
         |> ReadModifyWriteRow.increment_amount(context.family, qual, 1)
         |> ReadModifyWriteRow.mutate()
 
@@ -42,10 +43,10 @@ defmodule ReadModifyWriteRowTest do
 
       {:ok, result} =
         ReadRows.build()
-        |> Bigtable.RowFilter.cells_per_column(1)
+        |> RowFilter.cells_per_column(1)
         |> ReadRows.read()
 
-      new_value = Map.values(result) |> List.flatten() |> List.first() |> Map.get(:value)
+      new_value = result |> Map.values() |> List.flatten() |> List.first() |> Map.get(:value)
 
       assert new_value == expected
     end
@@ -54,7 +55,8 @@ defmodule ReadModifyWriteRowTest do
       qual = "num"
 
       {:ok, _result} =
-        ReadModifyWriteRow.build(context.row_key)
+        context.row_key
+        |> ReadModifyWriteRow.build()
         |> ReadModifyWriteRow.increment_amount(context.family, qual, 3)
         |> ReadModifyWriteRow.mutate()
 
@@ -62,10 +64,10 @@ defmodule ReadModifyWriteRowTest do
 
       {:ok, result} =
         ReadRows.build()
-        |> Bigtable.RowFilter.cells_per_column(1)
+        |> RowFilter.cells_per_column(1)
         |> ReadRows.read()
 
-      new_value = Map.values(result) |> List.flatten() |> List.first() |> Map.get(:value)
+      new_value = result |> Map.values() |> List.flatten() |> List.first() |> Map.get(:value)
 
       assert new_value == expected
     end
@@ -75,12 +77,14 @@ defmodule ReadModifyWriteRowTest do
       val = "hello"
 
       {:ok, _result} =
-        Mutations.build(context.row_key)
+        context.row_key
+        |> Mutations.build()
         |> Mutations.set_cell(context.family, qual, val, 0)
         |> MutateRow.mutate()
 
       {:ok, _result} =
-        ReadModifyWriteRow.build(context.row_key)
+        context.row_key
+        |> ReadModifyWriteRow.build()
         |> ReadModifyWriteRow.append_value(context.family, qual, "world")
         |> ReadModifyWriteRow.mutate()
 
@@ -88,10 +92,10 @@ defmodule ReadModifyWriteRowTest do
 
       {:ok, result} =
         ReadRows.build()
-        |> Bigtable.RowFilter.cells_per_column(1)
+        |> RowFilter.cells_per_column(1)
         |> ReadRows.read()
 
-      new_value = Map.values(result) |> List.flatten() |> List.first() |> Map.get(:value)
+      new_value = result |> Map.values() |> List.flatten() |> List.first() |> Map.get(:value)
 
       assert new_value == expected
     end
@@ -100,7 +104,8 @@ defmodule ReadModifyWriteRowTest do
       qual = "string"
 
       {:ok, _result} =
-        ReadModifyWriteRow.build(context.row_key)
+        context.row_key
+        |> ReadModifyWriteRow.build()
         |> ReadModifyWriteRow.append_value(context.family, qual, "world")
         |> ReadModifyWriteRow.mutate()
 
@@ -108,10 +113,10 @@ defmodule ReadModifyWriteRowTest do
 
       {:ok, result} =
         ReadRows.build()
-        |> Bigtable.RowFilter.cells_per_column(1)
+        |> RowFilter.cells_per_column(1)
         |> ReadRows.read()
 
-      new_value = Map.values(result) |> List.flatten() |> List.first() |> Map.get(:value)
+      new_value = result |> Map.values() |> List.flatten() |> List.first() |> Map.get(:value)
 
       assert new_value == expected
     end

@@ -1,4 +1,4 @@
-defmodule Bigtable.Connection.Auth do
+defmodule Bigtable.Auth do
   @moduledoc false
 
   @scopes [
