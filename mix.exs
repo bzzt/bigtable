@@ -3,7 +3,7 @@ defmodule Bigtable.MixProject do
 
   alias Bigtable.{Admin, Connection}
 
-  @version "0.6.1"
+  @version "0.7.0"
 
   def project do
     [
@@ -67,14 +67,12 @@ defmodule Bigtable.MixProject do
     [
       "guides/introduction/overview.md",
       "guides/introduction/installation.md"
-      # "guides/operations/read_rows.md"
     ]
   end
 
   defp groups_for_extras do
     [
       Introduction: ~r/guides\/introduction\/.?/
-      # Operations: ~r/guides\/operations\/.?/
     ]
   end
 
