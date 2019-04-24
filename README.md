@@ -18,7 +18,7 @@ The package can be installed as:
 
 ```elixir
 def deps do
- [{:bigtable, "~> 0.6.1"}]
+ [{:bigtable, "~> 0.7.0"}]
 end
 ```
 
