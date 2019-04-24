@@ -1,8 +1,8 @@
-defmodule Bigtable.Data.RowSet do
+defmodule Bigtable.RowSet do
   @moduledoc """
   Provides functions to build a `Google.Bigtable.V2.RowSet` and apply it to a `Google.Bigtable.V2.ReadRowsRequest`
   """
-  alias Bigtable.Data.ReadRows
+  alias Bigtable.ReadRows
   alias Google.Bigtable.V2
 
   @doc """
@@ -13,12 +13,12 @@ defmodule Bigtable.Data.RowSet do
   ## Examples
   #### Single Key
 
-      iex> request = Bigtable.Data.ReadRows.build("table") |> Bigtable.Data.RowSet.row_keys("Row#123")
+      iex> request = Bigtable.ReadRows.build("table") |> Bigtable.RowSet.row_keys("Row#123")
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.rows
       %Google.Bigtable.V2.RowSet{row_keys: ["Row#123"], row_ranges: []}
 
   #### Multiple Keys
-      iex> request = Bigtable.Data.ReadRows.build("table") |> Bigtable.Data.RowSet.row_keys(["Row#123", "Row#124"])
+      iex> request = Bigtable.ReadRows.build("table") |> Bigtable.RowSet.row_keys(["Row#123", "Row#124"])
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.rows
       %Google.Bigtable.V2.RowSet{row_keys: ["Row#123", "Row#124"], row_ranges: []}
   """
@@ -42,12 +42,12 @@ defmodule Bigtable.Data.RowSet do
   ## Examples
   #### Single Key
 
-      iex> request = Bigtable.Data.RowSet.row_keys("Row#123")
+      iex> request = Bigtable.RowSet.row_keys("Row#123")
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.rows
       %Google.Bigtable.V2.RowSet{row_keys: ["Row#123"], row_ranges: []}
 
   #### Multiple Keys
-      iex> request = Bigtable.Data.RowSet.row_keys(["Row#123", "Row#124"])
+      iex> request = Bigtable.RowSet.row_keys(["Row#123", "Row#124"])
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.rows
       %Google.Bigtable.V2.RowSet{row_keys: ["Row#123", "Row#124"], row_ranges: []}
   """
@@ -71,7 +71,7 @@ defmodule Bigtable.Data.RowSet do
   ## Examples
   #### Single Range
 
-      iex> request = Bigtable.Data.ReadRows.build("table") |> Bigtable.Data.RowSet.row_ranges({"start", "end"})
+      iex> request = Bigtable.ReadRows.build("table") |> Bigtable.RowSet.row_ranges({"start", "end"})
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.rows
       %Google.Bigtable.V2.RowSet{
         row_keys: [],
@@ -86,7 +86,7 @@ defmodule Bigtable.Data.RowSet do
   #### Multiple Ranges
 
       iex> ranges = [{"start1", "end1"}, {"start2", "end2", false}]
-      iex> request = Bigtable.Data.ReadRows.build("table") |> Bigtable.Data.RowSet.row_ranges(ranges)
+      iex> request = Bigtable.ReadRows.build("table") |> Bigtable.RowSet.row_ranges(ranges)
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.rows
       %Google.Bigtable.V2.RowSet{
         row_keys: [],
@@ -128,7 +128,7 @@ defmodule Bigtable.Data.RowSet do
   ## Examples
   #### Single Range
 
-      iex> request = Bigtable.Data.RowSet.row_ranges({"start", "end"})
+      iex> request = Bigtable.RowSet.row_ranges({"start", "end"})
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.rows
       %Google.Bigtable.V2.RowSet{
         row_keys: [],
@@ -143,7 +143,7 @@ defmodule Bigtable.Data.RowSet do
   #### Multiple Ranges
 
       iex> ranges = [{"start1", "end1"}, {"start2", "end2", false}]
-      iex> request = Bigtable.Data.RowSet.row_ranges(ranges)
+      iex> request = Bigtable.RowSet.row_ranges(ranges)
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.rows
       %Google.Bigtable.V2.RowSet{
         row_keys: [],

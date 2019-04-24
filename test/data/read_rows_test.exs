@@ -1,5 +1,5 @@
 defmodule ReadRowsTest do
-  alias Bigtable.Data.{ChunkReader, MutateRow, MutateRows, Mutations, ReadRows}
+  alias Bigtable.{ChunkReader, MutateRow, MutateRows, Mutations, ReadRows}
   use ExUnit.Case
 
   doctest ReadRows

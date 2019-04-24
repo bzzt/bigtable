@@ -1,8 +1,8 @@
-defmodule Bigtable.Data.ReadRows do
+defmodule Bigtable.ReadRows do
   @moduledoc """
   Provides functionality for to building and submitting a `Google.Bigtable.V2.ReadRowsRequest`.
   """
-  alias Bigtable.Data.ChunkReader
+  alias Bigtable.ChunkReader
   alias Bigtable.{Request, Utils}
   alias Google.Bigtable.V2
   alias V2.Bigtable.Stub
@@ -16,7 +16,7 @@ defmodule Bigtable.Data.ReadRows do
 
   ## Examples
       iex> table_name = "projects/project-id/instances/instance-id/tables/table-name"
-      iex> Bigtable.Data.ReadRows.build(table_name)
+      iex> Bigtable.ReadRows.build(table_name)
       %Google.Bigtable.V2.ReadRowsRequest{
         app_profile_id: "",
         filter: nil,

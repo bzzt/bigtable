@@ -1,6 +1,6 @@
 defmodule ReadModifyWriteRowTest do
   @moduledoc false
-  alias Bigtable.Data.{MutateRow, Mutations, ReadModifyWriteRow, ReadRows, RowFilter}
+  alias Bigtable.{MutateRow, Mutations, ReadModifyWriteRow, ReadRows, RowFilter}
   use ExUnit.Case
 
   doctest ReadModifyWriteRow

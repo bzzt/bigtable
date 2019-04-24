@@ -1,4 +1,4 @@
-defmodule Bigtable.Data.Mutations do
+defmodule Bigtable.Mutations do
   @moduledoc """
   Provides functions to build Bigtable mutations that are used when forming
   row mutation requests.
@@ -12,7 +12,7 @@ defmodule Bigtable.Data.Mutations do
 
   ## Examples
 
-      iex> Bigtable.Data.Mutations.build("Row#123")
+      iex> Bigtable.Mutations.build("Row#123")
       %Google.Bigtable.V2.MutateRowsRequest.Entry{mutations: [], row_key: "Row#123"}
   """
   @spec build(binary()) :: Entry.t()

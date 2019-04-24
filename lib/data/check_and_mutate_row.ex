@@ -1,4 +1,4 @@
-defmodule Bigtable.Data.CheckAndMutateRow do
+defmodule Bigtable.CheckAndMutateRow do
   @moduledoc """
   Provides functionality for building and submitting a `Google.Bigtable.V2.CheckAndMutateRowRequest`.
   """
@@ -16,7 +16,7 @@ defmodule Bigtable.Data.CheckAndMutateRow do
   ## Examples
 
   ### Default Table
-      iex> Bigtable.Data.CheckAndMutateRow.build("Test#123")
+      iex> Bigtable.CheckAndMutateRow.build("Test#123")
       %Google.Bigtable.V2.CheckAndMutateRowRequest{
         app_profile_id: "",
         false_mutations: [],
@@ -28,7 +28,7 @@ defmodule Bigtable.Data.CheckAndMutateRow do
 
   ### Custom Table
       iex> table_name = "projects/project-id/instances/instance-id/tables/table-name"
-      iex> Bigtable.Data.CheckAndMutateRow.build(table_name, "Test#123")
+      iex> Bigtable.CheckAndMutateRow.build(table_name, "Test#123")
       %Google.Bigtable.V2.CheckAndMutateRowRequest{
         app_profile_id: "",
         false_mutations: [],

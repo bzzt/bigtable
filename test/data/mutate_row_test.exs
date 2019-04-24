@@ -1,6 +1,6 @@
 defmodule MutateRowTest do
   @moduledoc false
-  alias Bigtable.Data.{MutateRow, Mutations}
+  alias Bigtable.{MutateRow, Mutations}
 
   use ExUnit.Case
 

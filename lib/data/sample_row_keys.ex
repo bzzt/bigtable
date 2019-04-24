@@ -1,4 +1,4 @@
-defmodule Bigtable.Data.SampleRowKeys do
+defmodule Bigtable.SampleRowKeys do
   @moduledoc """
   Provides functionality for building and submitting `Google.Bigtable.V2.SampleRowKeysRequest`.
   """
@@ -14,7 +14,7 @@ defmodule Bigtable.Data.SampleRowKeys do
   ## Examples
 
   ### Default Table
-      iex> Bigtable.Data.SampleRowKeys.build()
+      iex> Bigtable.SampleRowKeys.build()
       %Google.Bigtable.V2.SampleRowKeysRequest{
         app_profile_id: "",
         table_name: "projects/dev/instances/dev/tables/test",
@@ -22,7 +22,7 @@ defmodule Bigtable.Data.SampleRowKeys do
 
   ### Custom Table
       iex> table_name = "projects/project-id/instances/instance-id/tables/table-name"
-      iex> Bigtable.Data.SampleRowKeys.build(table_name)
+      iex> Bigtable.SampleRowKeys.build(table_name)
       %Google.Bigtable.V2.SampleRowKeysRequest{
         app_profile_id: "",
         table_name: "projects/project-id/instances/instance-id/tables/table-name",

@@ -9,7 +9,7 @@ defmodule Bigtable.Supervisor do
   def init(:ok) do
     children = [
       Bigtable.Connection,
-      {DynamicSupervisor, name: Bigtable.Data.ChunkReader.Supervisor, strategy: :one_for_one}
+      {DynamicSupervisor, name: Bigtable.ChunkReader.Supervisor, strategy: :one_for_one}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

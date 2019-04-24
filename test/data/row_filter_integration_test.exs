@@ -1,6 +1,6 @@
 defmodule RowFilterIntegration do
   @moduledoc false
-  alias Bigtable.Data.{ChunkReader, MutateRow, MutateRows, Mutations, ReadRows, RowFilter}
+  alias Bigtable.{ChunkReader, MutateRow, MutateRows, Mutations, ReadRows, RowFilter}
   alias ChunkReader.ReadCell
   alias Google.Protobuf.{BytesValue, StringValue}
 

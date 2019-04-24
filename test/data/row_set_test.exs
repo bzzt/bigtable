@@ -1,5 +1,5 @@
 defmodule RowSetTest do
-  alias Bigtable.Data.RowSet
+  alias Bigtable.RowSet
 
   use ExUnit.Case
 

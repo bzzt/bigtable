@@ -1,6 +1,6 @@
 defmodule SampleRowKeysTest do
   @moduledoc false
-  alias Bigtable.Data.SampleRowKeys
+  alias Bigtable.SampleRowKeys
 
   use ExUnit.Case
 

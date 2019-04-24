@@ -1,4 +1,4 @@
-defmodule Bigtable.Data.RowFilter do
+defmodule Bigtable.RowFilter do
   alias Google.Bigtable.V2.{ColumnRange, ReadRowsRequest, RowFilter, TimestampRange}
 
   @type column_range :: {binary(), binary(), boolean()} | {binary(), binary()}
@@ -12,8 +12,8 @@ defmodule Bigtable.Data.RowFilter do
 
   ## Examples
 
-      iex> filters = [Bigtable.Data.RowFilter.cells_per_column(2), Bigtable.Data.RowFilter.row_key_regex("^Test#\w+")]
-      iex> request = Bigtable.Data.ReadRows.build("table") |> Bigtable.Data.RowFilter.chain(filters)
+      iex> filters = [Bigtable.RowFilter.cells_per_column(2), Bigtable.RowFilter.row_key_regex("^Test#\w+")]
+      iex> request = Bigtable.ReadRows.build("table") |> Bigtable.RowFilter.chain(filters)
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
       %Google.Bigtable.V2.RowFilter{
         filter: {:chain,
@@ -40,7 +40,7 @@ defmodule Bigtable.Data.RowFilter do
   Adds a cells per column `Google.Bigtable.V2.RowFilter` to a `Google.Bigtable.V2.ReadRowsRequest`.
 
   ## Examples
-      iex> request = Bigtable.Data.ReadRows.build() |> Bigtable.Data.RowFilter.cells_per_column(2)
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.cells_per_column(2)
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
       %Google.Bigtable.V2.RowFilter{
         filter:  {:cells_per_column_limit_filter, 2}
@@ -58,7 +58,7 @@ defmodule Bigtable.Data.RowFilter do
   Creates a cells per column `Google.Bigtable.V2.RowFilter`.
 
   ## Examples
-      iex> Bigtable.Data.RowFilter.cells_per_column(2)
+      iex> Bigtable.RowFilter.cells_per_column(2)
       %Google.Bigtable.V2.RowFilter{
         filter: {:cells_per_column_limit_filter, 2}
       }
@@ -73,7 +73,7 @@ defmodule Bigtable.Data.RowFilter do
   Adds a cells per row `Google.Bigtable.V2.RowFilter` to a `Google.Bigtable.V2.ReadRowsRequest`.
 
   ## Examples
-      iex> request = Bigtable.Data.ReadRows.build() |> Bigtable.Data.RowFilter.cells_per_row(2)
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.cells_per_row(2)
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
       %Google.Bigtable.V2.RowFilter{
         filter:  {:cells_per_row_limit_filter, 2}
@@ -91,7 +91,7 @@ defmodule Bigtable.Data.RowFilter do
   Creates a cells per row `Google.Bigtable.V2.RowFilter`.
 
   ## Examples
-      iex> Bigtable.Data.RowFilter.cells_per_row(2)
+      iex> Bigtable.RowFilter.cells_per_row(2)
       %Google.Bigtable.V2.RowFilter{
         filter: {:cells_per_row_limit_filter, 2}
       }
@@ -106,7 +106,7 @@ defmodule Bigtable.Data.RowFilter do
   Adds a cells per row offset `Google.Bigtable.V2.RowFilter` to a `Google.Bigtable.V2.ReadRowsRequest`.
 
   ## Examples
-      iex> request = Bigtable.Data.ReadRows.build() |> Bigtable.Data.RowFilter.cells_per_row_offset(2)
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.cells_per_row_offset(2)
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
       %Google.Bigtable.V2.RowFilter{
         filter:  {:cells_per_row_offset_filter, 2}
@@ -124,7 +124,7 @@ defmodule Bigtable.Data.RowFilter do
   Creates a cells per row offset `Google.Bigtable.V2.RowFilter`.
 
   ## Examples
-      iex> Bigtable.Data.RowFilter.cells_per_row_offset(2)
+      iex> Bigtable.RowFilter.cells_per_row_offset(2)
       %Google.Bigtable.V2.RowFilter{
         filter: {:cells_per_row_offset_filter, 2}
       }
@@ -139,7 +139,7 @@ defmodule Bigtable.Data.RowFilter do
   Adds a row key regex `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
 
   ## Examples
-      iex> request = Bigtable.Data.ReadRows.build() |> Bigtable.Data.RowFilter.row_key_regex("^Test#\\w+")
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.row_key_regex("^Test#\\w+")
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
       %Google.Bigtable.V2.RowFilter{
         filter: {:row_key_regex_filter, "^Test#\\w+"}
@@ -157,7 +157,7 @@ defmodule Bigtable.Data.RowFilter do
   Creates a row key regex `Google.Bigtable.V2.RowFilter`.
 
   ## Examples
-      iex> Bigtable.Data.RowFilter.row_key_regex("^Test#\\w+")
+      iex> Bigtable.RowFilter.row_key_regex("^Test#\\w+")
       %Google.Bigtable.V2.RowFilter{
         filter: {:row_key_regex_filter, "^Test#\\w+"}
       }
@@ -172,7 +172,7 @@ defmodule Bigtable.Data.RowFilter do
   Adds a value regex `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
 
   ## Examples
-      iex> request = Bigtable.Data.ReadRows.build() |> Bigtable.Data.RowFilter.value_regex("^test$")
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.value_regex("^test$")
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
       %Google.Bigtable.V2.RowFilter{
         filter: {:value_regex_filter, "^test$"}
@@ -190,7 +190,7 @@ defmodule Bigtable.Data.RowFilter do
   Creates a value regex `Google.Bigtable.V2.RowFilter`.
 
   ## Examples
-      iex> Bigtable.Data.RowFilter.value_regex("^test$")
+      iex> Bigtable.RowFilter.value_regex("^test$")
       %Google.Bigtable.V2.RowFilter{
         filter: {:value_regex_filter, "^test$"}
       }
@@ -205,7 +205,7 @@ defmodule Bigtable.Data.RowFilter do
   Adds a family name regex `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
 
   ## Examples
-      iex> request = Bigtable.Data.ReadRows.build() |> Bigtable.Data.RowFilter.family_name_regex("^testFamily$")
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.family_name_regex("^testFamily$")
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
       %Google.Bigtable.V2.RowFilter{
         filter: {:family_name_regex_filter, "^testFamily$"}
@@ -223,7 +223,7 @@ defmodule Bigtable.Data.RowFilter do
   Creates a family name regex `Google.Bigtable.V2.RowFilter`.
 
   ## Examples
-      iex> Bigtable.Data.RowFilter.family_name_regex("^testFamily$")
+      iex> Bigtable.RowFilter.family_name_regex("^testFamily$")
       %Google.Bigtable.V2.RowFilter{
         filter: {:family_name_regex_filter, "^testFamily$"}
       }
@@ -238,7 +238,7 @@ defmodule Bigtable.Data.RowFilter do
   Adds a column qualifier regex `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
 
   ## Examples
-      iex> request = Bigtable.Data.ReadRows.build() |> Bigtable.Data.RowFilter.column_qualifier_regex("^testColumn$")
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.column_qualifier_regex("^testColumn$")
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
       %Google.Bigtable.V2.RowFilter{
         filter: {:column_qualifier_regex_filter, "^testColumn$"}
@@ -256,7 +256,7 @@ defmodule Bigtable.Data.RowFilter do
   Creates a family name regex `Google.Bigtable.V2.RowFilter`.
 
   ## Examples
-      iex> Bigtable.Data.RowFilter.column_qualifier_regex("^testColumn$")
+      iex> Bigtable.RowFilter.column_qualifier_regex("^testColumn$")
       %Google.Bigtable.V2.RowFilter{
         filter: {:column_qualifier_regex_filter, "^testColumn$"}
       }
@@ -276,7 +276,7 @@ defmodule Bigtable.Data.RowFilter do
 
   ## Examples
       iex> range = {"column2", "column4"}
-      iex> request = Bigtable.Data.ReadRows.build() |> Bigtable.Data.RowFilter.column_range("family", range)
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.column_range("family", range)
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
       %Google.Bigtable.V2.RowFilter{
         filter: {
@@ -315,7 +315,7 @@ defmodule Bigtable.Data.RowFilter do
 
   ## Examples
       iex> range = {"column2", "column4"}
-      iex> Bigtable.Data.RowFilter.column_range("family", range)
+      iex> Bigtable.RowFilter.column_range("family", range)
       %Google.Bigtable.V2.RowFilter{
         filter: {
         :column_range_filter,
@@ -345,7 +345,7 @@ defmodule Bigtable.Data.RowFilter do
 
   ## Examples
       iex> range = [start_timestamp: 1000, end_timestamp: 2000]
-      iex> request = Bigtable.Data.ReadRows.build() |> Bigtable.Data.RowFilter.timestamp_range(range)
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.timestamp_range(range)
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
       %Google.Bigtable.V2.RowFilter{
         filter: {
@@ -373,7 +373,7 @@ defmodule Bigtable.Data.RowFilter do
 
   ## Examples
       iex> range = [start_timestamp: 1000, end_timestamp: 2000]
-      iex> Bigtable.Data.RowFilter.timestamp_range(range)
+      iex> Bigtable.RowFilter.timestamp_range(range)
       %Google.Bigtable.V2.RowFilter{
         filter: {
           :timestamp_range_filter,
@@ -400,7 +400,7 @@ defmodule Bigtable.Data.RowFilter do
   Adds a pass all `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
 
   ## Examples
-      iex> request = Bigtable.Data.ReadRows.build() |> Bigtable.Data.RowFilter.pass_all()
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.pass_all()
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
       %Google.Bigtable.V2.RowFilter{
         filter: {:pass_all_filter, true}
@@ -420,7 +420,7 @@ defmodule Bigtable.Data.RowFilter do
   Matches all cells, regardless of input. Functionally equivalent to leaving filter unset, but included for completeness.
 
   ## Examples
-      iex> Bigtable.Data.RowFilter.pass_all()
+      iex> Bigtable.RowFilter.pass_all()
       %Google.Bigtable.V2.RowFilter{
         filter: {:pass_all_filter, true}
       }
@@ -435,7 +435,7 @@ defmodule Bigtable.Data.RowFilter do
   Adds a block all `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
 
   ## Examples
-      iex> request = Bigtable.Data.ReadRows.build() |> Bigtable.Data.RowFilter.block_all()
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.block_all()
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
       %Google.Bigtable.V2.RowFilter{
         filter: {:block_all_filter, true}
@@ -455,7 +455,7 @@ defmodule Bigtable.Data.RowFilter do
   Does not match any cells, regardless of input. Useful for temporarily disabling just part of a filter.
 
   ## Examples
-      iex> Bigtable.Data.RowFilter.block_all()
+      iex> Bigtable.RowFilter.block_all()
       %Google.Bigtable.V2.RowFilter{
         filter: {:block_all_filter, true}
       }
@@ -470,7 +470,7 @@ defmodule Bigtable.Data.RowFilter do
   Adds a strip value transformer `Google.Bigtable.V2.RowFilter` a `Google.Bigtable.V2.ReadRowsRequest`.
 
   ## Examples
-      iex> request = Bigtable.Data.ReadRows.build() |> Bigtable.Data.RowFilter.strip_value_transformer()
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.strip_value_transformer()
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
       %Google.Bigtable.V2.RowFilter{
         filter: {:strip_value_transformer, true}
@@ -488,7 +488,7 @@ defmodule Bigtable.Data.RowFilter do
   Creates a strip value transformer `Google.Bigtable.V2.RowFilter`.
 
   ## Examples
-      iex> Bigtable.Data.RowFilter.strip_value_transformer()
+      iex> Bigtable.RowFilter.strip_value_transformer()
       %Google.Bigtable.V2.RowFilter{
         filter: {:strip_value_transformer, true}
       }
@@ -503,7 +503,7 @@ defmodule Bigtable.Data.RowFilter do
   Adds an apply label transformer `Google.Bigtable.V2.RowFilter` to a `Google.Bigtable.V2.ReadRowsRequest`.
 
   ## Examples
-      iex> request = Bigtable.Data.ReadRows.build() |> Bigtable.Data.RowFilter.apply_label_transformer("label")
+      iex> request = Bigtable.ReadRows.build() |> Bigtable.RowFilter.apply_label_transformer("label")
       iex> with %Google.Bigtable.V2.ReadRowsRequest{} <- request, do: request.filter
       %Google.Bigtable.V2.RowFilter{
         filter: {:apply_label_transformer, "label"}
@@ -520,7 +520,7 @@ defmodule Bigtable.Data.RowFilter do
   @doc """
   Creates an apply label transformer `Google.Bigtable.V2.RowFilter`.
   ## Examples
-      iex> Bigtable.Data.RowFilter.apply_label_transformer("label")
+      iex> Bigtable.RowFilter.apply_label_transformer("label")
       %Google.Bigtable.V2.RowFilter{
         filter: {:apply_label_transformer, "label"}
       }

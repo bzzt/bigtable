@@ -1,4 +1,4 @@
-defmodule Bigtable.Data.MutateRow do
+defmodule Bigtable.MutateRow do
   @moduledoc """
   Provides functionality for building and submitting a `Google.Bigtable.V2.MutateRowRequest`.
   """

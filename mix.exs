@@ -1,7 +1,7 @@
 defmodule Bigtable.MixProject do
   use Mix.Project
 
-  alias Bigtable.{Admin, Connection, Data}
+  alias Bigtable.{Admin, Connection}
 
   @version "0.6.1"
 
@@ -58,7 +58,7 @@ defmodule Bigtable.MixProject do
       extras: extras(),
       groups_for_extras: groups_for_extras(),
       nest_modules_by_prefix: [
-        Bigtable.Data.ChunkReader
+        Bigtable.ChunkReader
       ]
     ]
   end
@@ -90,17 +90,17 @@ defmodule Bigtable.MixProject do
         Connection
       ],
       Data: [
-        Data.CheckAndMutateRow,
-        Data.ChunkReader,
-        Data.ChunkReader.ReadCell,
-        Data.MutateRow,
-        Data.MutateRows,
-        Data.Mutations,
-        Data.ReadModifyWriteRow,
-        Data.ReadRows,
-        Data.RowFilter,
-        Data.RowSet,
-        Data.SampleRowKeys
+        Bigtable.CheckAndMutateRow,
+        Bigtable.ChunkReader,
+        Bigtable.ChunkReader.ReadCell,
+        Bigtable.MutateRow,
+        Bigtable.MutateRows,
+        Bigtable.Mutations,
+        Bigtable.ReadModifyWriteRow,
+        Bigtable.ReadRows,
+        Bigtable.RowFilter,
+        Bigtable.RowSet,
+        Bigtable.SampleRowKeys
       ]
     ]
   end
