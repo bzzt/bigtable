@@ -1,6 +1,6 @@
 defmodule Bigtable.Request do
   @moduledoc false
-  alias Bigtable.Connection
+  alias Bigtable.{Auth, Connection}
   alias Connection.Worker
 
   @spec process_request(any(), function(), list()) :: {:ok, any()} | {:error, any()}
@@ -9,11 +9,11 @@ defmodule Bigtable.Request do
       :poolboy.transaction(
         :connection_pool,
         fn pid ->
-          metadata = Connection.get_metadata()
+          token = Auth.get_token()
 
           pid
           |> Worker.get_connection()
-          |> request_fn.(request, metadata)
+          |> request_fn.(request, get_metadata(token))
         end,
         10_000
       )
@@ -53,4 +53,10 @@ defmodule Bigtable.Request do
 
   @spec remaining_resp?({:ok | :error | :trailers, any()}) :: boolean()
   defp remaining_resp?({status, _}), do: status != :trailers
+
+  @spec get_metadata(map()) :: Keyword.t()
+  defp get_metadata(%{token: token}) do
+    metadata = %{authorization: "Bearer #{token}"}
+    [metadata: metadata, content_type: "application/grpc", return_headers: true]
+  end
 end
