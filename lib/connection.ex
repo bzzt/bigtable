@@ -1,9 +1,6 @@
 defmodule Bigtable.Connection do
   @moduledoc false
-
   use GenServer
-  @default_endpoint "bigtable.googleapis.com:443"
-
   ## Client API
   def start_link(_opts) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
@@ -23,55 +20,5 @@ defmodule Bigtable.Connection do
   @spec disconnect(GRPC.Channel.t()) :: :ok
   def disconnect(channel) do
     GenServer.cast(__MODULE__, {:disconnect, channel})
-  end
-
-  # Server Callbacks
-  @spec init(:ok) :: {:ok, map()}
-  def init(:ok) do
-    {:ok, %{endpoint: get_endpoint(), opts: build_opts()}}
-  end
-
-  def handle_call(:connect, _from, %{endpoint: endpoint, opts: opts} = state) do
-    {:ok, channel} =
-      GRPC.Stub.connect(
-        endpoint,
-        opts
-      )
-
-    {:reply, channel, state}
-  end
-
-  def handle_cast({:disconnect, channel}, state) do
-    GRPC.Stub.disconnect(channel)
-    {:noreply, state}
-  end
-
-  def handle_info(_msg, state) do
-    {:noreply, state}
-  end
-
-  @spec build_opts() :: list()
-  defp build_opts do
-    if Application.get_env(:bigtable, :ssl, true) do
-      [
-        cred: %GRPC.Credential{
-          ssl: []
-        }
-      ]
-    else
-      []
-    end
-  end
-
-  @spec get_endpoint() :: binary()
-  def get_endpoint do
-    emulator = System.get_env("BIGTABLE_EMULATOR_HOST")
-    endpoint = Application.get_env(:bigtable, :endpoint, @default_endpoint)
-
-    if emulator != nil do
-      emulator
-    else
-      endpoint
-    end
   end
 end
