@@ -18,9 +18,11 @@ defmodule Bigtable.Connection.Worker do
   end
 
   def handle_call(:get_connection, _from, nil) do
-    IO.puts("Starting new connection")
-
-    {:ok, connection} = GRPC.Stub.connect(get_endpoint(), build_opts())
+    {:ok, connection} =
+      GRPC.Stub.connect(
+        get_endpoint(),
+        build_opts()
+      )
 
     {:reply, connection, connection}
   end
@@ -44,7 +46,9 @@ defmodule Bigtable.Connection.Worker do
   end
 
   defp disconnect(connection) do
-    GRPC.Stub.disconnect(connection)
+    unless is_nil(connection) do
+      GRPC.Stub.disconnect(connection)
+    end
   end
 
   @spec build_opts() :: list()

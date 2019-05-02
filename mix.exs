@@ -116,7 +116,8 @@ defmodule Bigtable.MixProject do
     [
       {:google_protos, "~> 0.1"},
       {:goth, "~> 0.11.0"},
-      {:grpc, "~> 0.3.1"},
+      # {:grpc, "~> 0.3.1"},
+      {:grpc, "~> 0.4.0-alpha.2"},
       {:lens, "~> 0.8.0"},
       {:poison, "~> 3.1"},
       {:poolboy, "~> 1.5"},

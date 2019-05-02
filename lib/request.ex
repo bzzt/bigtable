@@ -24,11 +24,8 @@ defmodule Bigtable.Request do
   @spec handle_response(any(), list()) :: {:ok, any()} | {:error, any()}
   defp handle_response({:ok, response, _headers}, opts) do
     if Keyword.get(opts, :stream, false) do
-      processed =
-        response
-        |> process_stream()
-
-      {:ok, processed}
+      response
+      |> process_stream()
     else
       {:ok, response}
     end
@@ -46,13 +43,20 @@ defmodule Bigtable.Request do
 
   @spec process_stream(Enumerable.t()) :: [{:ok | :error, any}]
   defp process_stream(stream) do
-    stream
-    |> Stream.take_while(&remaining_resp?/1)
-    |> Enum.to_list()
+    result =
+      stream
+      |> Stream.take_while(&remaining_resp?/1)
+      |> Enum.to_list()
+
+    if Enum.any?(result, fn {status, _} -> status == :error end) do
+      {:error, "Stream error"}
+    else
+      {:ok, result}
+    end
   end
 
   @spec remaining_resp?({:ok | :error | :trailers, any()}) :: boolean()
-  defp remaining_resp?({status, _}), do: status != :trailers
+  defp remaining_resp?({status, _}), do: status == :ok
 
   @spec get_metadata(map()) :: Keyword.t()
   defp get_metadata(%{token: token}) do
