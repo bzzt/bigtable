@@ -5,20 +5,26 @@ defmodule Bigtable.Request do
 
   @spec process_request(any(), function(), list()) :: {:ok, any()} | {:error, any()}
   def process_request(request, request_fn, opts \\ []) do
-    response =
-      :poolboy.transaction(
-        :connection_pool,
-        fn pid ->
-          token = Auth.get_token()
+    :poolboy.transaction(
+      :connection_pool,
+      fn pid ->
+        token = Auth.get_token()
 
+        start = :os.system_time(:millisecond)
+
+        result =
           pid
           |> Worker.get_connection()
           |> request_fn.(request, get_metadata(token))
-        end,
-        10_000
-      )
+          |> handle_response(opts)
 
-    handle_response(response, opts)
+        finish = :os.system_time(:millisecond)
+
+        IO.puts("#{finish - start}ms")
+        result
+      end,
+      30_000
+    )
   end
 
   @spec handle_response(any(), list()) :: {:ok, any()} | {:error, any()}
@@ -41,7 +47,6 @@ defmodule Bigtable.Request do
     end
   end
 
-  @spec process_stream(Enumerable.t()) :: [{:ok | :error, any}]
   defp process_stream(stream) do
     result =
       stream
