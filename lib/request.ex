@@ -1,30 +1,37 @@
 defmodule Bigtable.Request do
   @moduledoc false
   alias Bigtable.{Auth, Connection}
-  alias Connection.Worker
+  alias Google.Bigtable.V2.Bigtable.Stub, as: DataStub
+  alias Google.Bigtable.Admin.V2.BigtableTableAdmin.Stub, as: AdminStub
 
-  @spec process_request(any(), function(), list()) :: {:ok, any()} | {:error, any()}
-  def process_request(request, request_fn, opts \\ []) do
-    :poolboy.transaction(
-      :connection_pool,
-      fn pid ->
-        token = Auth.get_token()
+  def submit_request(%Bigtable.Query{} = query) do
+    Connection
+    |> Process.whereis()
+    |> DBConnection.execute(query, [])
+  end
 
-        start = :os.system_time(:millisecond)
+  def process_request(conn, %Bigtable.Query{} = query) do
+    %{request: request, type: type, api: api, opts: opts} = query
+    token = Auth.get_token()
 
-        result =
-          pid
-          |> Worker.get_connection()
-          |> request_fn.(request, get_metadata(token))
-          |> handle_response(opts)
+    start = :os.system_time(:millisecond)
 
-        finish = :os.system_time(:millisecond)
+    stub =
+      if api == :data do
+        DataStub
+      else
+        AdminStub
+      end
 
-        IO.puts("#{finish - start}ms")
-        result
-      end,
-      30_000
-    )
+    result =
+      stub
+      |> apply(type, [conn, request, get_metadata(token)])
+      |> handle_response(opts)
+
+    finish = :os.system_time(:millisecond)
+
+    IO.puts("#{finish - start}ms")
+    result
   end
 
   @spec handle_response(any(), list()) :: {:ok, any()} | {:error, any()}

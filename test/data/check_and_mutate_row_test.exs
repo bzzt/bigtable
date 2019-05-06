@@ -8,12 +8,14 @@ defmodule CheckAndMutateRowTest do
   doctest CheckAndMutateRow
 
   setup do
-    assert ReadRows.read() == {:ok, %{}}
+    {:ok, _query, %{}} = ReadRows.read()
 
     row_key = "Test#123"
     qualifier = "column"
 
-    {:ok, _} =
+    request = Bigtable.ReadRows.build()
+
+    {:ok, _query, _response} =
       row_key
       |> Mutations.build()
       |> Mutations.set_cell("cf1", qualifier, "value", 0)
@@ -28,7 +30,12 @@ defmodule CheckAndMutateRowTest do
 
     [
       qualifier: qualifier,
-      row_key: row_key
+      row_key: row_key,
+      query: %Bigtable.Query{
+        opts: [stream: true],
+        request: request,
+        type: :read_rows
+      }
     ]
   end
 
@@ -37,14 +44,14 @@ defmodule CheckAndMutateRowTest do
       mutation =
         context.row_key |> Mutations.build() |> Mutations.set_cell("cf1", "truthy", "true", 0)
 
-      {:ok, _result} =
+      {:ok, _query, _response} =
         context.row_key
         |> CheckAndMutateRow.build()
         |> CheckAndMutateRow.if_true(mutation)
         |> CheckAndMutateRow.mutate()
 
       expected =
-        {:ok,
+        {:ok, context.query,
          %{
            context.row_key => [
              %ReadCell{
@@ -76,14 +83,14 @@ defmodule CheckAndMutateRowTest do
       mutation2 =
         context.row_key |> Mutations.build() |> Mutations.set_cell("cf1", "alsoTruthy", "true", 0)
 
-      {:ok, _result} =
+      {:ok, _query, _response} =
         context.row_key
         |> CheckAndMutateRow.build()
         |> CheckAndMutateRow.if_true([mutation1, mutation2])
         |> CheckAndMutateRow.mutate()
 
       expected =
-        {:ok,
+        {:ok, context.query,
          %{
            context.row_key => [
              %ReadCell{
@@ -121,13 +128,13 @@ defmodule CheckAndMutateRowTest do
       mutation =
         context.row_key |> Mutations.build() |> Mutations.set_cell("cf1", "truthy", "true", 0)
 
-      {:ok, _result} =
+      {:ok, _query, _response} =
         CheckAndMutateRow.build("Doesnt#Exist")
         |> CheckAndMutateRow.if_true(mutation)
         |> CheckAndMutateRow.mutate()
 
       expected =
-        {:ok,
+        {:ok, context.query,
          %{
            context.row_key => [
              %ReadCell{
@@ -150,7 +157,7 @@ defmodule CheckAndMutateRowTest do
       mutation =
         context.row_key |> Mutations.build() |> Mutations.set_cell("cf1", "truthy", "true", 0)
 
-      {:ok, _result} =
+      {:ok, _query, _response} =
         context.row_key
         |> CheckAndMutateRow.build()
         |> CheckAndMutateRow.predicate(filter)
@@ -158,7 +165,7 @@ defmodule CheckAndMutateRowTest do
         |> CheckAndMutateRow.mutate()
 
       expected =
-        {:ok,
+        {:ok, context.query,
          %{
            context.row_key => [
              %ReadCell{
@@ -192,7 +199,7 @@ defmodule CheckAndMutateRowTest do
       mutation2 =
         context.row_key |> Mutations.build() |> Mutations.set_cell("cf1", "alsoTruthy", "true", 0)
 
-      {:ok, _result} =
+      {:ok, _query, _response} =
         context.row_key
         |> CheckAndMutateRow.build()
         |> CheckAndMutateRow.predicate(filter)
@@ -200,7 +207,7 @@ defmodule CheckAndMutateRowTest do
         |> CheckAndMutateRow.mutate()
 
       expected =
-        {:ok,
+        {:ok, context.query,
          %{
            context.row_key => [
              %ReadCell{
@@ -239,7 +246,7 @@ defmodule CheckAndMutateRowTest do
       mutation =
         context.row_key |> Mutations.build() |> Mutations.set_cell("cf1", "truthy", "true", 0)
 
-      {:ok, _result} =
+      {:ok, _query, _response} =
         context.row_key
         |> CheckAndMutateRow.build()
         |> CheckAndMutateRow.predicate(filter)
@@ -247,7 +254,7 @@ defmodule CheckAndMutateRowTest do
         |> CheckAndMutateRow.mutate()
 
       expected =
-        {:ok,
+        {:ok, context.query,
          %{
            context.row_key => [
              %ReadCell{
@@ -270,7 +277,7 @@ defmodule CheckAndMutateRowTest do
       mutation =
         context.row_key |> Mutations.build() |> Mutations.set_cell("cf1", "false", "false", 0)
 
-      {:ok, _result} =
+      {:ok, _query, _response} =
         context.row_key
         |> CheckAndMutateRow.build()
         |> CheckAndMutateRow.predicate(filter)
@@ -278,7 +285,7 @@ defmodule CheckAndMutateRowTest do
         |> CheckAndMutateRow.mutate()
 
       expected =
-        {:ok,
+        {:ok, context.query,
          %{
            context.row_key => [
              %ReadCell{
@@ -312,7 +319,7 @@ defmodule CheckAndMutateRowTest do
       mutation2 =
         context.row_key |> Mutations.build() |> Mutations.set_cell("cf1", "false2", "false2", 0)
 
-      {:ok, _result} =
+      {:ok, _query, _response} =
         context.row_key
         |> CheckAndMutateRow.build()
         |> CheckAndMutateRow.predicate(filter)
@@ -320,7 +327,7 @@ defmodule CheckAndMutateRowTest do
         |> CheckAndMutateRow.mutate()
 
       expected =
-        {:ok,
+        {:ok, context.query,
          %{
            context.row_key => [
              %ReadCell{
@@ -359,7 +366,7 @@ defmodule CheckAndMutateRowTest do
       mutation =
         context.row_key |> Mutations.build() |> Mutations.set_cell("cf1", "false", "false", 0)
 
-      {:ok, _result} =
+      {:ok, _query, _response} =
         context.row_key
         |> CheckAndMutateRow.build()
         |> CheckAndMutateRow.predicate(filter)
@@ -367,7 +374,7 @@ defmodule CheckAndMutateRowTest do
         |> CheckAndMutateRow.mutate()
 
       expected =
-        {:ok,
+        {:ok, context.query,
          %{
            context.row_key => [
              %ReadCell{

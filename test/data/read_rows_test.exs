@@ -18,9 +18,17 @@ defmodule ReadRowsTest do
 
   describe "ReadRows.read()" do
     setup do
-      assert ReadRows.read() == {:ok, %{}}
-
       row_keys = ["Test#123", "Test#234"]
+
+      request = Bigtable.ReadRows.build()
+
+      query = %Bigtable.Query{
+        opts: [stream: true],
+        request: request,
+        type: :read_rows
+      }
+
+      assert ReadRows.read() == {:ok, query, %{}}
 
       on_exit(fn ->
         mutations =
@@ -39,15 +47,15 @@ defmodule ReadRowsTest do
         row_keys: row_keys,
         column_family: "cf1",
         column_qualifier: "column",
-        value: "value"
+        value: "value",
+        query: query
       ]
     end
 
-    test "should read from an empty table" do
-      assert ReadRows.read() == {:ok, %{}}
+    test "should read from an empty table", context do
+      assert ReadRows.read() == {:ok, context.query, %{}}
     end
 
-    @tag :wip
     test "should read from a table with a single record", context do
       [key | _] = context.row_keys
 
@@ -57,7 +65,7 @@ defmodule ReadRowsTest do
       |> Mutations.set_cell(context.column_family, context.column_qualifier, context.value, 0)
       |> MutateRow.mutate()
 
-      expected = {:ok, expected_response([key], context)}
+      expected = {:ok, context.query, expected_response([key], context)}
 
       assert ReadRows.read() == expected
     end
@@ -74,7 +82,7 @@ defmodule ReadRowsTest do
       entries
       |> MutateRows.mutate()
 
-      expected = {:ok, expected_response(["Test#123", "Test#234"], context)}
+      expected = {:ok, context.query, expected_response(["Test#123", "Test#234"], context)}
 
       assert ReadRows.read() == expected
     end

@@ -41,7 +41,7 @@ defmodule Bigtable.MixProject do
   def application do
     [
       mod: {Bigtable, []},
-      extra_applications: [:logger, :grpc, :poolboy]
+      extra_applications: [:logger, :grpc, :db_connection]
     ]
   end
 
@@ -114,6 +114,7 @@ defmodule Bigtable.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:db_connection, "~> 2.0.6"},
       {:google_protos, "~> 0.1"},
       {:goth, "~> 0.11.0"},
       # {:grpc, "~> 0.3.1"},

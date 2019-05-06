@@ -2,10 +2,8 @@ defmodule Bigtable.ReadRows do
   @moduledoc """
   Provides functionality for to building and submitting a `Google.Bigtable.V2.ReadRowsRequest`.
   """
-  alias Bigtable.ChunkReader
-  alias Bigtable.{Request, Utils}
+  alias Bigtable.{ChunkReader, Request, Utils}
   alias Google.Bigtable.V2
-  alias V2.Bigtable.Stub
 
   @type response :: {:ok, ChunkReader.chunk_reader_result()} | {:error, any()}
 
@@ -39,8 +37,10 @@ defmodule Bigtable.ReadRows do
   def read(table_name \\ Utils.configured_table_name())
 
   def read(%V2.ReadRowsRequest{} = request) do
-    request
-    |> Request.process_request(&Stub.read_rows/3, stream: true)
+    query = %Bigtable.Query{request: request, type: :read_rows, opts: [stream: true]}
+
+    query
+    |> Request.submit_request()
     |> handle_response()
   end
 
@@ -52,11 +52,14 @@ defmodule Bigtable.ReadRows do
 
   defp handle_response({:error, _} = response), do: response
 
-  defp handle_response({:ok, response}) do
-    response
-    |> Enum.filter(&contains_chunks?/1)
-    |> Enum.flat_map(fn {:ok, resp} -> resp.chunks end)
-    |> process_chunks()
+  defp handle_response({:ok, query, response}) do
+    {:ok, processed} =
+      response
+      |> Enum.filter(&contains_chunks?/1)
+      |> Enum.flat_map(fn {:ok, resp} -> resp.chunks end)
+      |> process_chunks()
+
+    {:ok, query, processed}
   end
 
   defp process_chunks(chunks) do

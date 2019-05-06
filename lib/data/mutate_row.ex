@@ -4,7 +4,6 @@ defmodule Bigtable.MutateRow do
   """
   alias Bigtable.{Request, Utils}
   alias Google.Bigtable.V2
-  alias V2.Bigtable.Stub
   alias V2.MutateRowsRequest.Entry
 
   @type response :: {:ok, V2.MutateRowResponse.t()} | {:error, any()}
@@ -29,8 +28,10 @@ defmodule Bigtable.MutateRow do
   """
   @spec mutate(V2.MutateRowRequest.t()) :: response()
   def mutate(%V2.MutateRowRequest{} = request) do
-    request
-    |> Request.process_request(&Stub.mutate_row/3, single: true)
+    query = %Bigtable.Query{request: request, type: :mutate_row}
+
+    query
+    |> Request.submit_request()
   end
 
   @spec mutate(V2.MutateRowsRequest.Entry.t()) :: response()

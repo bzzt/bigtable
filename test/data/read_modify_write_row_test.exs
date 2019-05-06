@@ -6,7 +6,7 @@ defmodule ReadModifyWriteRowTest do
   doctest ReadModifyWriteRow
 
   setup do
-    assert ReadRows.read() == {:ok, %{}}
+    {:ok, _query, %{}} = ReadRows.read()
 
     row_key = "Test#123"
 
@@ -27,13 +27,13 @@ defmodule ReadModifyWriteRowTest do
       qual = "num"
       val = <<1::integer-signed-64>>
 
-      {:ok, _result} =
+      {:ok, _query, _result} =
         context.row_key
         |> Mutations.build()
         |> Mutations.set_cell(context.family, qual, val, 0)
         |> MutateRow.mutate()
 
-      {:ok, _result} =
+      {:ok, _query, _result} =
         context.row_key
         |> ReadModifyWriteRow.build()
         |> ReadModifyWriteRow.increment_amount(context.family, qual, 1)
@@ -41,7 +41,7 @@ defmodule ReadModifyWriteRowTest do
 
       expected = <<0, 0, 0, 0, 0, 0, 0, 2>>
 
-      {:ok, result} =
+      {:ok, _query, result} =
         ReadRows.build()
         |> RowFilter.cells_per_column(1)
         |> ReadRows.read()
@@ -54,7 +54,7 @@ defmodule ReadModifyWriteRowTest do
     test "should increment a non existing column", context do
       qual = "num"
 
-      {:ok, _result} =
+      {:ok, _query, _result} =
         context.row_key
         |> ReadModifyWriteRow.build()
         |> ReadModifyWriteRow.increment_amount(context.family, qual, 3)
@@ -62,7 +62,7 @@ defmodule ReadModifyWriteRowTest do
 
       expected = <<0, 0, 0, 0, 0, 0, 0, 3>>
 
-      {:ok, result} =
+      {:ok, _query, result} =
         ReadRows.build()
         |> RowFilter.cells_per_column(1)
         |> ReadRows.read()
@@ -76,13 +76,13 @@ defmodule ReadModifyWriteRowTest do
       qual = "string"
       val = "hello"
 
-      {:ok, _result} =
+      {:ok, _query, _result} =
         context.row_key
         |> Mutations.build()
         |> Mutations.set_cell(context.family, qual, val, 0)
         |> MutateRow.mutate()
 
-      {:ok, _result} =
+      {:ok, _query, _result} =
         context.row_key
         |> ReadModifyWriteRow.build()
         |> ReadModifyWriteRow.append_value(context.family, qual, "world")
@@ -90,7 +90,7 @@ defmodule ReadModifyWriteRowTest do
 
       expected = "helloworld"
 
-      {:ok, result} =
+      {:ok, _query, result} =
         ReadRows.build()
         |> RowFilter.cells_per_column(1)
         |> ReadRows.read()
@@ -103,7 +103,7 @@ defmodule ReadModifyWriteRowTest do
     test "should append a string to a non existing column", context do
       qual = "string"
 
-      {:ok, _result} =
+      {:ok, _query, _result} =
         context.row_key
         |> ReadModifyWriteRow.build()
         |> ReadModifyWriteRow.append_value(context.family, qual, "world")
@@ -111,7 +111,7 @@ defmodule ReadModifyWriteRowTest do
 
       expected = "world"
 
-      {:ok, result} =
+      {:ok, _query, result} =
         ReadRows.build()
         |> RowFilter.cells_per_column(1)
         |> ReadRows.read()

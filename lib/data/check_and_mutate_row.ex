@@ -4,7 +4,6 @@ defmodule Bigtable.CheckAndMutateRow do
   """
   alias Bigtable.{Request, Utils}
   alias Google.Bigtable.V2
-  alias V2.Bigtable.Stub
 
   @type entries() :: V2.MutateRowsRequest.Entry | [V2.MutateRowsRequest.Entry]
 
@@ -63,11 +62,11 @@ defmodule Bigtable.CheckAndMutateRow do
   @doc """
   Submits a `Google.Bigtable.V2.CheckAndMutateRowRequest` to Bigtable.
   """
-  @spec mutate(V2.CheckAndMutateRowRequest.t()) ::
-          {:ok, [V2.CheckAndMutateRowResponse]} | {:error, binary()}
   def mutate(%V2.CheckAndMutateRowRequest{} = request) do
-    request
-    |> Request.process_request(&Stub.check_and_mutate_row/3, single: true)
+    query = %Bigtable.Query{request: request, type: :check_and_mutate_row}
+
+    query
+    |> Request.submit_request()
   end
 
   @spec extract_mutations(entries()) :: [V2.Mutation.t()]

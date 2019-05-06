@@ -7,9 +7,14 @@ defmodule RowFilterIntegration do
   use ExUnit.Case
 
   setup do
-    assert ReadRows.read() == {:ok, %{}}
+    {:ok, _query, %{}} = ReadRows.read()
 
     row_keys = ["Test#1", "Test#2", "Other#1"]
+
+    query = %Bigtable.Query{
+      opts: [stream: true],
+      type: :read_rows
+    }
 
     on_exit(fn ->
       mutations =
@@ -46,7 +51,7 @@ defmodule RowFilterIntegration do
         ]
       }
 
-      {:ok, filtered} =
+      {:ok, _query, filtered} =
         ReadRows.build()
         |> RowFilter.cells_per_column(1)
         |> ReadRows.read()
@@ -97,12 +102,12 @@ defmodule RowFilterIntegration do
 
       request = ReadRows.build()
 
-      {:ok, test_filtered} =
+      {:ok, _query, test_filtered} =
         request
         |> RowFilter.row_key_regex("^Test#\\w+")
         |> ReadRows.read()
 
-      {:ok, other_filtered} =
+      {:ok, _query, other_filtered} =
         request
         |> RowFilter.row_key_regex("^Other#\\w+")
         |> ReadRows.read()
@@ -142,12 +147,12 @@ defmodule RowFilterIntegration do
         ]
       }
 
-      {:ok, _} =
+      {:ok, _query, _response} =
         mutation
         |> MutateRow.build()
         |> MutateRow.mutate()
 
-      {:ok, result} =
+      {:ok, _query, result} =
         ReadRows.build()
         |> RowFilter.value_regex("foo")
         |> ReadRows.read()
@@ -211,12 +216,12 @@ defmodule RowFilterIntegration do
         ]
       }
 
-      {:ok, _} =
+      {:ok, _query, _response} =
         [first_mutation, second_mutation]
         |> MutateRows.build()
         |> MutateRows.mutate()
 
-      {:ok, result} =
+      {:ok, _query, result} =
         ReadRows.build()
         |> RowFilter.value_regex("foo")
         |> ReadRows.read()
@@ -267,17 +272,17 @@ defmodule RowFilterIntegration do
         ]
       }
 
-      {:ok, _} =
+      {:ok, _query, _response} =
         mutation
         |> MutateRow.build()
         |> MutateRow.mutate()
 
-      {:ok, cf_result} =
+      {:ok, _query, cf_result} =
         ReadRows.build()
         |> RowFilter.family_name_regex("^cf\\w")
         |> ReadRows.read()
 
-      {:ok, other_result} =
+      {:ok, _query, other_result} =
         ReadRows.build()
         |> RowFilter.family_name_regex("^other?\\w{0,}")
         |> ReadRows.read()
@@ -352,17 +357,17 @@ defmodule RowFilterIntegration do
         ]
       }
 
-      {:ok, _} =
+      {:ok, _query, _response} =
         [first_mutation, second_mutation]
         |> MutateRows.build()
         |> MutateRows.mutate()
 
-      {:ok, cf_result} =
+      {:ok, _query, cf_result} =
         ReadRows.build()
         |> RowFilter.family_name_regex("cf\\w{0,}")
         |> ReadRows.read()
 
-      {:ok, other_result} =
+      {:ok, _query, other_result} =
         ReadRows.build()
         |> RowFilter.family_name_regex("other\\w{0,}")
         |> ReadRows.read()
@@ -432,17 +437,17 @@ defmodule RowFilterIntegration do
         ]
       }
 
-      {:ok, _} =
+      {:ok, _query, _response} =
         mutation
         |> MutateRow.build()
         |> MutateRow.mutate()
 
-      {:ok, foo_result} =
+      {:ok, _query, foo_result} =
         ReadRows.build()
         |> RowFilter.column_qualifier_regex("foo-?\\w{0,}")
         |> ReadRows.read()
 
-      {:ok, bar_result} =
+      {:ok, _query, bar_result} =
         ReadRows.build()
         |> RowFilter.column_qualifier_regex("bar-?\\w{0,}")
         |> ReadRows.read()
@@ -526,17 +531,17 @@ defmodule RowFilterIntegration do
         ]
       }
 
-      {:ok, _} =
+      {:ok, _query, _response} =
         [first_mutation, second_mutation]
         |> MutateRows.build()
         |> MutateRows.mutate()
 
-      {:ok, foo_result} =
+      {:ok, _query, foo_result} =
         ReadRows.build()
         |> RowFilter.column_qualifier_regex("foo-?\\w{0,}")
         |> ReadRows.read()
 
-      {:ok, bar_result} =
+      {:ok, _query, bar_result} =
         ReadRows.build()
         |> RowFilter.column_qualifier_regex("bar-?\\w{0,}")
         |> ReadRows.read()
@@ -583,7 +588,7 @@ defmodule RowFilterIntegration do
         ]
       }
 
-      {:ok, result} =
+      {:ok, _query, result} =
         ReadRows.build()
         |> RowFilter.column_range("cf1", range)
         |> ReadRows.read()
@@ -651,7 +656,7 @@ defmodule RowFilterIntegration do
         ]
       }
 
-      {:ok, result} =
+      {:ok, _query, result} =
         ReadRows.build()
         |> RowFilter.column_range("cf1", range)
         |> ReadRows.read()
@@ -675,7 +680,7 @@ defmodule RowFilterIntegration do
         ]
       }
 
-      {:ok, result} =
+      {:ok, _query, result} =
         ReadRows.build()
         |> RowFilter.column_range("cf1", range)
         |> ReadRows.read()
@@ -711,7 +716,7 @@ defmodule RowFilterIntegration do
         ]
       }
 
-      {:ok, result} =
+      {:ok, _query, result} =
         ReadRows.build()
         |> RowFilter.column_range("cf1", range)
         |> ReadRows.read()
@@ -781,7 +786,7 @@ defmodule RowFilterIntegration do
         ]
       }
 
-      {:ok, result} =
+      {:ok, _query, result} =
         ReadRows.build()
         |> RowFilter.timestamp_range(range)
         |> ReadRows.read()
@@ -813,7 +818,7 @@ defmodule RowFilterIntegration do
         ]
       }
 
-      {:ok, result} =
+      {:ok, _query, result} =
         ReadRows.build()
         |> RowFilter.timestamp_range(range)
         |> ReadRows.read()
@@ -861,7 +866,7 @@ defmodule RowFilterIntegration do
         ]
       }
 
-      {:ok, result} =
+      {:ok, _query, result} =
         ReadRows.build()
         |> RowFilter.timestamp_range(range)
         |> ReadRows.read()
@@ -929,7 +934,7 @@ defmodule RowFilterIntegration do
           ])
         end)
 
-      {:ok, result} =
+      {:ok, _query, result} =
         ReadRows.build()
         |> RowFilter.timestamp_range(range)
         |> ReadRows.read()
@@ -965,7 +970,7 @@ defmodule RowFilterIntegration do
           ])
         end)
 
-      {:ok, result} =
+      {:ok, _query, result} =
         ReadRows.build()
         |> RowFilter.timestamp_range(range)
         |> ReadRows.read()
@@ -1017,7 +1022,7 @@ defmodule RowFilterIntegration do
           ])
         end)
 
-      {:ok, result} =
+      {:ok, _query, result} =
         ReadRows.build()
         |> RowFilter.timestamp_range(range)
         |> ReadRows.read()
@@ -1030,7 +1035,7 @@ defmodule RowFilterIntegration do
     test "should let all values from a row pass through", context do
       [row_key | _rest] = context.row_keys
 
-      {:ok, _} =
+      {:ok, _query, _result} =
         row_key
         |> Mutations.build()
         |> Mutations.set_cell("cf1", "column", "value", 0)
@@ -1049,7 +1054,7 @@ defmodule RowFilterIntegration do
         ]
       }
 
-      {:ok, result} =
+      {:ok, _query, result} =
         ReadRows.build()
         |> RowFilter.pass_all()
         |> ReadRows.read()
@@ -1062,7 +1067,7 @@ defmodule RowFilterIntegration do
     test "should replace values with empty strings", context do
       [row_key | _rest] = context.row_keys
 
-      {:ok, _} =
+      {:ok, _query, _result} =
         row_key
         |> Mutations.build()
         |> Mutations.set_cell("cf1", "column1", "value", 0)
@@ -1099,7 +1104,7 @@ defmodule RowFilterIntegration do
         ]
       }
 
-      {:ok, result} =
+      {:ok, _query, result} =
         ReadRows.build()
         |> RowFilter.strip_value_transformer()
         |> ReadRows.read()
@@ -1112,7 +1117,7 @@ defmodule RowFilterIntegration do
     test "should limit the number of cells in a returned row", context do
       [row_key | _rest] = context.row_keys
 
-      {:ok, _} =
+      {:ok, _query, _result} =
         row_key
         |> Mutations.build()
         |> Mutations.set_cell("cf1", "column1", "value", 4000)
@@ -1121,7 +1126,7 @@ defmodule RowFilterIntegration do
         |> Mutations.set_cell("cf2", "column3", "value", 2000)
         |> MutateRow.mutate()
 
-      {:ok, result} =
+      {:ok, _query, result} =
         ReadRows.build()
         |> RowFilter.cells_per_row(2)
         |> ReadRows.read()
@@ -1140,7 +1145,7 @@ defmodule RowFilterIntegration do
     test "should apply label to cells", context do
       [row_key | _rest] = context.row_keys
 
-      {:ok, _} =
+      {:ok, _query, _result} =
         row_key
         |> Mutations.build()
         |> Mutations.set_cell("cf1", "column1", "value", 0)
@@ -1177,7 +1182,7 @@ defmodule RowFilterIntegration do
         ]
       }
 
-      {:ok, result} =
+      {:ok, _query, result} =
         ReadRows.build()
         |> RowFilter.apply_label_transformer("label")
         |> ReadRows.read()
@@ -1209,7 +1214,7 @@ defmodule RowFilterIntegration do
         ]
       }
 
-      {:ok, result} =
+      {:ok, _query, result} =
         ReadRows.build()
         |> RowFilter.chain(filters)
         |> ReadRows.read()
@@ -1231,7 +1236,7 @@ defmodule RowFilterIntegration do
   end
 
   defp seed_timestamp_range(row_key) do
-    {:ok, _} =
+    {:ok, _query, _response} =
       row_key
       |> Mutations.build()
       |> Mutations.set_cell("cf1", "column1", "value1", 1000)
@@ -1249,7 +1254,7 @@ defmodule RowFilterIntegration do
   end
 
   defp seed_range(row_key) do
-    {:ok, _} =
+    {:ok, _query, _response} =
       row_key
       |> Mutations.build()
       |> Mutations.set_cell("cf1", "column1", "value1", 0)
@@ -1265,7 +1270,7 @@ defmodule RowFilterIntegration do
 
   defp seed_values(context) do
     Enum.each(context.row_keys, fn key ->
-      {:ok, _} =
+      {:ok, _query, _response} =
         key
         |> Mutations.build()
         |> Mutations.set_cell("cf1", "column", "value", 0)

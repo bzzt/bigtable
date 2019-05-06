@@ -60,10 +60,11 @@ defmodule Bigtable.ReadModifyWriteRow do
     |> add_rule(request)
   end
 
-  @spec mutate(ReadModifyWriteRowRequest.t()) :: response()
   def mutate(%ReadModifyWriteRowRequest{} = request) do
-    request
-    |> Request.process_request(&Stub.read_modify_write_row/3, single: true)
+    query = %Bigtable.Query{request: request, type: :read_modify_write_row}
+
+    query
+    |> Request.submit_request()
   end
 
   @spec add_rule(ReadModifyWriteRule.t(), ReadModifyWriteRowRequest.t()) ::

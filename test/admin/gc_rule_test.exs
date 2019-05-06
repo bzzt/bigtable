@@ -8,7 +8,7 @@ defmodule GcRuleTest do
     table_name = "projects/dev/instances/dev/tables/gc_rule"
 
     on_exit(fn ->
-      {:ok, _} = TableAdmin.delete_table(table_name)
+      {:ok, _query, _response} = TableAdmin.delete_table(table_name)
     end)
 
     [table_name: table_name]
@@ -32,7 +32,7 @@ defmodule GcRuleTest do
         }
       }
 
-      {:ok, response} = TableAdmin.get_table(context.table_name)
+      {:ok, _query, response} = TableAdmin.get_table(context.table_name)
 
       assert response.column_families == expected
     end
@@ -56,7 +56,7 @@ defmodule GcRuleTest do
         }
       }
 
-      {:ok, response} = TableAdmin.get_table(context.table_name)
+      {:ok, _query, response} = TableAdmin.get_table(context.table_name)
       assert response.column_families == expected
     end
   end
@@ -88,7 +88,7 @@ defmodule GcRuleTest do
         }
       }
 
-      {:ok, response} = TableAdmin.get_table(context.table_name)
+      {:ok, _query, response} = TableAdmin.get_table(context.table_name)
       assert response.column_families == expected
     end
   end
@@ -120,7 +120,7 @@ defmodule GcRuleTest do
         }
       }
 
-      {:ok, response} = TableAdmin.get_table(context.table_name)
+      {:ok, _query, response} = TableAdmin.get_table(context.table_name)
       assert response.column_families == expected
     end
   end

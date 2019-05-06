@@ -27,10 +27,11 @@ defmodule Bigtable.MutateRows do
 
   Returns a `Google.Bigtable.V2.MutateRowsResponse`
   """
-  @spec mutate(V2.MutateRowsRequest.t()) :: response()
   def mutate(%V2.MutateRowsRequest{} = request) do
-    request
-    |> Request.process_request(&Stub.mutate_rows/3, stream: true)
+    query = %Bigtable.Query{request: request, type: :mutate_rows, opts: [stream: true]}
+
+    query
+    |> Request.submit_request()
   end
 
   @spec mutate([V2.MutateRowsRequest.Entry.t()]) :: response()
