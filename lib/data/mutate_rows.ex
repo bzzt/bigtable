@@ -4,7 +4,6 @@ defmodule Bigtable.MutateRows do
   """
   alias Bigtable.{Request, Utils}
   alias Google.Bigtable.V2
-  alias V2.Bigtable.Stub
 
   @type response :: {:ok, V2.MutateRowsResponse.t()} | {:error, any()}
 
@@ -34,7 +33,6 @@ defmodule Bigtable.MutateRows do
     |> Request.submit_request()
   end
 
-  @spec mutate([V2.MutateRowsRequest.Entry.t()]) :: response()
   def mutate(entries) when is_list(entries) do
     entries
     |> build()

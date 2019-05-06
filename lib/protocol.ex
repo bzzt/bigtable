@@ -1,23 +1,23 @@
 defmodule Bigtable.Protocol do
   use DBConnection
   @default_endpoint "bigtable.googleapis.com:443"
+  @default_options [adapter_opts: %{http2_opts: %{keepalive: :infinity}}]
 
   def connect(opts) do
-    IO.puts("INSIDE CONNECT")
-
-    opts = build_opts()
+    opts = build_opts(opts)
+    IO.inspect(opts)
 
     {:ok, connection} =
       GRPC.Stub.connect(
         get_endpoint(),
-        opts ++ [adapter_opts: %{http2_opts: %{keepalive: :infinity}}]
+        opts
       )
 
     {:ok, connection}
   end
 
   def disconnect(err, connection) do
-    IO.puts("INSIDE DISCONNECT")
+    IO.puts("Protocol disconnection: #{inspect(err)}")
     GRPC.Stub.disconnect(connection)
     :ok
   end
@@ -85,8 +85,13 @@ defmodule Bigtable.Protocol do
     end
   end
 
-  @spec build_opts() :: list()
-  defp build_opts do
+  @spec build_opts(list()) :: list()
+  defp build_opts(opts) do
+    Keyword.merge(@default_options ++ ssl_opts(), opts)
+  end
+
+  @spec ssl_opts() :: list()
+  defp ssl_opts() do
     if Application.get_env(:bigtable, :ssl, true) do
       [
         cred: %GRPC.Credential{
