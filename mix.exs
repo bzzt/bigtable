@@ -119,9 +119,7 @@ defmodule Bigtable.MixProject do
       {:goth, "~> 0.11.0"},
       # {:grpc, "~> 0.3.1"},
       {:grpc, "~> 0.4.0-alpha.2"},
-      {:lens, "~> 0.8.0"},
       {:poison, "~> 3.1"},
-      {:poolboy, "~> 1.5"},
       {:protobuf, "~> 0.5.3"},
       # Dev Deps
       {:credo, "~> 1.0.0", only: [:dev, :test, :ci], runtime: false},

@@ -4,13 +4,10 @@ defmodule Bigtable.Protocol do
   @default_options [adapter_opts: %{http2_opts: %{keepalive: :infinity}}]
 
   def connect(opts) do
-    opts = build_opts(opts)
-    IO.inspect(opts)
-
     {:ok, connection} =
       GRPC.Stub.connect(
         get_endpoint(),
-        opts
+        build_opts(opts)
       )
 
     {:ok, connection}
@@ -67,7 +64,6 @@ defmodule Bigtable.Protocol do
   end
 
   def handle_status(opts, state) do
-    IO.inspect(opts)
     {:idle, state}
   end
 
