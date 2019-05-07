@@ -4,7 +4,7 @@ defmodule Bigtable.Connection do
   ## Client API
   def start_link(_opts) do
     DBConnection.start_link(Bigtable.Protocol,
-      pool_size: 20,
+      pool_size: 40,
       queue_target: 100,
       queue_interval: 5000,
       name: __MODULE__

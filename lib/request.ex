@@ -14,7 +14,7 @@ defmodule Bigtable.Request do
     %{request: request, type: type, api: api, opts: opts} = query
     token = Auth.get_token()
 
-    start = :os.system_time(:millisecond)
+    # start = :os.system_time(:millisecond)
 
     stub =
       if api == :data do
@@ -23,15 +23,15 @@ defmodule Bigtable.Request do
         AdminStub
       end
 
-    result =
-      stub
-      |> apply(type, [conn, request, get_metadata(token)])
-      |> handle_response(opts)
+    # result =
+    stub
+    |> apply(type, [conn, request, get_metadata(token)])
+    |> handle_response(opts)
 
-    finish = :os.system_time(:millisecond)
+    # finish = :os.system_time(:millisecond)
 
-    IO.puts("#{finish - start}ms")
-    result
+    # IO.puts("#{finish - start}ms")
+    # result
   end
 
   @spec handle_response(any(), list()) :: {:ok, any()} | {:error, any()}
