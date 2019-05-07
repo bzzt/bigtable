@@ -28,7 +28,6 @@ end
 
 ## Feature List
 
-
 ### Data API
 
 #### Operations:
@@ -76,11 +75,12 @@ end
 ### Admin API
 
 #### Table Admin
+
 - [x] Create Table
 - [x] Delete Table
 - [x] Get Table
 - [x] List Tables
+- [x] Modify Column Families
 - [ ] Check Consistency
 - [ ] Drop Row Range
 - [ ] Generate Consistency Token
-- [ ] Modify Column Families
