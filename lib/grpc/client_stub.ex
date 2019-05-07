@@ -5,11 +5,11 @@ defmodule Bigtable.Service do
   alias Google.Bigtable.V2
 
   rpc(:ReadRows, V2.ReadRowsRequest, stream(V2.ReadRowsResponse))
-  rpc(:MutateRow, V2.MutateRowRequest, stream(V2.MutateRowResponse))
-  rpc(:MutateRows, V2.MutateRowsRequest, stream(V2.MutateRowsResponse))
-  rpc(:CheckAndMutateRow, V2.CheckAndMutateRowRequest, stream(V2.CheckAndMutateRowResponse))
-  rpc(:SampleRowKeys, V2.SampleRowKeysRequest, stream(V2.SampleRowKeysResponse))
-  rpc(:ReadModifyWriteRow, V2.ReadModifyWriteRowRequest, stream(V2.ReadModifyWriteRowResponse))
+  rpc(:MutateRow, V2.MutateRowRequest, V2.MutateRowResponse)
+  rpc(:MutateRows, V2.MutateRowsRequest, V2.MutateRowsResponse)
+  rpc(:CheckAndMutateRow, V2.CheckAndMutateRowRequest, V2.CheckAndMutateRowResponse)
+  rpc(:SampleRowKeys, V2.SampleRowKeysRequest, V2.SampleRowKeysResponse)
+  rpc(:ReadModifyWriteRow, V2.ReadModifyWriteRowRequest, V2.ReadModifyWriteRowResponse)
 
   rpc(
     :ListTables,
