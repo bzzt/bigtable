@@ -12,9 +12,12 @@ defmodule Bigtable.Request do
 
   def process_request(conn, %Bigtable.Query{} = query) do
     %{request: request, type: type, api: api, opts: opts} = query
+
+    log = Application.get_env(:bigtable, :log_requests, false)
+
     token = Auth.get_token()
 
-    # start = :os.system_time(:millisecond)
+    start = :os.system_time(:millisecond)
 
     stub =
       if api == :data do
@@ -23,15 +26,18 @@ defmodule Bigtable.Request do
         AdminStub
       end
 
-    # result =
-    stub
-    |> apply(type, [conn, request, get_metadata(token)])
-    |> handle_response(opts)
+    result =
+      stub
+      |> apply(type, [conn, request, get_metadata(token)])
+      |> handle_response(opts)
 
-    # finish = :os.system_time(:millisecond)
+    finish = :os.system_time(:millisecond)
 
-    # IO.puts("#{finish - start}ms")
-    # result
+    if log do
+      IO.puts("#{finish - start}ms")
+    end
+
+    result
   end
 
   @spec handle_response(any(), list()) :: {:ok, any()} | {:error, any()}
