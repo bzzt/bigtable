@@ -190,7 +190,7 @@ defmodule Bigtable.ChunkReader do
         {:error, "received new row key #{cc.row_key} during existing row #{cr.cur_key}"}
 
       family?(cc) and !qualifier?(cc) ->
-        {:error, "family name #{cc.family_name} specified without a qualifier"}
+        {:error, "family name #{cc.family_name.value} specified without a qualifier"}
 
       true ->
         :ok
