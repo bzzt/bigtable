@@ -52,9 +52,15 @@ defmodule Bigtable.Connection do
 
   @spec build_opts() :: list()
   defp build_opts do
+    default_ssl_opts = [
+      customize_hostname_check: [
+        match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
+      ]
+    ]
+
     [
       cred: %GRPC.Credential{
-        ssl: Application.get_env(:bigtable, :ssl, [])
+        ssl: Application.get_env(:bigtable, :ssl, []) ++ default_ssl_opts
       }
     ]
   end
