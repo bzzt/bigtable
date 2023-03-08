@@ -52,15 +52,11 @@ defmodule Bigtable.Connection do
 
   @spec build_opts() :: list()
   defp build_opts do
-    if Application.get_env(:bigtable, :ssl, true) do
-      [
-        cred: %GRPC.Credential{
-          ssl: []
-        }
-      ]
-    else
-      []
-    end
+    [
+      cred: %GRPC.Credential{
+        ssl: Application.get_env(:bigtable, :ssl, [])
+      }
+    ]
   end
 
   @spec get_endpoint() :: binary()
