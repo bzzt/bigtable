@@ -52,15 +52,11 @@ defmodule Bigtable.Connection do
 
   @spec build_opts() :: list()
   defp build_opts do
-    if Application.get_env(:bigtable, :ssl, true) do
-      [
-        cred: %GRPC.Credential{
-          ssl: []
-        }
-      ]
-    else
-      []
-    end
+    [
+      cred: %GRPC.Credential{
+        ssl: Application.get_env(:bigtable, :ssl, []) ++ default_ssl_opts()
+      }
+    ]
   end
 
   @spec get_endpoint() :: binary()
@@ -73,5 +69,13 @@ defmodule Bigtable.Connection do
     else
       endpoint
     end
+  end
+
+  defp default_ssl_opts() do
+    [
+      customize_hostname_check: [
+        match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
+      ]
+    ]
   end
 end

@@ -120,7 +120,7 @@ defmodule Bigtable.MixProject do
       {:lens, "~> 0.8.0"},
       {:poison, "~> 3.1"},
       {:poolboy, "~> 1.5"},
-      {:protobuf, "~> 0.5.3"},
+      {:protobuf, "~> 0.6.3"},
       # Dev Deps
       {:credo, "~> 1.0.0", only: [:dev, :test, :ci], runtime: false},
       {:dialyxir, "~> 1.0.0-rc.6", only: [:dev], runtime: false},
