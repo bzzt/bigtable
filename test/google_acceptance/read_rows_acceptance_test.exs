@@ -5,8 +5,8 @@ defmodule TestResult do
   def from_chunk(row_key, %ReadCell{} = ri) do
     %{
       rk: row_key,
-      fm: ri.family_name,
-      qual: ri.qualifier,
+      fm: ri.family_name.value,
+      qual: ri.qualifier.value,
       ts: ri.timestamp,
       value: ri.value,
       error: false,
