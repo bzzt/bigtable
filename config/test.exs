@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :goth,
   disabled: true
@@ -8,4 +8,4 @@ config :bigtable,
   instance: "dev",
   table: "test",
   endpoint: "localhost:9035",
-  ssl: false
+  ssl: []
