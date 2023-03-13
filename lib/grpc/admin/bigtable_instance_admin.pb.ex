@@ -10,14 +10,15 @@ defmodule Google.Bigtable.Admin.V2.CreateInstanceRequest do
         }
   defstruct [:parent, :instance_id, :instance, :clusters]
 
-  field :parent, 1, type: :string
-  field :instance_id, 2, type: :string
-  field :instance, 3, type: Google.Bigtable.Admin.V2.Instance
+  field(:parent, 1, type: :string)
+  field(:instance_id, 2, type: :string)
+  field(:instance, 3, type: Google.Bigtable.Admin.V2.Instance)
 
-  field :clusters, 4,
+  field(:clusters, 4,
     repeated: true,
     type: Google.Bigtable.Admin.V2.CreateInstanceRequest.ClustersEntry,
     map: true
+  )
 end
 
 defmodule Google.Bigtable.Admin.V2.CreateInstanceRequest.ClustersEntry do
@@ -30,8 +31,8 @@ defmodule Google.Bigtable.Admin.V2.CreateInstanceRequest.ClustersEntry do
         }
   defstruct [:key, :value]
 
-  field :key, 1, type: :string
-  field :value, 2, type: Google.Bigtable.Admin.V2.Cluster
+  field(:key, 1, type: :string)
+  field(:value, 2, type: Google.Bigtable.Admin.V2.Cluster)
 end
 
 defmodule Google.Bigtable.Admin.V2.GetInstanceRequest do
@@ -43,7 +44,7 @@ defmodule Google.Bigtable.Admin.V2.GetInstanceRequest do
         }
   defstruct [:name]
 
-  field :name, 1, type: :string
+  field(:name, 1, type: :string)
 end
 
 defmodule Google.Bigtable.Admin.V2.ListInstancesRequest do
@@ -56,8 +57,8 @@ defmodule Google.Bigtable.Admin.V2.ListInstancesRequest do
         }
   defstruct [:parent, :page_token]
 
-  field :parent, 1, type: :string
-  field :page_token, 2, type: :string
+  field(:parent, 1, type: :string)
+  field(:page_token, 2, type: :string)
 end
 
 defmodule Google.Bigtable.Admin.V2.ListInstancesResponse do
@@ -71,9 +72,9 @@ defmodule Google.Bigtable.Admin.V2.ListInstancesResponse do
         }
   defstruct [:instances, :failed_locations, :next_page_token]
 
-  field :instances, 1, repeated: true, type: Google.Bigtable.Admin.V2.Instance
-  field :failed_locations, 2, repeated: true, type: :string
-  field :next_page_token, 3, type: :string
+  field(:instances, 1, repeated: true, type: Google.Bigtable.Admin.V2.Instance)
+  field(:failed_locations, 2, repeated: true, type: :string)
+  field(:next_page_token, 3, type: :string)
 end
 
 defmodule Google.Bigtable.Admin.V2.PartialUpdateInstanceRequest do
@@ -86,8 +87,8 @@ defmodule Google.Bigtable.Admin.V2.PartialUpdateInstanceRequest do
         }
   defstruct [:instance, :update_mask]
 
-  field :instance, 1, type: Google.Bigtable.Admin.V2.Instance
-  field :update_mask, 2, type: Google.Protobuf.FieldMask
+  field(:instance, 1, type: Google.Bigtable.Admin.V2.Instance)
+  field(:update_mask, 2, type: Google.Protobuf.FieldMask)
 end
 
 defmodule Google.Bigtable.Admin.V2.DeleteInstanceRequest do
@@ -99,7 +100,7 @@ defmodule Google.Bigtable.Admin.V2.DeleteInstanceRequest do
         }
   defstruct [:name]
 
-  field :name, 1, type: :string
+  field(:name, 1, type: :string)
 end
 
 defmodule Google.Bigtable.Admin.V2.CreateClusterRequest do
@@ -113,9 +114,9 @@ defmodule Google.Bigtable.Admin.V2.CreateClusterRequest do
         }
   defstruct [:parent, :cluster_id, :cluster]
 
-  field :parent, 1, type: :string
-  field :cluster_id, 2, type: :string
-  field :cluster, 3, type: Google.Bigtable.Admin.V2.Cluster
+  field(:parent, 1, type: :string)
+  field(:cluster_id, 2, type: :string)
+  field(:cluster, 3, type: Google.Bigtable.Admin.V2.Cluster)
 end
 
 defmodule Google.Bigtable.Admin.V2.GetClusterRequest do
@@ -127,7 +128,7 @@ defmodule Google.Bigtable.Admin.V2.GetClusterRequest do
         }
   defstruct [:name]
 
-  field :name, 1, type: :string
+  field(:name, 1, type: :string)
 end
 
 defmodule Google.Bigtable.Admin.V2.ListClustersRequest do
@@ -140,8 +141,8 @@ defmodule Google.Bigtable.Admin.V2.ListClustersRequest do
         }
   defstruct [:parent, :page_token]
 
-  field :parent, 1, type: :string
-  field :page_token, 2, type: :string
+  field(:parent, 1, type: :string)
+  field(:page_token, 2, type: :string)
 end
 
 defmodule Google.Bigtable.Admin.V2.ListClustersResponse do
@@ -155,9 +156,9 @@ defmodule Google.Bigtable.Admin.V2.ListClustersResponse do
         }
   defstruct [:clusters, :failed_locations, :next_page_token]
 
-  field :clusters, 1, repeated: true, type: Google.Bigtable.Admin.V2.Cluster
-  field :failed_locations, 2, repeated: true, type: :string
-  field :next_page_token, 3, type: :string
+  field(:clusters, 1, repeated: true, type: Google.Bigtable.Admin.V2.Cluster)
+  field(:failed_locations, 2, repeated: true, type: :string)
+  field(:next_page_token, 3, type: :string)
 end
 
 defmodule Google.Bigtable.Admin.V2.DeleteClusterRequest do
@@ -169,7 +170,7 @@ defmodule Google.Bigtable.Admin.V2.DeleteClusterRequest do
         }
   defstruct [:name]
 
-  field :name, 1, type: :string
+  field(:name, 1, type: :string)
 end
 
 defmodule Google.Bigtable.Admin.V2.CreateInstanceMetadata do
@@ -183,9 +184,9 @@ defmodule Google.Bigtable.Admin.V2.CreateInstanceMetadata do
         }
   defstruct [:original_request, :request_time, :finish_time]
 
-  field :original_request, 1, type: Google.Bigtable.Admin.V2.CreateInstanceRequest
-  field :request_time, 2, type: Google.Protobuf.Timestamp
-  field :finish_time, 3, type: Google.Protobuf.Timestamp
+  field(:original_request, 1, type: Google.Bigtable.Admin.V2.CreateInstanceRequest)
+  field(:request_time, 2, type: Google.Protobuf.Timestamp)
+  field(:finish_time, 3, type: Google.Protobuf.Timestamp)
 end
 
 defmodule Google.Bigtable.Admin.V2.UpdateInstanceMetadata do
@@ -199,9 +200,9 @@ defmodule Google.Bigtable.Admin.V2.UpdateInstanceMetadata do
         }
   defstruct [:original_request, :request_time, :finish_time]
 
-  field :original_request, 1, type: Google.Bigtable.Admin.V2.PartialUpdateInstanceRequest
-  field :request_time, 2, type: Google.Protobuf.Timestamp
-  field :finish_time, 3, type: Google.Protobuf.Timestamp
+  field(:original_request, 1, type: Google.Bigtable.Admin.V2.PartialUpdateInstanceRequest)
+  field(:request_time, 2, type: Google.Protobuf.Timestamp)
+  field(:finish_time, 3, type: Google.Protobuf.Timestamp)
 end
 
 defmodule Google.Bigtable.Admin.V2.CreateClusterMetadata do
@@ -215,9 +216,9 @@ defmodule Google.Bigtable.Admin.V2.CreateClusterMetadata do
         }
   defstruct [:original_request, :request_time, :finish_time]
 
-  field :original_request, 1, type: Google.Bigtable.Admin.V2.CreateClusterRequest
-  field :request_time, 2, type: Google.Protobuf.Timestamp
-  field :finish_time, 3, type: Google.Protobuf.Timestamp
+  field(:original_request, 1, type: Google.Bigtable.Admin.V2.CreateClusterRequest)
+  field(:request_time, 2, type: Google.Protobuf.Timestamp)
+  field(:finish_time, 3, type: Google.Protobuf.Timestamp)
 end
 
 defmodule Google.Bigtable.Admin.V2.UpdateClusterMetadata do
@@ -231,9 +232,9 @@ defmodule Google.Bigtable.Admin.V2.UpdateClusterMetadata do
         }
   defstruct [:original_request, :request_time, :finish_time]
 
-  field :original_request, 1, type: Google.Bigtable.Admin.V2.Cluster
-  field :request_time, 2, type: Google.Protobuf.Timestamp
-  field :finish_time, 3, type: Google.Protobuf.Timestamp
+  field(:original_request, 1, type: Google.Bigtable.Admin.V2.Cluster)
+  field(:request_time, 2, type: Google.Protobuf.Timestamp)
+  field(:finish_time, 3, type: Google.Protobuf.Timestamp)
 end
 
 defmodule Google.Bigtable.Admin.V2.CreateAppProfileRequest do
@@ -248,10 +249,10 @@ defmodule Google.Bigtable.Admin.V2.CreateAppProfileRequest do
         }
   defstruct [:parent, :app_profile_id, :app_profile, :ignore_warnings]
 
-  field :parent, 1, type: :string
-  field :app_profile_id, 2, type: :string
-  field :app_profile, 3, type: Google.Bigtable.Admin.V2.AppProfile
-  field :ignore_warnings, 4, type: :bool
+  field(:parent, 1, type: :string)
+  field(:app_profile_id, 2, type: :string)
+  field(:app_profile, 3, type: Google.Bigtable.Admin.V2.AppProfile)
+  field(:ignore_warnings, 4, type: :bool)
 end
 
 defmodule Google.Bigtable.Admin.V2.GetAppProfileRequest do
@@ -263,7 +264,7 @@ defmodule Google.Bigtable.Admin.V2.GetAppProfileRequest do
         }
   defstruct [:name]
 
-  field :name, 1, type: :string
+  field(:name, 1, type: :string)
 end
 
 defmodule Google.Bigtable.Admin.V2.ListAppProfilesRequest do
@@ -277,9 +278,9 @@ defmodule Google.Bigtable.Admin.V2.ListAppProfilesRequest do
         }
   defstruct [:parent, :page_size, :page_token]
 
-  field :parent, 1, type: :string
-  field :page_size, 3, type: :int32
-  field :page_token, 2, type: :string
+  field(:parent, 1, type: :string)
+  field(:page_size, 3, type: :int32)
+  field(:page_token, 2, type: :string)
 end
 
 defmodule Google.Bigtable.Admin.V2.ListAppProfilesResponse do
@@ -293,9 +294,9 @@ defmodule Google.Bigtable.Admin.V2.ListAppProfilesResponse do
         }
   defstruct [:app_profiles, :next_page_token, :failed_locations]
 
-  field :app_profiles, 1, repeated: true, type: Google.Bigtable.Admin.V2.AppProfile
-  field :next_page_token, 2, type: :string
-  field :failed_locations, 3, repeated: true, type: :string
+  field(:app_profiles, 1, repeated: true, type: Google.Bigtable.Admin.V2.AppProfile)
+  field(:next_page_token, 2, type: :string)
+  field(:failed_locations, 3, repeated: true, type: :string)
 end
 
 defmodule Google.Bigtable.Admin.V2.UpdateAppProfileRequest do
@@ -309,9 +310,9 @@ defmodule Google.Bigtable.Admin.V2.UpdateAppProfileRequest do
         }
   defstruct [:app_profile, :update_mask, :ignore_warnings]
 
-  field :app_profile, 1, type: Google.Bigtable.Admin.V2.AppProfile
-  field :update_mask, 2, type: Google.Protobuf.FieldMask
-  field :ignore_warnings, 3, type: :bool
+  field(:app_profile, 1, type: Google.Bigtable.Admin.V2.AppProfile)
+  field(:update_mask, 2, type: Google.Protobuf.FieldMask)
+  field(:ignore_warnings, 3, type: :bool)
 end
 
 defmodule Google.Bigtable.Admin.V2.DeleteAppProfileRequest do
@@ -324,8 +325,8 @@ defmodule Google.Bigtable.Admin.V2.DeleteAppProfileRequest do
         }
   defstruct [:name, :ignore_warnings]
 
-  field :name, 1, type: :string
-  field :ignore_warnings, 2, type: :bool
+  field(:name, 1, type: :string)
+  field(:ignore_warnings, 2, type: :bool)
 end
 
 defmodule Google.Bigtable.Admin.V2.UpdateAppProfileMetadata do
@@ -339,56 +340,78 @@ defmodule Google.Bigtable.Admin.V2.BigtableInstanceAdmin.Service do
   @moduledoc false
   use GRPC.Service, name: "google.bigtable.admin.v2.BigtableInstanceAdmin"
 
-  rpc :CreateInstance,
-      Google.Bigtable.Admin.V2.CreateInstanceRequest,
-      Google.Longrunning.Operation
+  rpc(
+    :CreateInstance,
+    Google.Bigtable.Admin.V2.CreateInstanceRequest,
+    Google.Longrunning.Operation
+  )
 
-  rpc :GetInstance, Google.Bigtable.Admin.V2.GetInstanceRequest, Google.Bigtable.Admin.V2.Instance
+  rpc(
+    :GetInstance,
+    Google.Bigtable.Admin.V2.GetInstanceRequest,
+    Google.Bigtable.Admin.V2.Instance
+  )
 
-  rpc :ListInstances,
-      Google.Bigtable.Admin.V2.ListInstancesRequest,
-      Google.Bigtable.Admin.V2.ListInstancesResponse
+  rpc(
+    :ListInstances,
+    Google.Bigtable.Admin.V2.ListInstancesRequest,
+    Google.Bigtable.Admin.V2.ListInstancesResponse
+  )
 
-  rpc :UpdateInstance, Google.Bigtable.Admin.V2.Instance, Google.Bigtable.Admin.V2.Instance
+  rpc(:UpdateInstance, Google.Bigtable.Admin.V2.Instance, Google.Bigtable.Admin.V2.Instance)
 
-  rpc :PartialUpdateInstance,
-      Google.Bigtable.Admin.V2.PartialUpdateInstanceRequest,
-      Google.Longrunning.Operation
+  rpc(
+    :PartialUpdateInstance,
+    Google.Bigtable.Admin.V2.PartialUpdateInstanceRequest,
+    Google.Longrunning.Operation
+  )
 
-  rpc :DeleteInstance, Google.Bigtable.Admin.V2.DeleteInstanceRequest, Google.Protobuf.Empty
-  rpc :CreateCluster, Google.Bigtable.Admin.V2.CreateClusterRequest, Google.Longrunning.Operation
-  rpc :GetCluster, Google.Bigtable.Admin.V2.GetClusterRequest, Google.Bigtable.Admin.V2.Cluster
+  rpc(:DeleteInstance, Google.Bigtable.Admin.V2.DeleteInstanceRequest, Google.Protobuf.Empty)
+  rpc(:CreateCluster, Google.Bigtable.Admin.V2.CreateClusterRequest, Google.Longrunning.Operation)
+  rpc(:GetCluster, Google.Bigtable.Admin.V2.GetClusterRequest, Google.Bigtable.Admin.V2.Cluster)
 
-  rpc :ListClusters,
-      Google.Bigtable.Admin.V2.ListClustersRequest,
-      Google.Bigtable.Admin.V2.ListClustersResponse
+  rpc(
+    :ListClusters,
+    Google.Bigtable.Admin.V2.ListClustersRequest,
+    Google.Bigtable.Admin.V2.ListClustersResponse
+  )
 
-  rpc :UpdateCluster, Google.Bigtable.Admin.V2.Cluster, Google.Longrunning.Operation
-  rpc :DeleteCluster, Google.Bigtable.Admin.V2.DeleteClusterRequest, Google.Protobuf.Empty
+  rpc(:UpdateCluster, Google.Bigtable.Admin.V2.Cluster, Google.Longrunning.Operation)
+  rpc(:DeleteCluster, Google.Bigtable.Admin.V2.DeleteClusterRequest, Google.Protobuf.Empty)
 
-  rpc :CreateAppProfile,
-      Google.Bigtable.Admin.V2.CreateAppProfileRequest,
-      Google.Bigtable.Admin.V2.AppProfile
+  rpc(
+    :CreateAppProfile,
+    Google.Bigtable.Admin.V2.CreateAppProfileRequest,
+    Google.Bigtable.Admin.V2.AppProfile
+  )
 
-  rpc :GetAppProfile,
-      Google.Bigtable.Admin.V2.GetAppProfileRequest,
-      Google.Bigtable.Admin.V2.AppProfile
+  rpc(
+    :GetAppProfile,
+    Google.Bigtable.Admin.V2.GetAppProfileRequest,
+    Google.Bigtable.Admin.V2.AppProfile
+  )
 
-  rpc :ListAppProfiles,
-      Google.Bigtable.Admin.V2.ListAppProfilesRequest,
-      Google.Bigtable.Admin.V2.ListAppProfilesResponse
+  rpc(
+    :ListAppProfiles,
+    Google.Bigtable.Admin.V2.ListAppProfilesRequest,
+    Google.Bigtable.Admin.V2.ListAppProfilesResponse
+  )
 
-  rpc :UpdateAppProfile,
-      Google.Bigtable.Admin.V2.UpdateAppProfileRequest,
-      Google.Longrunning.Operation
+  rpc(
+    :UpdateAppProfile,
+    Google.Bigtable.Admin.V2.UpdateAppProfileRequest,
+    Google.Longrunning.Operation
+  )
 
-  rpc :DeleteAppProfile, Google.Bigtable.Admin.V2.DeleteAppProfileRequest, Google.Protobuf.Empty
-  rpc :GetIamPolicy, Google.Iam.V1.GetIamPolicyRequest, Google.Iam.V1.Policy
-  rpc :SetIamPolicy, Google.Iam.V1.SetIamPolicyRequest, Google.Iam.V1.Policy
+  rpc(:DeleteAppProfile, Google.Bigtable.Admin.V2.DeleteAppProfileRequest, Google.Protobuf.Empty)
+  rpc(:GetIamPolicy, Google.Iam.V1.GetIamPolicyRequest, Google.Iam.V1.Policy)
+  rpc(:SetIamPolicy, Google.Iam.V1.SetIamPolicyRequest, Google.Iam.V1.Policy)
 
-  rpc :TestIamPermissions,
-      Google.Iam.V1.TestIamPermissionsRequest,
-      Google.Iam.V1.TestIamPermissionsResponse
+  rpc(
+    :TestIamPermissions,
+    Google.Iam.V1.TestIamPermissionsRequest,
+    Google.Iam.V1.TestIamPermissionsResponse
+  )
 end
 
 defmodule Google.Bigtable.Admin.V2.BigtableInstanceAdmin.Stub do
