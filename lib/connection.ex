@@ -50,19 +50,6 @@ defmodule Bigtable.Connection do
     {:noreply, state}
   end
 
-  @spec build_opts() :: list()
-  defp build_opts do
-    if Application.get_env(:bigtable, :ssl, true) do
-      [
-        cred: %GRPC.Credential{
-          ssl: []
-        }
-      ]
-    else
-      []
-    end
-  end
-
   @spec get_endpoint() :: binary()
   def get_endpoint do
     emulator = System.get_env("BIGTABLE_EMULATOR_HOST")
@@ -73,5 +60,28 @@ defmodule Bigtable.Connection do
     else
       endpoint
     end
+  end
+
+  @spec build_opts() :: list()
+  defp build_opts do
+    case Application.get_env(:bigtable, :ssl, []) do
+      [] ->
+        []
+
+      opts ->
+        [
+          cred: %GRPC.Credential{
+            ssl: opts ++ default_ssl_opts()
+          }
+        ]
+    end
+  end
+
+  defp default_ssl_opts() do
+    [
+      customize_hostname_check: [
+        match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
+      ]
+    ]
   end
 end
